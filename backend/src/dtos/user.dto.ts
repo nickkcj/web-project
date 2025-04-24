@@ -1,0 +1,30 @@
+/**
+ * Data Transfer Objects for User entity
+ */
+
+/**
+ * DTO for creating a new user
+ */
+export interface CreateUserDto {
+  name: string;
+  email: string;
+}
+
+/**
+ * DTO for updating an existing user
+ */
+export interface UpdateUserDto {
+  name?: string;
+  email?: string;
+}
+
+/**
+ * DTO for user response
+ */
+export interface UserResponseDto {
+  id: number;
+  name: string;
+  email: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
