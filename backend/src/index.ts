@@ -7,7 +7,7 @@ const port = process.env.PORT || 3000;
 
 app.use(express.json());
 
-import userRoutes from './routes/userRoutes';
+import userRoutes from './routes/user.routes';
 app.use('/api', userRoutes);
 
 app.get('/health', (req, res) => {
