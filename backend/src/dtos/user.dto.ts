@@ -1,8 +1,4 @@
 /**
- * Data Transfer Objects for User entity
- */
-
-/**
  * DTO for creating a new user
  */
 export interface CreateUserDto {

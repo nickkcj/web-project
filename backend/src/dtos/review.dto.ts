@@ -1,6 +1,22 @@
+/**
+ * DTO for creating a new review
+ */
 export interface CreateReviewDto {
   movieId: string;
   rating: number;
   comment: string;
   userId?: number;
+}
+
+/**
+ * DTO for review response
+ */
+export interface ReviewResponseDto {
+  id: number;
+  movieId: string;
+  rating: number;
+  comment: string;
+  userId?: number;
+  createdAt: Date;
+  updatedAt: Date;
 }
