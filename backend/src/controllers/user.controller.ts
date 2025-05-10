@@ -44,3 +44,13 @@ export const getUsers = async (req: Request, res: Response) => {
     res.status(500).json({ error: 'Error fetching users' });
   }
 };
+
+export const deleteUser = async (req: Request, res: Response) => {
+  try {
+    const userId = parseInt(req.params.id, 10);
+    await userService.deleteUser(userId);
+    res.status(204).send();
+  } catch (error) {
+    res.status(500).json({ error: 'Error deleting user' });
+  }
+};
