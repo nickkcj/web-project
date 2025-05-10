@@ -13,7 +13,7 @@ export interface CreateReviewDto {
  */
 export interface ReviewResponseDto {
   id: number;
-  movieId: string;
+  movieId: number;
   rating: number;
   comment: string;
   userId?: number;
