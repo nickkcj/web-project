@@ -46,7 +46,7 @@ export const getReviewsByUserId = async (req: Request, res: Response) => {
 
 export const getReviewsByMovieId = async (req: Request, res: Response) => {
   try {
-    const movieId = req.params.movieId;
+    const movieId = parseInt(req.params.movieId, 10);
     const reviews = await reviewService.getReviewsByMovieId(movieId);
     res.json(reviews);
   } catch (error) {

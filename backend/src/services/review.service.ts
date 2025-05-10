@@ -25,7 +25,7 @@ export const getReviewsByUserId = async (userId: number) => {
   });
 };
 
-export const getReviewsByMovieId = async (movieId: string) => {
+export const getReviewsByMovieId = async (movieId: number) => {
   return prisma.review.findMany({
     where: { movieId }
   });

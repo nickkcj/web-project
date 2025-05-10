@@ -3,23 +3,39 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = "file:./dev.db"
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 model User {
   id        Int      @id @default(autoincrement())
   name      String
   email     String   @unique
+  password  String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   Review Review[]
 }
 
+model Movie {
+  id              Int      @id @default(autoincrement())
+  title           String   @db.VarChar(200)
+  releaseYear     Int      @db.SmallInt
+  description     String   @db.Text
+  posterUrl       String   @db.Text
+  director        String   @db.VarChar(100)
+  durationMinutes Int
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  Review Review[]
+}
+
 model Review {
   id        Int      @id @default(autoincrement())
-  movieId   String
+  movieId   Int
+  movie     Movie    @relation(fields: [movieId], references: [id])
   rating    Int
   comment   String
   createdAt DateTime @default(now())

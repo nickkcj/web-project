@@ -10,6 +10,9 @@ app.use(express.json());
 import userRoutes from './routes/user.routes';
 app.use('/api', userRoutes);
 
+import movieRoutes from './routes/movie.routes';
+app.use('/api/movies', movieRoutes);
+
 app.get('/health', (req, res) => {
   res.json({ status: 'OK', timestamp: new Date() });
 });

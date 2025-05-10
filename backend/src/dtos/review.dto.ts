@@ -2,7 +2,7 @@
  * DTO for creating a new review
  */
 export interface CreateReviewDto {
-  movieId: string;
+  movieId: number;
   rating: number;
   comment: string;
   userId?: number;
