@@ -13,6 +13,9 @@ app.use('/api', userRoutes);
 import movieRoutes from './routes/movie.routes';
 app.use('/api/movies', movieRoutes);
 
+import reviewRoutes from './routes/review.routes';
+app.use('/api', reviewRoutes);
+
 app.get('/health', (req, res) => {
   res.json({ status: 'OK', timestamp: new Date() });
 });
