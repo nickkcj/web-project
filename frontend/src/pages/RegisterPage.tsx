@@ -4,14 +4,7 @@ import { RegisterForm } from "../components/auth/RegisterForm";
 
 const RegisterPage: React.FC = () => (
   <PageLayout>
-    <section
-      className="w-full min-h-screen flex items-center justify-center"
-      style={{
-        backgroundImage: "url('https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&w=1200&q=80')",
-        backgroundSize: "cover",
-        backgroundPosition: "center"
-      }}
-    >
+    <section className="w-full flex items-center justify-center min-h-[600px]">
       <RegisterForm
         onSubmit={(name, email, password) => {
           // handle registration logic here

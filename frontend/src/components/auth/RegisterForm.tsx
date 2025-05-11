@@ -42,25 +42,25 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onSubmit, onCancel }
   };
 
   return (
-    <div className="bg-[rgba(30,37,44,0.85)] p-10 rounded-3xl max-w-lg w-full mx-4">
-      <h2 className="text-white text-center text-3xl font-bold mb-6">
+    <div className="bg-[#0F172A]/70 backdrop-blur-md shadow-2xl rounded-2xl p-10 max-w-lg w-full mx-4 border border-white/20">
+      <h2 className="text-white text-center text-4xl font-extrabold mb-4 drop-shadow">
         Bem-vindo ao seu universo de filmes e séries.
       </h2>
-      <p className="text-white text-center text-lg font-thin mb-6">
-        Já tem uma conta? Entre aqui
+      <p className="text-white text-center text-lg mb-8 opacity-80">
+        Já tem uma conta? <span className="underline cursor-pointer" onClick={onCancel}>Entre aqui</span>
       </p>
       
-      <form onSubmit={handleSubmit(handleFormSubmit)} className="flex flex-col gap-4">
+      <form onSubmit={handleSubmit(handleFormSubmit)} className="flex flex-col gap-5">
         <div>
           <input
             type="email"
             placeholder="Email"
             {...register("email")}
-            className="w-full h-12 bg-white text-gray-700 text-base font-bold px-4 rounded-lg"
+            className="w-full h-12 bg-white/80 text-gray-800 text-base font-medium px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#B82E2E] transition"
             aria-invalid={errors.email ? "true" : "false"}
           />
           {errors.email && (
-            <p className="text-red-500 text-sm mt-1">{errors.email.message}</p>
+            <p className="text-red-400 text-sm mt-1">{errors.email.message}</p>
           )}
         </div>
         
@@ -69,11 +69,11 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onSubmit, onCancel }
             type="text"
             placeholder="Nome"
             {...register("name")}
-            className="w-full h-12 bg-white text-gray-700 text-base font-bold px-4 rounded-lg"
+            className="w-full h-12 bg-white/80 text-gray-800 text-base font-medium px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#B82E2E] transition"
             aria-invalid={errors.name ? "true" : "false"}
           />
           {errors.name && (
-            <p className="text-red-500 text-sm mt-1">{errors.name.message}</p>
+            <p className="text-red-400 text-sm mt-1">{errors.name.message}</p>
           )}
         </div>
         
@@ -82,11 +82,11 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onSubmit, onCancel }
             type="password"
             placeholder="Senha"
             {...register("password")}
-            className="w-full h-12 bg-white text-gray-700 text-base font-bold px-4 rounded-lg"
+            className="w-full h-12 bg-white/80 text-gray-800 text-base font-medium px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#B82E2E] transition"
             aria-invalid={errors.password ? "true" : "false"}
           />
           {errors.password && (
-            <p className="text-red-500 text-sm mt-1">{errors.password.message}</p>
+            <p className="text-red-400 text-sm mt-1">{errors.password.message}</p>
           )}
         </div>
         
@@ -95,18 +95,18 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onSubmit, onCancel }
             type="password"
             placeholder="Confirme a senha"
             {...register("confirmPassword")}
-            className="w-full h-12 bg-white text-gray-700 text-base font-bold px-4 rounded-lg"
+            className="w-full h-12 bg-white/80 text-gray-800 text-base font-medium px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#B82E2E] transition"
             aria-invalid={errors.confirmPassword ? "true" : "false"}
           />
           {errors.confirmPassword && (
-            <p className="text-red-500 text-sm mt-1">{errors.confirmPassword.message}</p>
+            <p className="text-red-400 text-sm mt-1">{errors.confirmPassword.message}</p>
           )}
         </div>
         
         <button 
           type="submit"
           disabled={isSubmitting}
-          className="bg-[#B82E2E] text-white text-lg font-bold h-12 rounded-lg hover:bg-[#a12929] transition-colors disabled:opacity-70"
+          className="bg-[#B82E2E] text-white text-lg font-bold h-12 rounded-lg hover:bg-[#a12929] transition-colors disabled:opacity-70 shadow"
         >
           {isSubmitting ? "Processando..." : "Registrar"}
         </button>
