@@ -1,64 +1,86 @@
 import React, { useState } from "react";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+
+const loginSchema = z.object({
+  email: z.string().email("Please enter a valid email address"),
+  password: z.string().min(1, "Password is required"),
+  rememberMe: z.boolean().optional(),
+});
+
+type LoginFormData = z.infer<typeof loginSchema>;
 
 interface LoginFormProps {
   onSubmit: (email: string, password: string) => void;
   onCancel: () => void;
 }
 
-export const LoginForm: React.FC<LoginFormProps> = ({ onSubmit, onCancel }) => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+export function LoginForm({ onSubmit, onCancel }: LoginFormProps) {
+  const [isLoading, setIsLoading] = useState(false);
+  
+  const { register, handleSubmit, formState: { errors } } = useForm<LoginFormData>({
+    resolver: zodResolver(loginSchema)
+  });
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!email || !password) {
-      setError("Please fill in all fields");
-      return;
+  const handleFormSubmit = async (data: LoginFormData) => {
+    setIsLoading(true);
+    try {
+      onSubmit(data.email, data.password);
+    } catch (error) {
+      console.error("Login failed:", error);
+    } finally {
+      setIsLoading(false);
     }
-    
-    onSubmit(email, password);
   };
 
   return (
-    <form onSubmit={handleSubmit} className="max-w-md mx-auto bg-[#1B2228] p-6 rounded">
-      <h2 className="text-white text-2xl mb-4">Login</h2>
-      
-      {error && (
-        <div className="bg-red-500 text-white p-3 rounded mb-4">
-          {error}
-        </div>
-      )}
-      
-      <div className="mb-4">
+    <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-6 py-4">
+      <div className="mb-6">
         <input
           type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
           placeholder="Email"
-          className="w-full p-2 rounded bg-[#14181C] text-white border border-gray-700"
+          {...register("email")}
+          className="w-full h-12 bg-white/80 text-gray-800 text-base font-medium px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+          aria-invalid={errors.email ? "true" : "false"}
         />
+        {errors.email && (
+          <p className="text-red-400 text-sm mt-1">{errors.email.message}</p>
+        )}
       </div>
       
-      <div className="mb-4">
+      <div className="mb-6">
         <input
           type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          placeholder="Password"
-          className="w-full p-2 rounded bg-[#14181C] text-white border border-gray-700"
+          placeholder="Senha"
+          {...register("password")}
+          className="w-full h-12 bg-white/80 text-gray-800 text-base font-medium px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+          aria-invalid={errors.password ? "true" : "false"}
         />
+        {errors.password && (
+          <p className="text-red-400 text-sm mt-1">{errors.password.message}</p>
+        )}
+      </div>
+
+      <div className="flex items-center mb-6">
+        <input
+          type="checkbox"
+          id="rememberMe"
+          {...register("rememberMe")}
+          className="w-4 h-4 text-[#B82E2E] bg-white/80 border-gray-300 rounded focus:ring-[#B82E2E]"
+        />
+        <label htmlFor="rememberMe" className="ml-2 text-white">
+          Lembrar de mim
+        </label>
       </div>
       
-      <div className="flex gap-4">
-        <button type="submit" className="bg-white text-[#14181C] px-4 py-2 rounded">
-          Login
-        </button>
-        <button type="button" onClick={onCancel} className="text-white px-4 py-2 rounded border border-white">
-          Cancel
-        </button>
-      </div>
+      <button 
+        type="submit"
+        disabled={isLoading}
+        className="w-full h-12 bg-[#B82E2E] text-white font-medium rounded-lg hover:bg-[#a12929] transition disabled:opacity-70 mt-8"
+      >
+        Entrar
+      </button>
     </form>
   );
-};
+}

@@ -1,22 +1,40 @@
-import React from "react";
+import React, { useState } from "react";
 import { PageLayout } from "../components/layout/PageLayout";
 import { RegisterForm } from "../components/auth/RegisterForm";
+import { registerUser } from "../services/api";
+import { useNavigate } from "react-router-dom";
 
-const RegisterPage: React.FC = () => (
-  <PageLayout>
-    <section className="w-full flex items-center justify-center min-h-[600px]">
-      <RegisterForm
-        onSubmit={(name, email, password) => {
-          // handle registration logic here
-          console.log(name, email, password);
-        }}
-        onCancel={() => {
-          // handle cancel logic here (e.g., redirect or clear form)
-        }}
-      />
-    </section>
-  </PageLayout>
-);
+const RegisterPage: React.FC = () => {
+  const [error, setError] = useState<string | null>(null);
+  const navigate = useNavigate();
+
+  const handleRegister = async (name: string, email: string, password: string) => {
+    try {
+      setError(null);
+      await registerUser(name, email, password);
+      // Redirect to login page after successful registration
+      navigate('/login');
+    } catch (err: any) {
+      setError(err.response?.data?.error || 'Registration failed. Please try again.');
+    }
+  };
+
+  return (
+    <PageLayout>
+      <section className="w-full flex items-center justify-center min-h-[600px]">
+        {error && (
+          <div className="absolute top-4 bg-red-500 text-white p-3 rounded mb-4">
+            {error}
+          </div>
+        )}
+        <RegisterForm
+          onSubmit={handleRegister}
+          onCancel={() => navigate('/')}
+        />
+      </section>
+    </PageLayout>
+  );
+};
 
 export default RegisterPage;
 

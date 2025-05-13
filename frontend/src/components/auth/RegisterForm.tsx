@@ -15,12 +15,12 @@ const registrationSchema = z.object({
 
 type RegistrationFormData = z.infer<typeof registrationSchema>;
 
-type RegisterFormProps = {
+interface RegisterFormProps {
   onSubmit: (name: string, email: string, password: string) => void;
   onCancel: () => void;
-};
+}
 
-export const RegisterForm: React.FC<RegisterFormProps> = ({ onSubmit, onCancel }) => {
+export function RegisterForm({ onSubmit, onCancel }: RegisterFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   
   const { register, handleSubmit, formState: { errors } } = useForm<RegistrationFormData>({

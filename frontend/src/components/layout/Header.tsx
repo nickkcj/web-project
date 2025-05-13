@@ -16,7 +16,9 @@ export const Header: React.FC = () => {
           </div>
         </div>
         <div className="flex items-center gap-10 max-sm:hidden">
+          <Link to ="/login">
           <button className="text-white text-2xl hover:text-gray-300 transition-colors">Login</button>
+          </Link>
           <Link to="/register">
             <button className="text-white text-2xl hover:text-gray-300 transition-colors">Register</button>
           </Link>
