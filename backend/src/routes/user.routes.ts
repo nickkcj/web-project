@@ -3,10 +3,11 @@ import { createUser, getUsers, getUserById, updateUser, deleteUser } from '../co
 
 const router = Router();
 
-router.post('/users', createUser);
-router.get('/users', getUsers);
-router.get('/users/:id', getUserById);
-router.put('/users/:id', updateUser);
-router.delete('/users/:id', deleteUser);
+// Remove the '/users' prefix since it's already included in the app.use() mount point
+router.post('/', createUser);
+router.get('/', getUsers);
+router.get('/:id', getUserById);
+router.put('/:id', updateUser);
+router.delete('/:id', deleteUser);
 
 export default router;
