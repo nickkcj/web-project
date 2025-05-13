@@ -1,20 +1,30 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { PageLayout } from "../components/layout/PageLayout";
 import { LoginForm } from "../components/auth/LoginForm";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 const LoginPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // Extract success message from navigation state
+  useEffect(() => {
+    if (location.state && 'successMessage' in location.state) {
+      setSuccessMessage(location.state.successMessage as string);
+      // Clear the state to prevent showing message after page refresh
+      window.history.replaceState({}, document.title);
+    }
+  }, [location]);
 
   const handleLogin = (email: string, password: string) => {
-    // Handle login logic here - e.g., API call
-    console.log("Login attempt with:", email, password);
+    // Reset messages when attempting login
+    setError(null);
+    setSuccessMessage(null);
+    
     try {
-      // Add your actual login API call here
-      // If login fails, you can set an error:
-      // setError('Invalid email or password');
-      
+      // Your login logic
       // After successful login, redirect to home
       // navigate("/");
     } catch (err: any) {
@@ -28,6 +38,11 @@ const LoginPage: React.FC = () => {
         {error && (
           <div className="absolute top-4 bg-red-500 text-white p-3 rounded mb-4">
             {error}
+          </div>
+        )}
+        {successMessage && (
+          <div className="absolute top-4 bg-green-500 text-white p-3 rounded mb-4">
+            {successMessage}
           </div>
         )}
         <div className="bg-[#0F172A]/70 backdrop-blur-md shadow-2xl rounded-2xl p-10 max-w-lg w-full mx-4 border border-white/20">

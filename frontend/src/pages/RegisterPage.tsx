@@ -12,8 +12,12 @@ const RegisterPage: React.FC = () => {
     try {
       setError(null);
       await registerUser(name, email, password);
-      // Redirect to login page after successful registration
-      navigate('/login');
+      // Pass success message via navigation state
+      navigate('/login', { 
+        state: { 
+          successMessage: 'Conta criada com sucesso! Agora você pode fazer login.' 
+        } 
+      });
     } catch (err: any) {
       setError(err.response?.data?.error || 'Registration failed. Please try again.');
     }
