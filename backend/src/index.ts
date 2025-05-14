@@ -23,6 +23,11 @@ app.get('/health', (req, res) => {
   res.json({ status: 'OK', timestamp: new Date() });
 });
 
+// Add this before app.listen()
+app.get('/api/test', (req, res) => {
+  res.json({ message: 'API is working' });
+});
+
 async function main() {
   await prisma.$connect();
   app.listen(port, () => {

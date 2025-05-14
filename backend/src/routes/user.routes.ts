@@ -1,9 +1,10 @@
 import { Router } from 'express';
-import { createUser, getUsers, getUserById, updateUser, deleteUser } from '../controllers/user.controller';
+import { createUser, getUsers, getUserById, updateUser, deleteUser, loginUser } from '../controllers/user.controller';
 
 const router = Router();
 
-// Remove the '/users' prefix since it's already included in the app.use() mount point
+// Add the login route
+router.post('/login', loginUser);
 router.post('/', createUser);
 router.get('/', getUsers);
 router.get('/:id', getUserById);
