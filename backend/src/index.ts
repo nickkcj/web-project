@@ -5,6 +5,8 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 const app = express();
 const port = process.env.PORT || 3001;
+import * as dotenv from 'dotenv';
+dotenv.config();
 
 // Middleware
 app.use(cors());
