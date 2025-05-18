@@ -6,14 +6,16 @@ export const Header: React.FC = () => {
     <div className="bg-[linear-gradient(180deg,#14181C_0%,#1E252C_100%)] py-3">
       <div className="flex items-center justify-between max-w-none mx-auto px-5 max-md:max-w-[991px] max-sm:max-w-screen-sm">
         <div className="flex items-center gap-3">
-          <img
-            src="/logo.png"
-            alt="Absolute Cinema Logo"
-            className="w-[40px] h-[40px] max-sm:w-[32px] max-sm:h-[32px]"
-          />
-          <div className="text-white text-2xl font-medium max-sm:text-xl">
-            Absolute Cinema
-          </div>
+          <Link className="flex items-center gap-3" to="/">
+            <img
+              src="/logo.png"
+              alt="Absolute Cinema Logo"
+              className="w-[40px] h-[40px] max-sm:w-[32px] max-sm:h-[32px]"
+            />
+            <div className="text-white text-2xl font-medium max-sm:text-xl">
+              Absolute Cinema
+            </div>
+          </Link>
         </div>
         <div className="flex items-center gap-6 max-sm:hidden">
           <Link to="/login">
