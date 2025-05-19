@@ -1,70 +1,104 @@
-# Getting Started with Create React App
+# Absolute Cinema Frontend
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Este é um projeto front-end em React com TypeScript, usando Tailwind CSS para estilização e variáveis CSS para padrões de cores e fontes.
 
-## Available Scripts
+---
 
-In the project directory, you can run:
+## Tecnologias Usadas
 
-### `npm start`
+- React (com TypeScript)
+- Tailwind CSS
+- React Router DOM
+- CSS Custom Properties (variáveis CSS)
+- Create React App (CRA)
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+---
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+## Como Rodar Localmente
 
-### `npm test`
+1. Clone o repositório:
+   ```bash
+   git clone https://seurepositorio.git
+   cd nome-do-projeto
+   ```
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+2. Instale as dependências:
+   ```bash
+   npm install
+   ```
 
-### `npm run build`
+3. Rode a aplicação:
+   ```bash
+   npm start
+   ```
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+4. Acesse [http://localhost:3000](http://localhost:3000) no navegador.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+---
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+## Padrões de Estilo
 
-### `npm run eject`
+### Variáveis CSS (CSS Custom Properties)
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+As cores, fontes e sombras do projeto estão definidas em `src/frontend/colors.css` usando variáveis CSS no `:root`.  
+Exemplo:
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+```css
+:root {
+  --id-color-white: #ffffff;
+  --id-color-yellow: #FFDD00;
+  --id-color-dark-blue: #14181C;
+  --id-font: 'Poppins', sans-serif;
+  /* ... */
+}
+```
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+Use essas variáveis para manter consistência, por exemplo:
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+```css
+background-color: var(--id-color-dark-blue);
+color: var(--id-color-white);
+font-family: var(--id-font);
+```
 
-## Learn More
+---
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+### Tailwind CSS
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+O Tailwind está configurado para usar os arquivos dentro de `src/**/*.{js,jsx,ts,tsx}`.  
+Para usar as cores e fontes definidas, estenda o `tailwind.config.js` (exemplo básico):
 
-### Code Splitting
+```js
+module.exports = {
+  theme: {
+    extend: {
+      colors: {
+        'dark-blue': '#14181C',
+        'yellow': '#FFDD00',
+        // adicione mais cores conforme as variáveis CSS
+      },
+      fontFamily: {
+        poppins: ['Poppins', 'sans-serif'],
+        inter: ['Inter', 'sans-serif'],
+      }
+    }
+  }
+}
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+No código, use classes Tailwind assim:
 
-### Analyzing the Bundle Size
+```jsx
+<div className="bg-dark-blue text-white font-poppins">
+  Conteúdo estilizado
+</div>
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+---
 
-### Making a Progressive Web App
+## Links Úteis
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+- [Documentação React](https://reactjs.org/)
+- [Documentação Tailwind CSS](https://tailwindcss.com/docs)
+- [Create React App](https://create-react-app.dev/)
+- [React Router DOM](https://reactrouter.com/)
