@@ -1,14 +1,15 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React from "react";
+import { Link } from "react-router-dom";
+import logo from "../../Assets/Icons/logo.png"
 
-export const Header: React.FC = () => {
+const Header = () => {
   return (
     <div className="bg-[linear-gradient(180deg,#14181C_0%,#1E252C_100%)] py-3">
       <div className="flex items-center justify-between max-w-none mx-auto px-5 max-md:max-w-[991px] max-sm:max-w-screen-sm">
         <div className="flex items-center gap-3">
           <Link className="flex items-center gap-3" to="/">
             <img
-              src="/logo.png"
+              src={logo}
               alt="Absolute Cinema Logo"
               className="w-[40px] h-[40px] max-sm:w-[32px] max-sm:h-[32px]"
             />
@@ -32,3 +33,5 @@ export const Header: React.FC = () => {
     </div>
   );
 };
+
+export default Header;

@@ -1,6 +1,4 @@
 import React from "react";
-import { Header } from "./Header";
-import { Footer } from "./Footer";
 
 export const PageLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => (
   <>
@@ -9,7 +7,6 @@ export const PageLayout: React.FC<{ children: React.ReactNode }> = ({ children }
       rel="stylesheet"
     />
     <div className="min-h-screen flex flex-col">
-      <Header />
       <main className="relative flex-1 flex items-center justify-center min-h-0 bg-[#0F172A]">
         {/* Background image and overlay */}
         <div className="absolute inset-0 z-0">
@@ -25,7 +22,6 @@ export const PageLayout: React.FC<{ children: React.ReactNode }> = ({ children }
           {children}
         </div>
       </main>
-      <Footer />
     </div>
   </>
 );

@@ -1,16 +1,18 @@
 import React from 'react';
+import aqui from '../../Assets/Photos/aqui.jpg';
+
 
 const favorites = [
   {
-    poster: '/aqui.jpg',
+    poster: aqui,
     title: 'The Active',
   },
   {
-    poster: '/aqui.jpg',
+    poster: aqui,
     title: 'Ainda Estou Aqui',
   },
   {
-    poster: '/aqui.jpg',
+    poster: aqui,
     title: 'Another Movie',
   },
 ];
