@@ -4,12 +4,12 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 const registrationSchema = z.object({
-  email: z.string().email("Please enter a valid email address"),
-  name: z.string().min(2, "Name must be at least 2 characters"),
-  password: z.string().min(6, "Password must be at least 6 characters"),
+  email: z.string().email("Por favor, insira um e-mail válido"),
+  name: z.string().min(2, "O nome deve ter pelo menos 2 caracteres"),
+  password: z.string().min(6, "A senha deve ter pelo menos 6 caracteres"),
   confirmPassword: z.string()
 }).refine((data: any) => data.password === data.confirmPassword, {
-  message: "Passwords do not match",
+  message: "As senhas não coincidem",
   path: ["confirmPassword"]
 });
 
@@ -33,9 +33,9 @@ export function RegisterForm({ onSubmit, onCancel }: RegisterFormProps) {
       onSubmit(data.name, data.email, data.password);
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000));
-      alert("Registration successful!");
+      alert("Registration successful!"); // Colocar a snack bar de aviso aqui
     } catch (error) {
-      console.error("Registration failed:", error);
+      console.error("Registration failed:", error); // Colocar a snack bar de aviso aqui
     } finally {
       setIsSubmitting(false);
     }

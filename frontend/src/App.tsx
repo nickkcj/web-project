@@ -22,7 +22,7 @@ function RouterContent() {
     const isViewerPath = location.pathname.includes("viewer");
 
     return (
-        <div className={`App flex flex-col flex-1 ${isViewerPath ? "viewer" : ""}`}>
+        <main className={`App flex flex-col flex-1 bg-[#0F172A] min-h-screen ${isViewerPath ? "viewer" : ""}`}>
             <Header />
             <div className="flex-1">
                 <Routes>
@@ -33,7 +33,7 @@ function RouterContent() {
                 </Routes>
             </div>
             <Footer />
-        </div>
+        </main>
     );
 }
 
