@@ -28,6 +28,21 @@ const services = {
         }
     }
   },
+
+  loginUser: async (body: { email: string; password: string }) => {
+    try {
+      const response = await axios.post(`${PATH.base}/login`, {
+        email: body.email,
+        password: body.password,
+      });
+      return response.data;
+    } catch (err: any) {
+      if (err.response?.status === 401) {
+        throw new Error("Credenciais inválidas.");
+      }
+      throw new Error("Erro ao tentar fazer login.");
+    }
+  },
 };
 
 export default services;
