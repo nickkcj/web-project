@@ -16,6 +16,7 @@ module.exports = {
       fontFamily: {
         poppins: ['var(--id-font)', 'sans-serif'],
         inter: ['var(--id-font-footer)', 'sans-serif'],
+        k2d: ['var(--id-font-k2d)', 'sans-serif'],
       },
       fontSize: {
         xs: 'var(--id-font-size-xs)',

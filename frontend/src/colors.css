@@ -1,5 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=K2D:wght@400;500;700;800&display=swap');
+
 
 :root{
     --id-color-white: #ffffff;
@@ -16,6 +18,7 @@
 
     --id-font: 'Poppins', sans-serif; 
     --id-font-footer: 'Inter', sans-serif; 
+    --id-font-k2d: 'K2D', sans-serif;
 
     --id-font-size-xs: 0.75rem;
     --id-font-size-sm: 0.875rem;

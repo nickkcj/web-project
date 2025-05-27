@@ -1,4 +1,5 @@
 import React from 'react';
+import Clapperboard from '../../Assets/Icons/clapperboard.jpg';
 
 export const HeroSection: React.FC = () => {
   return (
@@ -21,7 +22,7 @@ export const HeroSection: React.FC = () => {
       </div>
       <div className="flex-1 flex justify-center md:justify-end w-full">
         <img 
-          src="/clapperboard.jpg" 
+          src={Clapperboard} 
           alt="Clapperboard" 
           className="w-[420px] h-[300px] object-contain rounded-lg shadow-lg max-w-full max-md:w-[320px] max-md:h-[220px]"
         />

@@ -4,8 +4,8 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 const loginSchema = z.object({
-  email: z.string().email("Please enter a valid email address"),
-  password: z.string().min(1, "Password is required"),
+  email: z.string().email("Por favor, insira um endereço de e-mail válido"),
+  password: z.string().min(1, "A senha é obrigatória"),
   rememberMe: z.boolean().optional(),
 });
 
@@ -14,6 +14,7 @@ type LoginFormData = z.infer<typeof loginSchema>;
 interface LoginFormProps {
   onSubmit: (email: string, password: string) => void;
   onCancel: () => void;
+  isLoading?: boolean,
 }
 
 export function LoginForm({ onSubmit, onCancel }: LoginFormProps) {
@@ -79,7 +80,7 @@ export function LoginForm({ onSubmit, onCancel }: LoginFormProps) {
         disabled={isLoading}
         className="w-full h-12 bg-[#B82E2E] text-white font-medium rounded-lg hover:bg-[#a12929] transition disabled:opacity-70 mt-8"
       >
-        Entrar
+        {isLoading ? "Entrando..." : "Entrar"}
       </button>
     </form>
   );
