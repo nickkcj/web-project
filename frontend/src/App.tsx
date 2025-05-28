@@ -8,33 +8,33 @@ import RegisterPage from "./pages/RegisterPage";
 // import ProtectedRoute from "./Auth/protectedRoute";
 
 function App() {
-    return (
-        <div className="min-h-screen flex flex-col font-poppins">
-            <BrowserRouter>
-                <RouterContent />
-            </BrowserRouter>
-        </div>
-    );
+	return (
+		<div className="min-h-screen flex flex-col font-poppins">
+			<BrowserRouter>
+				<RouterContent />
+			</BrowserRouter>
+		</div>
+	);
 }
 
 function RouterContent() {
-    const location = useLocation();
-    const isViewerPath = location.pathname.includes("viewer");
+	const location = useLocation();
+	const isViewerPath = location.pathname.includes("viewer");
 
-    return (
-        <main className={`App flex flex-col flex-1 bg-[#0F172A] min-h-screen ${isViewerPath ? "viewer" : ""}`}>
-            <Header />
-            <div className="flex-1">
-                <Routes>
-                    <Route path="/" element={<Home />} />
-                    <Route path="/login" element={<Login />} />
-                    <Route path="/register" element={<RegisterPage />} />
-                    {/*<Route path="/agendar" element={<ProtectedRoute Component={Review} path="/review" />} />*/}
-                </Routes>
-            </div>
-            <Footer />
-        </main>
-    );
+	return (
+		<main className={`App flex flex-col flex-1 bg-[#0F172A] min-h-screen ${isViewerPath ? "viewer" : ""}`}>
+			<Header />
+			<div className="flex-1">
+				<Routes>
+					<Route path="/" element={<Home />} />
+					<Route path="/login" element={<Login />} />
+					<Route path="/register" element={<RegisterPage />} />
+					{/*<Route path="/agendar" element={<ProtectedRoute Component={Review} path="/review" />} />*/}
+				</Routes>
+			</div>
+			<Footer />
+		</main>
+	);
 }
 
 export default App;
