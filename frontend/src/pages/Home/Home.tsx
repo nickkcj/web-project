@@ -5,6 +5,7 @@ import { FeaturedSection } from "../../components/home/FeaturedSection";
 import moviesPosters from '../../Assets/Backgrounds/movies_poster.png';
 
 const Home = () => {
+  
   return (
     <main className="max-w-[1100px] mx-auto px-4 py-8">
       <HeroSection />

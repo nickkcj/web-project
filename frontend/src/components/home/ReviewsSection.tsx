@@ -50,7 +50,7 @@ export const ReviewsSection: React.FC = () => {
             </div>
             <div className="flex items-center mb-2">
               {Array.from({ length: review.rating }).map((_, i) => (
-                <span key={i} className="text-yellow-400 text-xl">★</span>
+                <span key={i} className="text-xl" style={{ color: 'var(--id-color-yellow)' }}>★</span>
               ))}
               {Array.from({ length: 5 - review.rating }).map((_, i) => (
                 <span key={i} className="text-gray-600 text-xl">★</span>
