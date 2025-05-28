@@ -21,6 +21,7 @@ model User {
 model Review {
   id        Int      @id @default(autoincrement())
   movieId   Int
+  movie     Movie    @relation(fields: [movieId], references: [id])
   rating    Int
   comment   String
   createdAt DateTime @default(now())
@@ -48,4 +49,20 @@ model Like {
   post      Review   @relation(fields: [postId], references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model Movie {
+  id                Int    @id @default(autoincrement())
+  title             String
+  poster_path       String
+  backdrop_path     String
+  overview          String
+  release_date      String
+  popularity        Float
+  original_language String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  Review Review[]
 }
