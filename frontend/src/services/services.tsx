@@ -1,5 +1,5 @@
 import axios from "axios";
-import { PATH } from "../PATH";
+import { PATH } from "../path";
 
 const services = {
   registerUser: async (body: { name: string; email: string; password: string }) => {
