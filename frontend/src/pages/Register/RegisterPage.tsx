@@ -1,15 +1,15 @@
 import React, { useEffect } from "react";
-import { RegisterForm } from "../auth/RegisterForm";
 import { useNavigate } from "react-router-dom";
-import backGroundImage from "../Assets/Backgrounds/register_background.jpg";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchRegister } from "../services/Slices/registerSlice";
+import backGroundImage from "../../Assets/Backgrounds/register_background.jpg";
+import { fetchRegister } from "../../services/Slices/registerSlice";
+import { RegisterForm } from "../../auth/RegisterForm";
 
 const RegisterPage: React.FC = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const { loading, error, message } = useSelector((state: any) => state.register);
+  const { error, message } = useSelector((state: any) => state.register);
 
   const handleRegister = (name: string, email: string, password: string) => {
     dispatch(fetchRegister({ name, email, password }) as any);

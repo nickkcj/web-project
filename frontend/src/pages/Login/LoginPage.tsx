@@ -1,9 +1,9 @@
 import React, { useEffect } from "react";
-import { LoginForm } from "../auth/LoginForm";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchLogin } from "../services/Slices/loginSlice";
-import backGroundImage from "../Assets/Backgrounds/register_background.jpg";
+import backGroundImage from "../../Assets/Backgrounds/register_background.jpg";
+import { fetchLogin } from "../../services/Slices/loginSlice";
+import { LoginForm } from "../../auth/LoginForm";
 
 const LoginPage: React.FC = () => {
   const navigate = useNavigate();
