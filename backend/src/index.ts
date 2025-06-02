@@ -1,6 +1,11 @@
 import express from 'express';
 import cors from 'cors';
 import { PrismaClient } from '@prisma/client';
+import userRoutes from './routes/user.routes';
+import reviewRoutes from './routes/review.routes';
+import movieRoutes from './routes/movie.routes';
+import authRoutes from './routes/auth.routes';
+import passport from './config/passport';
 
 const prisma = new PrismaClient();
 const app = express();
@@ -11,15 +16,12 @@ dotenv.config();
 // Middleware
 app.use(cors());
 app.use(express.json());
+app.use(passport.initialize());
 
-import userRoutes from './routes/user.routes';
 app.use('/api/users', userRoutes);
-
-import movieRoutes from './routes/movie.routes';
+app.use('/api/reviews', reviewRoutes);
 app.use('/api/movies', movieRoutes);
-
-import reviewRoutes from './routes/review.routes';
-app.use('/api', reviewRoutes);
+app.use('/api/auth', authRoutes);
 
 app.get('/health', (req, res) => {
   res.json({ status: 'OK', timestamp: new Date() });
