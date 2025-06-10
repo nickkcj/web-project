@@ -1,11 +1,17 @@
 /**
  * DTO for creating a new review
  */
+
+export enum Visibility {
+  PRIVATE = 'PRIVATE',
+  PUBLIC = 'PUBLIC'
+}
 export interface CreateReviewDto {
   movieId: number;
   rating: number;
   comment: string;
   userId?: number;
+  visibility?: Visibility;
 }
 
 /**
@@ -17,6 +23,7 @@ export interface ReviewResponseDto {
   rating: number;
   comment: string;
   userId?: number;
+  visibility: Visibility;
   createdAt: Date;
   updatedAt: Date;
 }

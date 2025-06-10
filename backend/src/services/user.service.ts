@@ -76,6 +76,12 @@ export const loginUser = async (email: string, password: string) => {
     throw new Error('Invalid credentials');
   }
 
+  // Check if the user has a password set. Google authenticated users will not have.
+  // If user was created via Google and no password exists, they cannot use this method.
+  if (!user.password) {
+     throw new Error('Invalid credentials');
+  }
+
   const isPasswordValid = await bcrypt.compare(password, user.password);
   if (!isPasswordValid) {
     throw new Error('Invalid credentials');

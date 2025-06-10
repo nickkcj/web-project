@@ -24,6 +24,7 @@ model Review {
   movie     Movie    @relation(fields: [movieId], references: [id])
   rating    Int
   comment   String
+  visibility Visibility @default(PUBLIC)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -65,4 +66,9 @@ model Movie {
   updatedAt DateTime @updatedAt
 
   Review Review[]
+}
+
+enum Visibility {
+  PRIVATE
+  PUBLIC
 }
