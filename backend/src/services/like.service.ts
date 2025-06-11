@@ -11,6 +11,12 @@ export class LikeService {
     });
   }
 
+  public static async unlikeReview(postId: number) {
+    return prisma.like.delete({
+      where: { id: postId }
+    });
+  }
+
   public static async getLikesByReviewId(postId: number) {
     return prisma.like.findMany({
       where: { postId }
