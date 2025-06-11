@@ -16,6 +16,7 @@ model User {
   updatedAt DateTime @updatedAt
 
   Review Review[]
+  Likes Like[]
 
   followers UserRelationship[] @relation("Follower")
   following UserRelationship[] @relation("Following")
@@ -60,9 +61,13 @@ model Comment {
 model Like {
   id        Int      @id @default(autoincrement())
   postId    Int
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
   post      Review   @relation(fields: [postId], references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@unique([postId, userId])
 }
 
 model Movie {

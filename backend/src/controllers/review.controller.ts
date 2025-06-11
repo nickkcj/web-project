@@ -1,6 +1,6 @@
 import { ReviewService } from '../services/review.service';
 import { Request, Response } from 'express';
-import { CreateReviewDto, ReviewResponseDto } from '../dtos/review.dto';
+import { CreateReviewDto, UpdateReviewDto } from '../dtos/review.dto';
 
 export const createReview = async (req: Request, res: Response) => {
   try {
@@ -57,7 +57,7 @@ export const getReviewsByMovieId = async (req: Request, res: Response) => {
 export const updateReview = async (req: Request, res: Response) => {
   try {
     const reviewId = parseInt(req.params.id, 10);
-    const reviewData: ReviewResponseDto = req.body;
+    const reviewData: UpdateReviewDto = req.body;
     const review = await ReviewService.updateReview(reviewId, reviewData);
     res.json(review);
   } catch (error) {
