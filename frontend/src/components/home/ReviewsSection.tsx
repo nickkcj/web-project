@@ -2,28 +2,36 @@ import React, { useState } from 'react';
 import originPoster from '../../Assets/Photos/origin_poster.jpg';
 import aquiPoster from '../../Assets/Photos/aqui.jpg';
 import theWitchPoster from '../../Assets/Photos/The_Witch_poster.png';
+import spiderMan2TobyPoster from '../../Assets/Photos/spiderMan2TobyPoster.png';
 
 const reviews = [
   {
     poster: aquiPoster,
     title: 'Us',
     rating: 5,
-    text: 'great movie and plot twist',
+    text: 'A chilling and thought-provoking thriller that keeps you guessing until the end.',
     details: 'A family’s serene beach vacation turns to chaos when their doppelgängers appear.',
   },
   {
     poster: theWitchPoster,
     title: 'The Witch',
     rating: 4,
-    text: 'great movie and plot twist',
+    text: 'A haunting atmosphere and stellar performances make this a must-watch for horror fans.',
     details: 'A Puritan family encounters evil forces in the woods beyond their New England farm.',
   },
   {
     poster: originPoster,
     title: 'Origin',
     rating: 4,
-    text: 'great movie and plot twist',
+    text: 'A powerful and moving exploration of history and identity.',
     details: 'A drama about the journey of exploring the roots of caste and inequality.',
+  },
+  {
+    poster: spiderMan2TobyPoster,
+    title: 'Spider-Man 2',
+    rating: 4,
+    text: 'An exciting superhero adventure with heart, humor, and unforgettable action.',
+    details: 'Peter Parker struggles to balance his life as a college student and his responsibilities as Spider-Man while facing the powerful Doctor Octopus.',
   },
 ];
 
