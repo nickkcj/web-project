@@ -1,35 +1,54 @@
 import { LikeService } from '../services/like.service';
 import { Request, Response } from 'express';
 
-// Like a review
-export const likeReview = async (req: Request, res: Response) => {
+// Toggle like/unlike for a review
+export const toggleLike = async (req: Request, res: Response) => {
   try {
     const postId = parseInt(req.params.reviewId, 10);
-    const like = await LikeService.likeReview(postId);
-    res.status(201).json(like);
-  } catch (error) {
-    res.status(500).json({ error: 'Error liking review' });
+    const userId = req.authUser!.userId;
+
+    if (isNaN(postId)) {
+      return res.status(400).json({ error: 'Invalid review ID' });
+    }
+
+    const result = await LikeService.toggleLike(postId, userId);
+    res.status(200).json(result);
+  } catch (error: any) {
+    console.error('Error toggling like:', error);
+    res.status(500).json({ error: 'Error toggling like' });
   }
 };
 
-// Unlike a review
-export const unlikeReview = async (req: Request, res: Response) => {
+// Get like count for a review
+export const getLikeCount = async (req: Request, res: Response) => {
   try {
     const postId = parseInt(req.params.reviewId, 10);
-    const unlike = await LikeService.unlikeReview(postId);
-    res.status(201).json(unlike);
-  } catch (error) {
-    res.status(500).json({ error: 'Error unliking review' });
+    
+    if (isNaN(postId)) {
+      return res.status(400).json({ error: 'Invalid review ID' });
+    }
+
+    const count = await LikeService.getLikeCount(postId);
+    res.json({ count });
+  } catch (error: any) {
+    console.error('Error fetching like count:', error);
+    res.status(500).json({ error: 'Error fetching like count' });
   }
 };
 
-// Get all likes for a review
-export const getLikesByReviewId = async (req: Request, res: Response) => {
+export const hasUserLikedReview = async (req: Request, res: Response) => {
   try {
     const postId = parseInt(req.params.reviewId, 10);
-    const likes = await LikeService.getLikesByReviewId(postId);
-    res.json(likes);
-  } catch (error) {
-    res.status(500).json({ error: 'Error fetching likes' });
+    const userId = req.authUser!.userId;
+
+    if (isNaN(postId)) {
+      return res.status(400).json({ error: 'Invalid review ID' });
+    }
+
+    const hasLiked = await LikeService.hasUserLikedReview(postId, userId);
+    res.json({ hasLiked });
+  } catch (error: any) {
+    console.error('Error checking like status:', error);
+    res.status(500).json({ error: 'Error checking like status' });
   }
 };
