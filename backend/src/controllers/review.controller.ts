@@ -30,7 +30,8 @@ export const getReviewById = async (req: Request, res: Response) => {
 
 export const getReviews = async (req: Request, res: Response) => {
   try {
-    const reviews = await ReviewService.getReviews();
+    const authUserId = req.authUser!.userId;
+    const reviews = await ReviewService.getReviews(authUserId);
     res.json(reviews);
   } catch (error) {
     res.status(500).json({ error: 'Error fetching reviews' });
@@ -40,7 +41,8 @@ export const getReviews = async (req: Request, res: Response) => {
 export const getReviewsByUserId = async (req: Request, res: Response) => {
   try {
     const userId = parseInt(req.params.userId, 10);
-    const reviews = await ReviewService.getReviewsByUserId(userId);
+    const authUserId = req.authUser!.userId;
+    const reviews = await ReviewService.getReviewsByUserId(userId, authUserId);
     res.json(reviews);
   } catch (error) {
     res.status(500).json({ error: 'Error fetching reviews by user' });

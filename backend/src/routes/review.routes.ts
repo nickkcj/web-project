@@ -5,7 +5,7 @@ import { authMiddleware } from '../middleware/auth.middleware';
 const router = Router();
 
 router.post('/', authMiddleware, createReview);
-router.get('/', getReviews);
+router.get('/', authMiddleware, getReviews);
 router.get('/:id', getReviewById);
 router.get('/user/:userId', getReviewsByUserId);
 router.get('/movie/:movieId', getReviewsByMovieId);
