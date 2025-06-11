@@ -1,5 +1,5 @@
 import { Visibility } from '@prisma/client';
-import { CreateReviewDto } from '../dtos/review.dto';
+import { CreateReviewDto, UpdateReviewDto } from '../dtos/review.dto';
 import { prisma } from '../config/database';
 
 export class ReviewService {
@@ -46,6 +46,19 @@ export class ReviewService {
         movieId,
         visibility: Visibility.PUBLIC
       }
+    });
+  }
+
+  public static async updateReview(reviewId: number, reviewData: UpdateReviewDto) {
+    return prisma.review.update({
+      where: { id: reviewId },
+      data: reviewData
+    });
+  }
+
+  public static async deleteReview(reviewId: number) {
+    return prisma.review.delete({
+      where: { id: reviewId }
     });
   }
 }

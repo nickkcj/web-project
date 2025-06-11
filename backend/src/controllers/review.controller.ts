@@ -1,6 +1,6 @@
 import { ReviewService } from '../services/review.service';
 import { Request, Response } from 'express';
-import { CreateReviewDto } from '../dtos/review.dto';
+import { CreateReviewDto, ReviewResponseDto } from '../dtos/review.dto';
 
 export const createReview = async (req: Request, res: Response) => {
   try {
@@ -53,3 +53,25 @@ export const getReviewsByMovieId = async (req: Request, res: Response) => {
     res.status(500).json({ error: 'Error fetching reviews by movie' });
   }
 };
+
+export const updateReview = async (req: Request, res: Response) => {
+  try {
+    const reviewId = parseInt(req.params.id, 10);
+    const reviewData: ReviewResponseDto = req.body;
+    const review = await ReviewService.updateReview(reviewId, reviewData);
+    res.json(review);
+  } catch (error) {
+    res.status(500).json({ error: 'Error updating review' });
+  }
+};
+
+export const deleteReview = async (req: Request, res: Response) => {
+  try {
+    const reviewId = parseInt(req.params.id, 10);
+    await ReviewService.deleteReview(reviewId);
+    res.status(200).json({ message: "Review deleted successfully" });
+    } catch (error) {
+    res.status(500).json({ error: 'Error deleting review' });
+  }
+};
+

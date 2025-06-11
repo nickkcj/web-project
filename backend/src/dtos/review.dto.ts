@@ -27,3 +27,13 @@ export interface ReviewResponseDto {
   createdAt: Date;
   updatedAt: Date;
 }
+
+/**
+ * DTO for updating a review
+ */
+export interface UpdateReviewDto {
+  rating?: number;
+  comment?: string;
+  visibility?: Visibility;
+}
+
