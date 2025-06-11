@@ -4,7 +4,7 @@ import { authMiddleware } from '../middleware/auth.middleware';
 
 const router = Router();
 
-router.get('/:reviewId', getCommentsByReviewId);
+router.get('/:reviewId', authMiddleware, getCommentsByReviewId);
 router.post('/:reviewId', authMiddleware, createComment);
 
 export default router; 
