@@ -12,6 +12,17 @@ export const likeReview = async (req: Request, res: Response) => {
   }
 };
 
+// Unlike a review
+export const unlikeReview = async (req: Request, res: Response) => {
+  try {
+    const postId = parseInt(req.params.reviewId, 10);
+    const unlike = await LikeService.unlikeReview(postId);
+    res.status(201).json(unlike);
+  } catch (error) {
+    res.status(500).json({ error: 'Error unliking review' });
+  }
+};
+
 // Get all likes for a review
 export const getLikesByReviewId = async (req: Request, res: Response) => {
   try {
