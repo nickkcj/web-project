@@ -7,6 +7,7 @@ import movieRoutes from './routes/movie.routes';
 import authRoutes from './routes/auth.routes';
 import passport from './config/passport';
 import followersRoutes from './routes/followers.routes';
+import commentRoutes from './routes/comment.routes';
 import * as dotenv from 'dotenv';
 
 dotenv.config();
@@ -24,6 +25,7 @@ app.use('/api/reviews', reviewRoutes);
 app.use('/api/movies', movieRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/followers', followersRoutes);
+app.use('/api/comments', commentRoutes);
 
 app.get('/health', (req, res) => {
   res.json({ status: 'OK', timestamp: new Date() });

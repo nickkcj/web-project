@@ -7,7 +7,11 @@ export const createComment = async (req: Request, res: Response) => {
   try {
     const postId = parseInt(req.params.reviewId, 10);
     const { content } = req.body;
-    const commentData: CreateCommentDto = { postId, content };
+    const commentData: CreateCommentDto = { 
+      postId, 
+      content,
+      userId: req.authUser!.userId
+    };
     const comment = await CommentsService.createComment(commentData);
     res.status(201).json(comment);
   } catch (error) {

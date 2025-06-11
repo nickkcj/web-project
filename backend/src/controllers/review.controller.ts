@@ -4,7 +4,10 @@ import { CreateReviewDto, UpdateReviewDto } from '../dtos/review.dto';
 
 export const createReview = async (req: Request, res: Response) => {
   try {
-    const reviewData: CreateReviewDto = req.body;
+    const reviewData: CreateReviewDto = {
+      ...req.body,
+      userId: req.authUser!.userId
+    };
     const review = await ReviewService.createReview(reviewData);
     res.status(201).json(review);
   } catch (error) {

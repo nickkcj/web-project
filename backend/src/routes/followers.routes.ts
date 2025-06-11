@@ -1,19 +1,12 @@
 import { Router } from 'express';
 import { followUser, unfollowUser, getFollowersByUserId, getFollowingByUserId } from '../controllers/follower.controller';
+import { authMiddleware } from '../middleware/auth.middleware';
 
 const router = Router();
 
-// Follow user
-router.post('/follow', followUser);
+router.post('/follow', authMiddleware, followUser);
+router.post('/unfollow', authMiddleware, unfollowUser);
+router.get('/get-followers', authMiddleware, getFollowersByUserId);
+router.get('/get-following', authMiddleware, getFollowingByUserId);
 
-// Unfollow user
-router.post('/unfollow', unfollowUser);
-
-// Get followers by user id
-router.get('/get-followers', getFollowersByUserId);
-
-// Get following by user id
-router.get('/get-following', getFollowingByUserId);
-
-
-export default router; 
+export default router;  

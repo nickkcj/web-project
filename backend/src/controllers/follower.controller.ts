@@ -4,17 +4,18 @@ import { FollowersService } from '../services/followers.service';
 // Add a follower to a user
 export const followUser = async (req: Request, res: Response) => {
   try {
-    const { userId, followUserId } = req.body;
+    const { followUserId } = req.body;
+    const userId = req.authUser!.userId;
     
-    if (!userId || !followUserId) {
-      return res.status(400).json({ error: 'userId and followUserId are required' });
+    if (!followUserId) {
+      return res.status(400).json({ error: 'followUserId is required' });
     }
     
-    if (userId === followUserId) {
+    if (userId === parseInt(followUserId)) {
       return res.status(400).json({ error: 'Cannot follow yourself' });
     }
     
-    const follower = await FollowersService.followUser(parseInt(userId), parseInt(followUserId));
+    const follower = await FollowersService.followUser(userId, parseInt(followUserId));
     res.status(201).json({ message: "Followed user successfully.", follower });
   } catch (error: any) {
     console.error('Follow user error:', error);
@@ -31,14 +32,18 @@ export const followUser = async (req: Request, res: Response) => {
 // Unfollow a user
 export const unfollowUser = async (req: Request, res: Response) => {
   try {
-    const { userId, unfollowUserId } = req.body;
-    if (!userId || !unfollowUserId) {
-      return res.status(400).json({ error: 'userId and unfollowUserId are required' });
+    const { unfollowUserId } = req.body;
+    const userId = req.authUser!.userId;
+    
+    if (!unfollowUserId) {
+      return res.status(400).json({ error: 'unfollowUserId is required' });
     }
-    if (userId === unfollowUserId) {
+    
+    if (userId === parseInt(unfollowUserId)) {
       return res.status(400).json({ error: 'Cannot unfollow yourself' });
     }
-    const follower = await FollowersService.unfollowUser(parseInt(userId), parseInt(unfollowUserId));
+    
+    const follower = await FollowersService.unfollowUser(userId, parseInt(unfollowUserId));
     res.status(201).json({ message: "Unfollowed user successfully.", follower });
   } catch (error: any) {
     console.error('Unfollow user error:', error);

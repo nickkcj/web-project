@@ -1,14 +1,28 @@
 import { Router } from 'express';
-import { createUser, getUsers, getUserById, updateUser, deleteUser, loginUser } from '../controllers/user.controller';
+import { 
+  createUser, 
+  getUsers, 
+  getUserById, 
+  updateUser, 
+  deleteUser, 
+  loginUser,
+  getMyProfile,
+  updateMyProfile,
+  deleteMyAccount
+} from '../controllers/user.controller';
+import { authMiddleware } from '../middleware/auth.middleware';
 
 const router = Router();
 
-// Add the login route
+// Public routes
 router.post('/login', loginUser);
 router.post('/', createUser);
-router.get('/', getUsers);
 router.get('/:id', getUserById);
-router.put('/:id', updateUser);
-router.delete('/:id', deleteUser);
+
+// Protected routes
+router.get('/', authMiddleware, getUsers);
+router.get('/:id', authMiddleware, getUserById);
+router.put('/:id', authMiddleware, updateUser);
+router.delete('/:id', authMiddleware, deleteUser);
 
 export default router;
