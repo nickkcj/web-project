@@ -13,14 +13,10 @@ export const createUser = async (req: Request, res: Response) => {
   }
 };
 
-export const getUserById = async (req: Request, res: Response) => {
+// Get authenticated user's profile
+export const getMyProfile = async (req: Request, res: Response) => {
   try {
-    const userId = parseInt(req.params.id, 10);
-    
-    if (isNaN(userId)) {
-      return res.status(400).json({ error: 'Invalid user ID' });
-    }
-    
+    const userId = req.authUser!.userId;
     const user = await UserService.getUserById(userId);
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
@@ -32,12 +28,52 @@ export const getUserById = async (req: Request, res: Response) => {
   }
 };
 
+// Get any user by ID
+export const getUserById = async (req: Request, res: Response) => {
+  try {
+    const userId = parseInt(req.params.id, 10);
+    
+    if (isNaN(userId)) {
+      return res.status(400).json({ error: 'Invalid user ID' });
+    }
+
+    console.log('Authenticated user:', req.authUser);
+
+    const user = await UserService.getUserById(userId);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    res.json(user);
+  } catch (error: any) {
+    console.error('Error fetching user:', error);
+    res.status(500).json({ error: error.message || 'Error fetching user' });
+  }
+};
+
+// Update authenticated user's profile
+export const updateMyProfile = async (req: Request, res: Response) => {
+  try {
+    const userId = req.authUser!.userId;
+    const userData: UpdateUserDto = req.body;
+    const user = await UserService.updateUser(userId, userData);
+    res.json(user);
+  } catch (error: any) {
+    console.error('Error updating user:', error);
+    res.status(500).json({ error: error.message || 'Error updating user' });
+  }
+};
+
 export const updateUser = async (req: Request, res: Response) => {
   try {
     const userId = parseInt(req.params.id, 10);
     
     if (isNaN(userId)) {
       return res.status(400).json({ error: 'Invalid user ID' });
+    }
+    
+    // Check if user is updating their own profile
+    if (req.authUser && req.authUser.userId !== userId) {
+      return res.status(403).json({ error: 'You can only update your own profile' });
     }
     
     const userData: UpdateUserDto = req.body;
@@ -51,6 +87,8 @@ export const updateUser = async (req: Request, res: Response) => {
 
 export const getUsers = async (req: Request, res: Response) => {
   try {
+    console.log('Request made by user:', req.authUser?.email);
+    
     const users = await UserService.getUsers();
     res.json(users);
   } catch (error: any) {
@@ -59,13 +97,22 @@ export const getUsers = async (req: Request, res: Response) => {
   }
 };
 
+// Delete authenticated user's account
+export const deleteMyAccount = async (req: Request, res: Response) => {
+  try {
+    const userId = req.authUser!.userId;
+    await UserService.deleteUser(userId);
+    res.status(204).send();
+  } catch (error: any) {
+    console.error('Error deleting user:', error);
+    res.status(500).json({ error: error.message || 'Error deleting user' });
+  }
+};
+
 export const deleteUser = async (req: Request, res: Response) => {
   try {
-    const userId = parseInt(req.params.id, 10);
+    const userId = req.authUser!.userId;
     
-    if (isNaN(userId)) {
-      return res.status(400).json({ error: 'Invalid user ID' });
-    }
     
     await UserService.deleteUser(userId);
     res.status(204).send();
