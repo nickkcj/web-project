@@ -4,17 +4,9 @@ const TMDB_API_KEY = process.env.TMDB_API_KEY;
 const TMDB_BASE_URL = 'https://api.themoviedb.org/3';
 
 export class TMDBService {
-  private static instance: TMDBService;
   private constructor() {}
 
-  public static getInstance(): TMDBService {
-    if (!TMDBService.instance) {
-      TMDBService.instance = new TMDBService();
-    }
-    return TMDBService.instance;
-  }
-
-  async getPopularMovies(page: number = 1) {
+  public static async getPopularMovies(page: number = 1) {
     try {
       const response = await axios.get(`${TMDB_BASE_URL}/movie/popular`, {
         params: {
@@ -29,7 +21,7 @@ export class TMDBService {
     }
   }
 
-  async getMovieDetails(movieId: number) {
+  public static async getMovieDetails(movieId: number) {
     try {
       const response = await axios.get(`${TMDB_BASE_URL}/movie/${movieId}`, {
         params: {
@@ -43,7 +35,7 @@ export class TMDBService {
     }
   }
 
-  async searchMovies(query: string, page: number = 1) {
+  public static async searchMovies(query: string, page: number = 1) {
     try {
       const response = await axios.get(`${TMDB_BASE_URL}/search/movie`, {
         params: {

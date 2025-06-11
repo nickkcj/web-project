@@ -1,16 +1,18 @@
-import { PrismaClient } from '@prisma/client';
 import { CreateCommentDto } from '../dtos/comment.dto';
+import { prisma } from '../config/database';
 
-const prisma = new PrismaClient();
+export class CommentsService {
+  private constructor() {}
 
-export const createComment = async (commentData: CreateCommentDto) => {
-  return prisma.comment.create({
-    data: commentData
-  });
-};
+  public static async createComment(commentData: CreateCommentDto) {
+    return prisma.comment.create({
+      data: commentData
+    });
+  }
 
-export const getCommentsByReviewId = async (postId: number) => {
-  return prisma.comment.findMany({
-    where: { postId }
-  });
-};
+  public static async getCommentsByReviewId(postId: number) {
+    return prisma.comment.findMany({
+      where: { postId }
+    });
+  }
+}

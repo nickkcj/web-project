@@ -1,48 +1,51 @@
-import { PrismaClient, Visibility } from '@prisma/client';
+import { Visibility } from '@prisma/client';
 import { CreateReviewDto } from '../dtos/review.dto';
+import { prisma } from '../config/database';
 
-const prisma = new PrismaClient();
+export class ReviewService {
+  private constructor() {}
 
-export const createReview = async (reviewData: CreateReviewDto) => {
-  return prisma.review.create({
-    data: {
-      ...reviewData,
-      visibility: reviewData.visibility || Visibility.PUBLIC
-    }
-  });
-};
+  public static async createReview(reviewData: CreateReviewDto) {
+    return prisma.review.create({
+      data: {
+        ...reviewData,
+        visibility: reviewData.visibility || Visibility.PUBLIC
+      }
+    });
+  }
 
-export const getReviewById = async (reviewId: number) => {
-  return prisma.review.findUnique({
-    where: { id: reviewId }
-  });
-};
+  public static async getReviewById(reviewId: number) {
+    return prisma.review.findUnique({
+      where: { id: reviewId }
+    });
+  }
 
-export const getReviews = async () => {
-  return prisma.review.findMany({
-    where: {
-      visibility: Visibility.PUBLIC
-    }
-  });
-};
+  public static async getReviews() {
+    return prisma.review.findMany({
+      where: {
+        visibility: Visibility.PUBLIC
+      }
+    });
+  }
 
-export const getReviewsByUserId = async (userId: number) => {
-  return prisma.review.findMany({
-    where: { 
-      userId,
-      OR: [
-        { visibility: Visibility.PUBLIC },
-        { userId: userId } // Users can see their own private reviews
-      ]
-    }
-  });
-};
+  public static async getReviewsByUserId(userId: number) {
+    return prisma.review.findMany({
+      where: { 
+        userId,
+        OR: [
+          { visibility: Visibility.PUBLIC },
+          { userId: userId } // Users can see their own private reviews
+        ]
+      }
+    });
+  }
 
-export const getReviewsByMovieId = async (movieId: number) => {
-  return prisma.review.findMany({
-    where: { 
-      movieId,
-      visibility: Visibility.PUBLIC
-    }
-  });
-};
+  public static async getReviewsByMovieId(movieId: number) {
+    return prisma.review.findMany({
+      where: { 
+        movieId,
+        visibility: Visibility.PUBLIC
+      }
+    });
+  }
+}

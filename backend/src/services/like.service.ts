@@ -1,17 +1,19 @@
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '../config/database';
 
-const prisma = new PrismaClient();
+export class LikeService {
+  private constructor() {}
 
-export const likeReview = async (postId: number) => {
-  return prisma.like.create({
-    data: {
-      postId
-    }
-  });
-};
+  public static async likeReview(postId: number) {
+    return prisma.like.create({
+      data: {
+        postId
+      }
+    });
+  }
 
-export const getLikesByReviewId = async (postId: number) => {
-  return prisma.like.findMany({
-    where: { postId }
-  });
-};
+  public static async getLikesByReviewId(postId: number) {
+    return prisma.like.findMany({
+      where: { postId }
+    });
+  }
+}

@@ -1,5 +1,6 @@
-import { PrismaClient } from '@prisma/client';
 import { TMDBService } from '../services/tmdb.service';
+import { prisma } from '../config/database';
+import DatabaseService from '../config/database';
 
 interface TMDBMovie {
   id: number;
@@ -12,11 +13,9 @@ interface TMDBMovie {
   original_language: string;
 }
 
-const prisma = new PrismaClient();
-const tmdbService = TMDBService.getInstance();
-
 async function populateMovies() {
   try {
+    await DatabaseService.connect();
     console.log('Starting movie population...');
     let totalMovies = 0;
     let page = 1;
@@ -24,7 +23,7 @@ async function populateMovies() {
 
     while (totalMovies < targetCount) {
       console.log(`Fetching page ${page}...`);
-      const response = await tmdbService.getPopularMovies(page);
+      const response = await TMDBService.getPopularMovies(page);
       const movies = response.results as TMDBMovie[];
 
       if (!movies || movies.length === 0) {
@@ -81,7 +80,7 @@ async function populateMovies() {
   } catch (error) {
     console.error('Error populating movies:', error);
   } finally {
-    await prisma.$disconnect();
+    await DatabaseService.disconnect();
   }
 }
 

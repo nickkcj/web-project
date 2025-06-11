@@ -1,11 +1,11 @@
 import { Request, Response } from 'express';
 import { CreateUserDto, UpdateUserDto } from '../dtos/user.dto';
-import * as userService from '../services/user.service';
+import { UserService } from '../services/user.service';
 
 export const createUser = async (req: Request, res: Response) => {
   try {
     const userData: CreateUserDto = req.body;
-    const user = await userService.createUser(userData);
+    const user = await UserService.createUser(userData);
     res.status(201).json(user);
   } catch (error: any) {
     console.error('Error creating user:', error);
@@ -21,7 +21,7 @@ export const getUserById = async (req: Request, res: Response) => {
       return res.status(400).json({ error: 'Invalid user ID' });
     }
     
-    const user = await userService.getUserById(userId);
+    const user = await UserService.getUserById(userId);
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
     }
@@ -41,7 +41,7 @@ export const updateUser = async (req: Request, res: Response) => {
     }
     
     const userData: UpdateUserDto = req.body;
-    const user = await userService.updateUser(userId, userData);
+    const user = await UserService.updateUser(userId, userData);
     res.json(user);
   } catch (error: any) {
     console.error('Error updating user:', error);
@@ -51,7 +51,7 @@ export const updateUser = async (req: Request, res: Response) => {
 
 export const getUsers = async (req: Request, res: Response) => {
   try {
-    const users = await userService.getUsers();
+    const users = await UserService.getUsers();
     res.json(users);
   } catch (error: any) {
     console.error('Error fetching users:', error);
@@ -67,7 +67,7 @@ export const deleteUser = async (req: Request, res: Response) => {
       return res.status(400).json({ error: 'Invalid user ID' });
     }
     
-    await userService.deleteUser(userId);
+    await UserService.deleteUser(userId);
     res.status(204).send();
   } catch (error: any) {
     console.error('Error deleting user:', error);
@@ -83,7 +83,7 @@ export const loginUser = async (req: Request, res: Response) => {
       return res.status(400).json({ error: 'Email and password are required' });
     }
     
-    const { user, token } = await userService.loginUser(email, password);
+    const { user, token } = await UserService.loginUser(email, password);
     res.json({ user, token });
   } catch (error: any) {
     console.error('Error during login:', error);
