@@ -32,7 +32,7 @@ function RouterContent() {
 
   return (
     <main className={`App flex flex-col flex-1 bg-[#0F172A] min-h-screen ${isViewerPath ? "viewer" : ""}`}>
-      <Header isLoggedIn={true} username={user?.name} />
+      <Header isLoggedIn={isLoggedIn} username={user?.name} />
 
       <div className="flex-1">
         <Routes>
