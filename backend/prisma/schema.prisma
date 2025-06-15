@@ -15,8 +15,9 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  Review Review[]
-  Likes Like[]
+  Review  Review[]
+  Likes   Like[]
+  Comment Comment[]
 
   followers UserRelationship[] @relation("Follower")
   following UserRelationship[] @relation("Following")
@@ -54,6 +55,8 @@ model Comment {
   content   String
   postId    Int
   post      Review   @relation(fields: [postId], references: [id])
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
