@@ -1,4 +1,5 @@
 import axios from 'axios';
+import {MovieFallbackService} from "./moviefallback.service";
 
 const TMDB_API_KEY = process.env.TMDB_API_KEY;
 const TMDB_BASE_URL = 'https://api.themoviedb.org/3';
@@ -17,7 +18,7 @@ export class TMDBService {
       return response.data;
     } catch (error) {
       console.error('Error fetching popular movies:', error);
-      throw error;
+      return MovieFallbackService.getPopularMovies(page);
     }
   }
 
@@ -31,7 +32,7 @@ export class TMDBService {
       return response.data;
     } catch (error) {
       console.error('Error fetching movie details:', error);
-      throw error;
+      return MovieFallbackService.getMovieDetails(movieId);
     }
   }
 
@@ -47,7 +48,7 @@ export class TMDBService {
       return response.data;
     } catch (error) {
       console.error('Error searching movies:', error);
-      throw error;
+      return MovieFallbackService.searchByTitle(query, page);
     }
   }
-} 
+}
