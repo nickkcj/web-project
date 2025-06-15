@@ -14,7 +14,7 @@ const LoginPage: React.FC = () => {
 
   useEffect(() => {
     if (token) {
-      navigate("/"); // redireciona após login
+      navigate("/feed"); // redireciona após login
     }
   }, [token, navigate]);
 
