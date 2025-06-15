@@ -1,5 +1,5 @@
 import React from 'react';
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import Clapperboard from '../../Assets/Icons/clapperboard.jpg';
 
 export const HeroSection: React.FC = () => {
@@ -17,7 +17,7 @@ export const HeroSection: React.FC = () => {
         </p>
         <button 
           className="text-[#14181C] text-2xl bg-white px-[30px] py-[15px] rounded-[10px] hover:bg-gray-200 transition-colors self-start"
-          onClick={() => navigate("/register")}
+          onClick={() => navigate("/feed")}
         >
           Comece agora 🎬
         </button>
