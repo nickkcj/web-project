@@ -17,7 +17,7 @@ export const HeroSection: React.FC = () => {
         </p>
         <button 
           className="text-[#14181C] text-2xl bg-white px-[30px] py-[15px] rounded-[10px] hover:bg-gray-200 transition-colors self-start"
-          onClick={() => navigate("/feed")}
+          onClick={() => navigate("/register")}
         >
           Comece agora 🎬
         </button>
