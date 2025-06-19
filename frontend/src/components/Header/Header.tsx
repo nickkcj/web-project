@@ -15,7 +15,6 @@ const Header: React.FC<Props> = ({ isLoggedIn, username = "user" }) => {
   const navLogged = [
     { to: "/movies",     label: "Filmes" },
     { to: "/my-reviews", label: "Minhas Avaliações" },
-    { to: "/rate",       label: "Avaliar" },
     { to: "/feed",   label: "Feed" },
   ];
 

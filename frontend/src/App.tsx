@@ -9,9 +9,8 @@ import Login from "./pages/Login/LoginPage";
 import RegisterPage from "./pages/Register/RegisterPage";
 import FeedPage from "./pages/Feed/FeedPage";
 import MoviesPage from "./pages/Movies/MoviesPage";
-
-const MyReviews = () => <div className="p-10 text-white">Minhas Avaliações (TODO)</div>;
-const Rate       = () => <div className="p-10 text-white">Avaliar um filme (TODO)</div>;
+import RateMoviePage from "./pages/RateMovie/RateMoviePage";
+import MyReviewsPage from "./pages/MyReviews/MyReviewsPage";
 
 function App() {
   return (
@@ -39,8 +38,8 @@ function RouterContent() {
           <Route path="/"            element={<Home />} />
           <Route path="/feed"        element={<FeedPage />} />
           <Route path="/movies"      element={<MoviesPage />} />
-          <Route path="/my-reviews"  element={<MyReviews />} />
-          <Route path="/rate"        element={<Rate />} />
+          <Route path="/my-reviews"  element={<MyReviewsPage />} />
+          <Route path="/rate"        element={<RateMoviePage />} />
 
           <Route path="/login"       element={<Login />} />
           <Route path="/register"    element={<RegisterPage />} />
