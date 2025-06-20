@@ -20,46 +20,90 @@ interface LoginBody {
   password: string;
 }
 
-const initialState: LoginState = {
-  loading: false,
-  error: false,
-  message: null,
-  token: null,
-  user: null,
+// Carregar estado inicial do localStorage
+const loadInitialState = (): LoginState => {
+  try {
+    const token = localStorage.getItem('authToken');
+    const userStr = localStorage.getItem('authUser');
+    
+    if (token && userStr) {
+      const user = JSON.parse(userStr);
+      return {
+        loading: false,
+        error: false,
+        message: null,
+        token,
+        user,
+      };
+    }
+  } catch (error) {
+    console.error('Error loading auth state from localStorage:', error);
+    localStorage.removeItem('authToken');
+    localStorage.removeItem('authUser');
+  }
+  
+  return {
+    loading: false,
+    error: false,
+    message: null,
+    token: null,
+    user: null,
+  };
 };
+
+const initialState: LoginState = loadInitialState();
 
 const loginSlice = createSlice({
   name: "login",
   initialState,
   reducers: {
     loginStart(state) {
-      state.loading   = true;
-      state.error     = false;
-      state.message   = null;
-      state.token     = null;
-      state.user      = null;
+      state.loading = true;
+      state.error = false;
+      state.message = null;
     },
     loginSuccess(state, action: PayloadAction<{ token: string; user: User }>) {
       state.loading = false;
-      state.error   = false;
+      state.error = false;
       state.message = "Login realizado com sucesso!";
-      state.token   = action.payload.token;
-      state.user    = action.payload.user;
+      state.token = action.payload.token;
+      state.user = action.payload.user;
+      
+      // Salvar no localStorage
+      localStorage.setItem('authToken', action.payload.token);
+      localStorage.setItem('authUser', JSON.stringify(action.payload.user));
     },
     loginFailure(state, action: PayloadAction<string>) {
       state.loading = false;
-      state.error   = true;
-      state.token   = null;
-      state.user    = null;
+      state.error = true;
+      state.token = null;
+      state.user = null;
       state.message = action.payload;
+      
+      // Limpar localStorage
+      localStorage.removeItem('authToken');
+      localStorage.removeItem('authUser');
     },
     logout(state) {
-      Object.assign(state, initialState);
+      state.loading = false;
+      state.error = false;
+      state.message = null;
+      state.token = null;
+      state.user = null;
+      
+      // Limpar localStorage
+      localStorage.removeItem('authToken');
+      localStorage.removeItem('authUser');
+    },
+    updateUser(state, action: PayloadAction<User>) {
+      state.user = action.payload;
+      // Atualizar localStorage
+      localStorage.setItem('authUser', JSON.stringify(action.payload));
     },
   },
 });
 
-export const { loginStart, loginSuccess, loginFailure, logout } =
+export const { loginStart, loginSuccess, loginFailure, logout, updateUser } =
   loginSlice.actions;
 export default loginSlice.reducer;
 
@@ -68,7 +112,6 @@ export const fetchLogin =
   async (dispatch: any) => {
     dispatch(loginStart());
     try {
-      /* API should return { token, user } example: { token: "...", user: { id, name, email } }*/
       const data = await services.loginUser(body);
       dispatch(loginSuccess(data));
     } catch (err: any) {

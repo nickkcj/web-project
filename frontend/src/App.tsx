@@ -11,6 +11,9 @@ import FeedPage from "./pages/Feed/FeedPage";
 import MoviesPage from "./pages/Movies/MoviesPage";
 import RateMoviePage from "./pages/RateMovie/RateMoviePage";
 import MyReviewsPage from "./pages/MyReviews/MyReviewsPage";
+import { ProfilePage } from "./pages/Profile/ProfilePage";
+import { EditProfilePage } from "./pages/EditProfile/EditProfilePage";
+import { ProtectedRoute } from "./components/ProtectedRoute";
 
 function App() {
   return (
@@ -23,7 +26,7 @@ function App() {
 }
 
 function RouterContent() {
-  const location   = useLocation();
+  const location = useLocation();
   const { token, user } = useSelector((s: any) => s.login);
   const isLoggedIn = Boolean(token);
 
@@ -36,13 +39,40 @@ function RouterContent() {
       <div className="flex-1">
         <Routes>
           <Route path="/"            element={<Home />} />
-          <Route path="/feed"        element={<FeedPage />} />
-          <Route path="/movies"      element={<MoviesPage />} />
-          <Route path="/my-reviews"  element={<MyReviewsPage />} />
-          <Route path="/rate"        element={<RateMoviePage />} />
-
           <Route path="/login"       element={<Login />} />
           <Route path="/register"    element={<RegisterPage />} />
+          
+          {/* Protected Routes */}
+          <Route path="/feed"        element={
+            <ProtectedRoute>
+              <FeedPage />
+            </ProtectedRoute>
+          } />
+          <Route path="/movies"      element={
+            <ProtectedRoute>
+              <MoviesPage />
+            </ProtectedRoute>
+          } />
+          <Route path="/my-reviews"  element={
+            <ProtectedRoute>
+              <MyReviewsPage />
+            </ProtectedRoute>
+          } />
+          <Route path="/rate"        element={
+            <ProtectedRoute>
+              <RateMoviePage />
+            </ProtectedRoute>
+          } />
+          <Route path="/profile"     element={
+            <ProtectedRoute>
+              <ProfilePage />
+            </ProtectedRoute>
+          } />
+          <Route path="/edit-profile" element={
+            <ProtectedRoute>
+              <EditProfilePage />
+            </ProtectedRoute>
+          } />
         </Routes>
       </div>
 
