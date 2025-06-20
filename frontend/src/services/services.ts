@@ -87,8 +87,18 @@ const services = {
   },
 
   getUserProfile: async () => {
-    const response = await api.get('/users/me');
-    return response.data;
+    try {
+      // Usar a rota correta do backend que não existe /users/me
+      // Vamos usar o ID do usuário do localStorage
+      const userStr = localStorage.getItem('authUser');
+      if (!userStr) throw new Error('No user data');
+      
+      const user = JSON.parse(userStr);
+      const response = await api.get(`/users/${user.id}`);
+      return response.data;
+    } catch (error) {
+      throw new Error('Erro ao buscar perfil do usuário');
+    }
   },
 
   getUserById: async (id: number) => {
@@ -102,8 +112,18 @@ const services = {
   },
 
   updateUserProfile: async (data: { name?: string; email?: string }) => {
-    const response = await api.put('/users/me', data);
-    return response.data;
+    try {
+      // Usar a rota correta do backend
+      const userStr = localStorage.getItem('authUser');
+      if (!userStr) throw new Error('No user data');
+      
+      const user = JSON.parse(userStr);
+      const response = await api.put(`/users/${user.id}`, data);
+      return response.data;
+    } catch (error: any) {
+      console.error('Update profile error:', error);
+      throw error;
+    }
   },
 
   // ===== MOVIE SERVICES =====

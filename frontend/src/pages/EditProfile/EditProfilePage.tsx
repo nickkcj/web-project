@@ -47,17 +47,29 @@ export const EditProfilePage: React.FC = () => {
 
     try {
       setUpdating(true);
-      const updatedUser = await services.updateUserProfile({
+      
+      // Preparar dados para envio (sem senha vazia)
+      const updateData: { name: string; email: string; password?: string } = {
         name: formData.name.trim(),
         email: formData.email.trim()
-      });
+      };
+      
+      // Só incluir senha se foi preenchida
+      if (formData.password.trim()) {
+        updateData.password = formData.password.trim();
+      }
+
+      const updatedUser = await services.updateUserProfile(updateData);
 
       dispatch(updateUser(updatedUser));
       alert('Perfil atualizado com sucesso!');
       navigate('/profile');
     } catch (error: any) {
       console.error('Error updating profile:', error);
-      alert(error.response?.data?.error || 'Erro ao atualizar perfil');
+      const errorMessage = error.response?.data?.error || 
+                          error.response?.data?.message || 
+                          'Erro ao atualizar perfil';
+      alert(errorMessage);
     } finally {
       setUpdating(false);
     }
@@ -151,6 +163,7 @@ export const EditProfilePage: React.FC = () => {
                     className="w-full bg-white/90 text-gray-800 border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                     placeholder="••••••••"
                   />
+                  <p className="text-xs text-gray-400 mt-1">Deixe em branco para manter a senha atual</p>
                 </div>
 
                 <button

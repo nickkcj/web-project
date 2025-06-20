@@ -36,8 +36,10 @@ export const ProfilePage: React.FC = () => {
     
     try {
       setLoading(true);
-      const userReviews = await services.getReviewsByUserId(parseInt(user.id));
-      setReviews(userReviews);
+      // Converter string para number se necessário
+      const userId = typeof user.id === 'string' ? parseInt(user.id) : user.id;
+      const userReviews = await services.getReviewsByUserId(userId);
+      setReviews(Array.isArray(userReviews) ? userReviews : []);
     } catch (error) {
       console.error('Error loading reviews:', error);
       setReviews([]);
@@ -88,7 +90,7 @@ export const ProfilePage: React.FC = () => {
               <div className="flex items-center justify-between mb-4">
                 <h1 className="text-3xl font-bold text-white">{user.name}</h1>
                 <button
-                  onClick={() => navigate('/edit-profile')}
+                  onClick={() => navigate('/movies')}
                   className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-semibold transition-colors shadow-lg"
                 >
                   Criar Review
@@ -102,7 +104,7 @@ export const ProfilePage: React.FC = () => {
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="text-blue-400">👥</span>
-                  <span className="text-sm text-gray-300">0 Reviews</span>
+                  <span className="text-sm text-gray-300">{reviews.length} Reviews</span>
                 </div>
               </div>
             </div>
