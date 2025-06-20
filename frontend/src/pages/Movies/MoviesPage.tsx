@@ -1,36 +1,86 @@
-import { useState } from "react";
+import { FC, useEffect, useState } from "react";
 import SearchBar from "./SearchBar";
 import FilterRow from "./FilterRow";
 import MovieGrid from "./MovieGrid";
-import liloAndStitchPoster from "../../Assets/Photos/liloAndStitchPoster.jpg";
-import strawPoster from "../../Assets/Photos/strawPoster.jpg";
-import predatorKillerOfKillersPoster from "../../Assets/Photos/predatorKillerOfKillersPoster.jpg";
-import theAmateurPoster from "../../Assets/Photos/theAmateurPoster.jpg";
-import theAccountant2Poster from "../../Assets/Photos/theAccountant2Poster.jpg";
+import { MoviesApi } from "../../api/movies";
 
-const dummyMovies = [
-  { id: 1, title: "Predator: Killer of Killers", year: "2025", poster: predatorKillerOfKillersPoster, tag: "HD" },
-  { id: 2, title: "STRAW", year: "2025", poster: strawPoster, tag: "HD" },
-  { id: 3, title: "The Amateur", year: "2025", poster: theAmateurPoster, tag: "HD" },
-  { id: 4, title: "The Accountant 2", year: "2025", poster: theAccountant2Poster, tag: "HD" },
-  { id: 5, title: "Lilo & Stitch", year: "2025", poster: liloAndStitchPoster, tag: "CAM" },
-  // … add more or fetch from TMDB later
-];
+export interface Movie {
+  id: number;
+  title: string;
+  year: string;
+  poster: string;
+  tag?: string;
+}
 
 const filterLabels = ["Trending", "Top IMDb", "Ação", "Comédia", "Drama"];
 
-export default function MoviesPage() {
+const MoviesPage: FC = () => {
   const [activeFilter, setActiveFilter] = useState(filterLabels[0]);
-  const [movies, setMovies] = useState(dummyMovies);
+  const [movies, setMovies] = useState<Movie[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleSearch = (term: string) => {
-    // TODO: call backend / TMDB
-    console.log("Searching for:", term);
+  useEffect(() => {
+    fetchTrending();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const fetchTrending = async () => {
+    try {
+      setLoading(true);
+      const raw = await MoviesApi.popular();
+      setMovies(
+        raw.map((m) => ({
+          id: m.id,
+          title: m.title,
+          year: m.release_date?.slice(0, 4) ?? "",
+          poster: m.poster_path
+            ? `https://image.tmdb.org/t/p/w342${m.poster_path}`
+            : "/placeholder.jpg",
+        }))
+      );
+    } catch (err: any) {
+      setError(err.message ?? "Erro ao buscar filmes");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSearch = async (term: string) => {
+    if (!term.trim()) {
+      fetchTrending();
+      return;
+    }
+    try {
+      setLoading(true);
+      const raw = await MoviesApi.search(term);
+      setMovies(
+        raw.map((m) => ({
+          id: m.id,
+          title: m.title,
+          year: m.release_date?.slice(0, 4) ?? "",
+          poster: m.poster_path
+            ? `https://image.tmdb.org/t/p/w342${m.poster_path}`
+            : "/placeholder.jpg",
+        }))
+      );
+      setActiveFilter("Resultados");
+    } catch (err: any) {
+      setError(err.message ?? "Erro na pesquisa");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleFilter = (label: string) => {
     setActiveFilter(label);
-    // TODO: filter / fetch data
+    switch (label) {
+      case "Trending":
+        fetchTrending();
+        break;
+      default:
+        fetchTrending();
+    }
   };
 
   return (
@@ -41,7 +91,20 @@ export default function MoviesPage() {
         active={activeFilter}
         onChange={handleFilter}
       />
-      <MovieGrid movies={movies} />
+
+      {loading ? (
+        <div className="min-h-[50vh] flex items-center justify-center text-slate-400">
+          Carregando filmes…
+        </div>
+      ) : error ? (
+        <div className="min-h-[50vh] flex items-center justify-center text-red-400">
+          {error}
+        </div>
+      ) : (
+        <MovieGrid movies={movies} />
+      )}
     </div>
   );
-}
+};
+
+export default MoviesPage;
