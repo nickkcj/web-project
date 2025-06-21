@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { FavoriteService } from '../services/favorite.service';
 
-// Toggle favorite/unfavorite for a movie
+
 export const toggleFavorite = async (req: Request, res: Response) => {
   try {
     const movieId = parseInt(req.params.movieId, 10);
@@ -19,7 +19,7 @@ export const toggleFavorite = async (req: Request, res: Response) => {
   }
 };
 
-// Get user's favorite movies
+
 export const getUserFavorites = async (req: Request, res: Response) => {
   try {
     const userId = req.authUser!.userId;
@@ -31,7 +31,7 @@ export const getUserFavorites = async (req: Request, res: Response) => {
   }
 };
 
-// Check if user has favorited a movie
+
 export const hasUserFavorited = async (req: Request, res: Response) => {
   try {
     const movieId = parseInt(req.params.movieId, 10);

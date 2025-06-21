@@ -20,12 +20,11 @@ interface LoginBody {
   password: string;
 }
 
-// Carregar estado inicial do localStorage
 const loadInitialState = (): LoginState => {
   try {
     const token = localStorage.getItem('authToken');
     const userStr = localStorage.getItem('authUser');
-    
+
     if (token && userStr) {
       const user = JSON.parse(userStr);
       return {
@@ -41,7 +40,7 @@ const loadInitialState = (): LoginState => {
     localStorage.removeItem('authToken');
     localStorage.removeItem('authUser');
   }
-  
+
   return {
     loading: false,
     error: false,
@@ -68,8 +67,7 @@ const loginSlice = createSlice({
       state.message = "Login realizado com sucesso!";
       state.token = action.payload.token;
       state.user = action.payload.user;
-      
-      // Salvar no localStorage
+
       localStorage.setItem('authToken', action.payload.token);
       localStorage.setItem('authUser', JSON.stringify(action.payload.user));
     },
@@ -79,8 +77,7 @@ const loginSlice = createSlice({
       state.token = null;
       state.user = null;
       state.message = action.payload;
-      
-      // Limpar localStorage
+
       localStorage.removeItem('authToken');
       localStorage.removeItem('authUser');
     },
@@ -90,14 +87,12 @@ const loginSlice = createSlice({
       state.message = null;
       state.token = null;
       state.user = null;
-      
-      // Limpar localStorage
+
       localStorage.removeItem('authToken');
       localStorage.removeItem('authUser');
     },
     updateUser(state, action: PayloadAction<User>) {
       state.user = action.payload;
-      // Atualizar localStorage
       localStorage.setItem('authUser', JSON.stringify(action.payload));
     },
   },

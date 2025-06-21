@@ -13,7 +13,6 @@ interface LocationState {
   };
 }
 
-
 const RateMoviePage: FC = () => {
   const navigate = useNavigate();
   const { state } = useLocation();
@@ -38,7 +37,6 @@ const RateMoviePage: FC = () => {
       setIsSubmitting(true);
 
       if (state?.review?.id) {
-        // Se tiver review.id, está editando
         await services.updateReview(state.review.id, {
           rating,
           comment: review.trim(),
@@ -46,9 +44,6 @@ const RateMoviePage: FC = () => {
         });
         alert("Review atualizada com sucesso!");
       } else {
-        // Caso contrário, criar novo review
-
-        // Primeiro cria o filme na base de dados, se não existir
         await services.createMovieInDatabase({
           id: movie.id,
           title: movie.title,
@@ -60,7 +55,6 @@ const RateMoviePage: FC = () => {
           original_language: 'en'
         });
 
-        // Cria a review
         await services.createReview({
           movieId: movie.id,
           rating,
@@ -68,7 +62,6 @@ const RateMoviePage: FC = () => {
           visibility,
         });
 
-        // Auto-favorite do filme
         try {
           await services.toggleFavorite(movie.id);
         } catch (favoriteError) {

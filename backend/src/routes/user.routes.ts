@@ -21,12 +21,12 @@ router.post('/', createUser);
 // Protected routes that need authentication
 router.get('/', authMiddleware, getUsers);
 
-// Profile routes (authenticated user's own profile) - MUST come before /:id routes
+
 router.get('/me', authMiddleware, getMyProfile);
 router.put('/me', authMiddleware, updateMyProfile);
 router.delete('/me', authMiddleware, deleteMyAccount);
 
-// User by ID routes (must come after /me routes)
+
 router.get('/:id', authMiddleware, getUserById);
 router.put('/:id', authMiddleware, updateUser);
 router.delete('/:id', authMiddleware, deleteUser);

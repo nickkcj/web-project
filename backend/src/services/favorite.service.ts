@@ -4,14 +4,14 @@ export class FavoriteService {
   private constructor() {}
 
   public static async toggleFavorite(userId: number, movieId: number) {
-    // Check if movie exists, if not create it (for TMDB movies)
+    
     let movie = await prisma.movie.findUnique({
       where: { id: movieId }
     });
 
     if (!movie) {
-      // If movie doesn't exist, we need to create it
-      // This would typically be done when fetching from TMDB
+      
+      
       throw new Error('Movie not found. Please add movie to database first.');
     }
 

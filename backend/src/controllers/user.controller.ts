@@ -113,7 +113,7 @@ export const deleteUser = async (req: Request, res: Response) => {
       return res.status(400).json({ error: 'Invalid user ID' });
     }
     
-    // Check if user is deleting their own account
+    
     if (req.authUser && req.authUser.userId !== userId) {
       return res.status(403).json({ error: 'You can only delete your own account' });
     }
