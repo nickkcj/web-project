@@ -30,7 +30,6 @@ const MoviesPage: FC = () => {
       setError(null);
       const response = await services.getPopularMovies();
       
-      // Handle both array response and object with results property
       const moviesData = Array.isArray(response) ? response : response.results || [];
       
       setMovies(
@@ -61,7 +60,6 @@ const MoviesPage: FC = () => {
       setError(null);
       const response = await services.searchMovies(term);
       
-      // Handle both array response and object with results property
       const moviesData = Array.isArray(response) ? response : response.results || [];
       
       setMovies(

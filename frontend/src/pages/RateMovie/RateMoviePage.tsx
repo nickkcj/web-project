@@ -1,7 +1,7 @@
 import { FC, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Movie } from "../../components/movie/MovieModal";
-import services from "../../services/services";
+import services from "../../services/index";
 
 interface LocationState {
   movie: Movie;

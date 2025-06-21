@@ -1,7 +1,6 @@
 import axios from "axios";
 import { PATH } from "../path";
 
-// Create axios instance with default config
 const api = axios.create({
   baseURL: PATH.base,
   headers: {
@@ -10,7 +9,6 @@ const api = axios.create({
   timeout: 15000,
 });
 
-// Add auth token to requests
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('authToken');
   if (token) {
@@ -19,7 +17,6 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-// Handle auth errors
 api.interceptors.response.use(
   (response) => response,
   (error) => {
@@ -44,39 +41,27 @@ api.interceptors.response.use(
 );
 
 const services = {
-  // ===== USER SERVICES =====
+  // USER SERVICES
   registerUser: async (body: { name: string; email: string; password: string }) => {
     try {
-      const response = await api.post('/users', {
-        name: body.name,
-        email: body.email,
-        password: body.password,
-      });
+      const response = await api.post('/users', body);
       return response.data;
     } catch (err: any) {
-      if (err.response) {
-        if (err.response.data && Array.isArray(err.response.data)) {
-          const errorMessage = err.response.data[0];
-          if (errorMessage === "This email is already in use.") {
-            throw new Error("Este e-mail já está em uso.");
-          } else {
-            throw new Error(errorMessage);
-          }
+      if (err.response?.data && Array.isArray(err.response.data)) {
+        const errorMessage = err.response.data[0];
+        if (errorMessage === "This email is already in use.") {
+          throw new Error("Este e-mail já está em uso.");
         } else {
-          throw new Error("Erro inesperado. Tente novamente.");
+          throw new Error(errorMessage);
         }
-      } else {
-        throw new Error("Um erro ocorreu. Tente novamente mais tarde.");
       }
+      throw new Error("Erro inesperado. Tente novamente.");
     }
   },
 
   loginUser: async (body: { email: string; password: string }) => {
     try {
-      const response = await api.post('/users/login', {
-        email: body.email,
-        password: body.password,
-      });
+      const response = await api.post('/users/login', body);
       return response.data;
     } catch (err: any) {
       if (err.response?.status === 401) {
@@ -87,12 +72,8 @@ const services = {
   },
 
   getUserProfile: async () => {
-    try {
-      const response = await api.get('/users/me');
-      return response.data;
-    } catch (error) {
-      throw new Error('Erro ao buscar perfil do usuário');
-    }
+    const response = await api.get('/users/me');
+    return response.data;
   },
 
   getUserById: async (id: number) => {
@@ -115,7 +96,7 @@ const services = {
     }
   },
 
-  // ===== MOVIE SERVICES =====
+  // MOVIE SERVICES
   getPopularMovies: async (page = 1) => {
     const response = await api.get(`/movies/popular?page=${page}`);
     return response.data;
@@ -131,7 +112,26 @@ const services = {
     return response.data;
   },
 
-  // ===== REVIEW SERVICES =====
+  createMovieInDatabase: async (movieData: {
+    id: number;
+    title: string;
+    poster_path: string;
+    backdrop_path: string;
+    overview: string;
+    release_date: string;
+    popularity: number;
+    original_language: string;
+  }) => {
+    try {
+      const response = await api.post('/movies/create', movieData);
+      return response.data;
+    } catch (error: any) {
+      console.error('Error creating movie in database:', error);
+      throw error;
+    }
+  },
+
+  // REVIEW SERVICES
   createReview: async (data: { movieId: number; rating: number; comment: string; visibility?: 'PUBLIC' | 'PRIVATE' }) => {
     const response = await api.post('/reviews', data);
     return response.data;
@@ -149,20 +149,10 @@ const services = {
 
   getReviewsByUserId: async (userId: number) => {
     try {
-      console.log(`Fetching reviews for user ${userId}`);
       const response = await api.get(`/reviews/user/${userId}`);
-      console.log(`Successfully fetched ${response.data.length} reviews for user ${userId}`);
       return response.data;
     } catch (error: any) {
-      console.error(`Error fetching reviews for user ${userId}:`, {
-        status: error.response?.status,
-        statusText: error.response?.statusText,
-        data: error.response?.data,
-        url: `/reviews/user/${userId}`,
-        userId
-      });
-      
-      // Return empty array instead of throwing to prevent UI crashes
+      console.error(`Error fetching reviews for user ${userId}:`, error);
       return [];
     }
   },
@@ -182,7 +172,7 @@ const services = {
     return response.data;
   },
 
-  // ===== LIKE SERVICES =====
+  // LIKE SERVICES
   toggleLike: async (reviewId: number) => {
     const response = await api.post(`/likes/${reviewId}/toggle`);
     return response.data;
@@ -198,7 +188,7 @@ const services = {
     return response.data;
   },
 
-  // ===== COMMENT SERVICES =====
+  // COMMENT SERVICES
   createComment: async (reviewId: number, content: string) => {
     const response = await api.post(`/comments/${reviewId}`, { content });
     return response.data;
@@ -209,7 +199,7 @@ const services = {
     return response.data;
   },
 
-  // ===== FOLLOW SERVICES =====
+  // FOLLOW SERVICES
   followUser: async (followUserId: number) => {
     const response = await api.post('/followers/follow', { followUserId });
     return response.data;
@@ -240,55 +230,20 @@ const services = {
     }
   },
 
-  // ===== FAVORITE SERVICES =====
-  toggleFavorite: async (movieId: number) => {
-    try {
-      const response = await api.post(`/favorites/${movieId}/toggle`);
-      return response.data;
-    } catch (error: any) {
-      console.error('Error toggling favorite:', error);
-      throw error;
-    }
-  },
-
+  // FAVORITE SERVICES
   getUserFavorites: async () => {
-    try {
-      const response = await api.get('/favorites');
-      return response.data;
-    } catch (error: any) {
-      console.error('Error fetching favorites:', error);
-      return [];
-    }
+    const response = await api.get('/favorites');
+    return response.data;
   },
 
-  hasUserFavorited: async (movieId: number) => {
-    try {
-      const response = await api.get(`/favorites/${movieId}/status`);
-      return response.data;
-    } catch (error: any) {
-      console.error('Error checking favorite status:', error);
-      return { hasFavorited: false };
-    }
+  addFavorite: async (movieId: number) => {
+    const response = await api.post('/favorites', { movieId });
+    return response.data;
   },
 
-  // Helper to create movie in database when favoriting
-  createMovieInDatabase: async (movieData: {
-    id: number;
-    title: string;
-    poster_path: string;
-    backdrop_path: string;
-    overview: string;
-    release_date: string;
-    popularity: number;
-    original_language: string;
-  }) => {
-    try {
-      const response = await api.post('/movies/create', movieData);
-      return response.data;
-    } catch (error: any) {
-      console.error('Error creating movie in database:', error);
-      throw error;
-    }
+  removeFavorite: async (movieId: number) => {
+    const response = await api.delete(`/favorites/${movieId}`);
+    return response.data;
   },
 };
 

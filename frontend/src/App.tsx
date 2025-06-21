@@ -1,7 +1,6 @@
 import { BrowserRouter, Route, Routes, useLocation } from "react-router-dom";
 import { useSelector } from "react-redux";
 import "./App.css";
-
 import Home from "./pages/Home/Home";
 import Header from "./components/Header/Header";
 import Footer from "./components/Footer/Footer";
@@ -38,32 +37,32 @@ function RouterContent() {
 
       <div className="flex-1">
         <Routes>
-          <Route path="/"            element={<Home />} />
-          <Route path="/login"       element={<Login />} />
-          <Route path="/register"    element={<RegisterPage />} />
+          <Route path="/" element={<Home />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<RegisterPage />} />
+          <Route path="/movie/:id" element={<MoviesPage />} />
           
-          {/* Protected Routes */}
-          <Route path="/feed"        element={
+          <Route path="/feed" element={
             <ProtectedRoute>
               <FeedPage />
             </ProtectedRoute>
           } />
-          <Route path="/movies"      element={
+          <Route path="/movies" element={
             <ProtectedRoute>
               <MoviesPage />
             </ProtectedRoute>
           } />
-          <Route path="/my-reviews"  element={
+          <Route path="/my-reviews" element={
             <ProtectedRoute>
               <MyReviewsPage />
             </ProtectedRoute>
           } />
-          <Route path="/rate"        element={
+          <Route path="/rate" element={
             <ProtectedRoute>
               <RateMoviePage />
             </ProtectedRoute>
           } />
-          <Route path="/profile"     element={
+          <Route path="/profile" element={
             <ProtectedRoute>
               <ProfilePage />
             </ProtectedRoute>
@@ -73,6 +72,7 @@ function RouterContent() {
               <EditProfilePage />
             </ProtectedRoute>
           } />
+          <Route path="/user/:id" element={<ProfilePage />} />
         </Routes>
       </div>
 

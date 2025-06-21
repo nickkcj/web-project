@@ -1,7 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react'; 
 import { useSelector } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
-import services from '../../services/services';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import services from '../../services/index';
+import { MovieReviewModal } from '../../components/MoveReviewModal/MoveReviewModal';
+import { MovieModal } from '../../components/movie/MovieModal';
+import { Carousel } from '../../components/Carousel/Carousel'; // Ajuste o caminho conforme necessário
 
 interface Review {
   id: number;
@@ -34,22 +37,43 @@ interface Favorite {
   };
 }
 
+interface ReviewModalData {
+  poster: string;
+  title: string;
+  rating: number;
+  text: string;
+  details: string;
+  movieId: number;
+}
+
+interface MovieForModal {
+  id: number;
+  title: string;
+  year: string;
+  poster: string;
+}
+
+interface CarouselItem {
+  id: number;
+  poster: string;
+  title: string;
+  rating?: number;
+  text?: string;
+  isFavorite?: boolean;
+}
+
 export const ProfilePage: React.FC = () => {
   const { user } = useSelector((state: any) => state.login);
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [reviews, setReviews] = useState<Review[]>([]);
   const [favorites, setFavorites] = useState<Favorite[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedReview, setSelectedReview] = useState<ReviewModalData | null>(null);
+  const [selectedMovie, setSelectedMovie] = useState<MovieForModal | null>(null);
+  const [unfavoriteLoading, setUnfavoriteLoading] = useState(false);
 
-  useEffect(() => {
-    if (!user) {
-      navigate('/login');
-      return;
-    }
-    loadUserData();
-  }, [user, navigate]);
-
-  const loadUserData = async () => {
+  const loadUserData = useCallback(async () => {
     if (!user) return;
     
     try {
@@ -58,7 +82,6 @@ export const ProfilePage: React.FC = () => {
       
       console.log('Loading data for user:', userId);
       
-      // Load reviews and favorites in parallel
       const [userReviews, userFavorites] = await Promise.all([
         services.getReviewsByUserId(userId).catch(err => {
           console.error('Error loading reviews:', err);
@@ -82,21 +105,139 @@ export const ProfilePage: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user]);
+
+  useEffect(() => {
+    if (!user) {
+      navigate('/login');
+      return;
+    }
+    loadUserData();
+  }, [user, navigate, loadUserData]);
+
+  useEffect(() => {
+    const movieId = searchParams.get('movieId');
+    if (movieId && favorites.length > 0) {
+      const favorite = favorites.find(f => f.movieId.toString() === movieId);
+      if (favorite) {
+        const movieForModal: MovieForModal = {
+          id: favorite.movie.id,
+          title: favorite.movie.title,
+          year: favorite.movie.release_date ? new Date(favorite.movie.release_date).getFullYear().toString() : '',
+          poster: `https://image.tmdb.org/t/p/w342${favorite.movie.poster_path}`
+        };
+        setSelectedMovie(movieForModal);
+      }
+    }
+  }, [searchParams, favorites]);
+
+  const favoritesCarouselItems: CarouselItem[] = favorites.map(favorite => ({
+    id: favorite.movie.id,
+    poster: `https://image.tmdb.org/t/p/w342${favorite.movie.poster_path}`,
+    title: favorite.movie.title,
+    rating: undefined, // Favoritos não têm rating, meio que seila da pra por se tiver review
+    text: favorite.movie.release_date ? new Date(favorite.movie.release_date).getFullYear().toString() : '',
+    isFavorite: true
+  }));
+
+  const reviewsCarouselItems: CarouselItem[] = reviews
+    .filter(review => review.movie)
+    .map(review => ({
+      id: review.movie!.id,
+      poster: `https://image.tmdb.org/t/p/w342${review.movie!.poster_path}`,
+      title: review.movie!.title,
+      rating: review.rating,
+      text: review.comment.length > 50 ? review.comment.substring(0, 50) + '...' : review.comment,
+      isFavorite: false
+    }));
 
   const handleCreateReview = () => {
     navigate('/movies');
   };
 
+  const handleReviewClick = (review: Review) => {
+    if (review.movie) {
+      const reviewData: ReviewModalData = {
+        poster: `https://image.tmdb.org/t/p/w300${review.movie.poster_path}`,
+        title: review.movie.title,
+        rating: review.rating,
+        text: review.comment,
+        details: `Avaliado em ${new Date(review.createdAt).toLocaleDateString('pt-BR')} • ${review.movie.release_date ? new Date(review.movie.release_date).getFullYear() : 'Ano não disponível'}`,
+        movieId: review.movieId
+      };
+      setSelectedReview(reviewData);
+    }
+  };
+
+  const handleFavoriteClick = (favorite: Favorite) => {
+    const movieForModal: MovieForModal = {
+      id: favorite.movie.id,
+      title: favorite.movie.title,
+      year: favorite.movie.release_date ? new Date(favorite.movie.release_date).getFullYear().toString() : '',
+      poster: `https://image.tmdb.org/t/p/w342${favorite.movie.poster_path}`
+    };
+    setSelectedMovie(movieForModal);
+    setSearchParams({ movieId: favorite.movieId.toString() });
+  };
+
+  const handleCloseMovieModal = () => {
+    setSelectedMovie(null);
+    setSearchParams({});
+  };
+
+  const handleUnfavorite = async (movie: MovieForModal) => {
+    if (unfavoriteLoading) return;
+    
+    try {
+      setUnfavoriteLoading(true);
+      
+      const result = await services.toggleFavorite(movie.id);
+      console.log('Filme removido dos favoritos!');
+      
+      setFavorites(prev => prev.filter(fav => fav.movieId !== movie.id));
+      
+      handleCloseMovieModal();
+      
+    } catch (error) {
+      console.error('Error unfavoriting movie:', error);
+      loadUserData();
+    } finally {
+      setUnfavoriteLoading(false);
+    }
+  };
+
+  const handleRate = (movie: MovieForModal) => {
+    navigate("/rate", { state: { movie } });
+  };
+
+  const closeReviewModal = () => {
+    setSelectedReview(null);
+  };
+
+  const handleViewMovieFromModal = () => {
+    if (selectedReview) {
+      navigate(`/movie/${selectedReview.movieId}`);
+      setSelectedReview(null);
+    }
+  };
+
+  const handleFavoriteCarouselSelect = (item: CarouselItem) => {
+    const favorite = favorites.find(f => f.movie.id === item.id);
+    if (favorite) {
+      handleFavoriteClick(favorite);
+    }
+  };
+
+  const handleReviewCarouselSelect = (item: CarouselItem) => {
+    const review = reviews.find(r => r.movie && r.movie.id === item.id);
+    if (review) {
+      handleReviewClick(review);
+    }
+  };
+
   if (!user) {
     return null;
   }
-
-  // Get top 3 favorites for display (only movies that are actually favorited, not reviewed)
-  const actualFavorites = favorites.filter(fav => 
-    !reviews.some(review => review.movieId === fav.movieId)
-  );
-  const topFavorites = actualFavorites.slice(0, 3);
 
   return (
     <div className="min-h-screen bg-[#0F172A] text-white">
@@ -136,38 +277,23 @@ export const ProfilePage: React.FC = () => {
           </div>
         </div>
 
-        {/* Seção As Favoritas - apenas filmes favoritados sem review */}
-        <div className="mb-12">
-          <h2 className="text-2xl font-bold mb-6 text-left">As Favoritas</h2>
-          {loading ? (
+        {/* Carousel de Favoritos */}
+        {loading ? (
+          <div className="text-center py-8">
+            <div className="text-gray-400">Carregando favoritos...</div>
+          </div>
+        ) : favoritesCarouselItems.length > 0 ? (
+          <Carousel
+            items={favoritesCarouselItems}
+            onSelect={handleFavoriteCarouselSelect}
+            title="Meus Filmes Favoritos"
+            type="favorites"
+          />
+        ) : (
+          <div className="mb-12">
+            <h2 className="text-2xl font-bold mb-6 text-center">Meus Filmes Favoritos</h2>
             <div className="text-center py-8">
-              <div className="text-gray-400">Carregando favoritos...</div>
-            </div>
-          ) : topFavorites.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {topFavorites.map((favorite) => (
-                <div key={favorite.id} className="bg-slate-800/50 rounded-lg p-4 backdrop-blur-sm border border-slate-600/30">
-                  <img
-                    src={`https://image.tmdb.org/t/p/w300${favorite.movie.poster_path}`}
-                    alt={favorite.movie.title}
-                    className="w-full h-64 object-cover rounded-lg mb-4"
-                    onError={(e) => {
-                      e.currentTarget.src = 'https://via.placeholder.com/300x450?text=No+Image';
-                    }}
-                  />
-                  <div className="flex items-center gap-1 mb-2">
-                    <span className="text-blue-400 text-sm">FAVORITO</span>
-                  </div>
-                  <h3 className="text-white font-semibold mb-2">{favorite.movie.title}</h3>
-                  <p className="text-gray-300 text-sm italic">
-                    "Filme favoritado"
-                  </p>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-8">
-              <p className="text-gray-400 text-lg">Você ainda não tem filmes favoritos sem review</p>
+              <p className="text-gray-400 text-lg">Você ainda não tem filmes favoritos</p>
               <button
                 onClick={() => navigate('/movies')}
                 className="mt-4 bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-lg font-semibold transition-colors"
@@ -175,62 +301,25 @@ export const ProfilePage: React.FC = () => {
                 Explorar Filmes
               </button>
             </div>
-          )}
-        </div>
+          </div>
+        )}
 
-        {/* Seção Todas as Reviews */}
-        <div>
-          <h2 className="text-2xl font-bold mb-6 text-left">Todas as Reviews</h2>
-          {loading ? (
-            <div className="text-center py-12">
-              <div className="text-gray-400 text-lg">Carregando reviews...</div>
-            </div>
-          ) : reviews.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {reviews.map((review) => (
-                <div key={review.id} className="bg-slate-800/50 rounded-lg p-4 backdrop-blur-sm border border-slate-600/30">
-                  <div className="flex gap-4">
-                    {review.movie && (
-                      <img
-                        src={`https://image.tmdb.org/t/p/w200${review.movie.poster_path}`}
-                        alt={review.movie.title}
-                        className="w-16 h-24 object-cover rounded"
-                        onError={(e) => {
-                          e.currentTarget.src = 'https://via.placeholder.com/200x300?text=No+Image';
-                        }}
-                      />
-                    )}
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-1 mb-2">
-                        {Array.from({ length: 5 }).map((_, i) => (
-                          <span
-                            key={i}
-                            className={`text-lg ${
-                              i < review.rating ? 'text-yellow-400' : 'text-gray-600'
-                            }`}
-                          >
-                            ★
-                          </span>
-                        ))}
-                      </div>
-                      {review.movie && (
-                        <h3 className="text-white font-semibold text-sm mb-1 truncate">
-                          {review.movie.title}
-                        </h3>
-                      )}
-                      <p className="text-gray-300 text-xs line-clamp-3 mb-2">
-                        {review.comment}
-                      </p>
-                      <p className="text-gray-500 text-xs">
-                        {new Date(review.createdAt).toLocaleDateString('pt-BR')}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-12">
+        {/* Carousel de Reviews */}
+        {loading ? (
+          <div className="text-center py-8">
+            <div className="text-gray-400">Carregando reviews...</div>
+          </div>
+        ) : reviewsCarouselItems.length > 0 ? (
+          <Carousel
+            items={reviewsCarouselItems}
+            onSelect={handleReviewCarouselSelect}
+            title="Minhas Reviews"
+            type="reviews"
+          />
+        ) : (
+          <div className="mb-12">
+            <h2 className="text-2xl font-bold mb-6 text-center">Minhas Reviews</h2>
+            <div className="text-center py-8">
               <p className="text-gray-400 text-lg">Você ainda não escreveu nenhuma review</p>
               <button
                 onClick={() => navigate('/movies')}
@@ -239,9 +328,37 @@ export const ProfilePage: React.FC = () => {
                 Explorar Filmes
               </button>
             </div>
-          )}
-        </div>
+          </div>
+        )}
       </div>
+
+      {/* Modal de Review */}
+      {selectedReview && (
+        <MovieReviewModal
+          review={selectedReview}
+          onClose={closeReviewModal}
+          onViewMovie={handleViewMovieFromModal}
+        />
+      )}
+
+      {/* Modal de Filme Favorito */}
+      {selectedMovie && (
+        <MovieModal
+          movie={selectedMovie}
+          actions={[
+            {
+              label: "Avaliar",
+              onClick: () => handleRate(selectedMovie),
+            },
+            { 
+              label: unfavoriteLoading ? "Removendo..." : "Desfavoritar", 
+              onClick: () => handleUnfavorite(selectedMovie),
+              disabled: unfavoriteLoading
+            },
+          ]}
+          onClose={handleCloseMovieModal}
+        />
+      )}
     </div>
   );
 };

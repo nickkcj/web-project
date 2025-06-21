@@ -2,6 +2,7 @@ import React, { useEffect } from "react";
 import ReactDOM from "react-dom";
 
 export interface Movie {
+  overview?: string;
   id: number;
   title: string;
   year: string;
@@ -12,6 +13,7 @@ export interface Movie {
 interface Action {
   label: string;
   onClick: () => void;
+  disabled?: boolean; // Adicionada propriedade opcional disabled
 }
 
 interface Props {
@@ -51,23 +53,27 @@ export const MovieModal: React.FC<Props> = ({ movie, onClose, actions }) => {
             {movie.title}{" "}
             <span className="text-slate-400 font-medium">({movie.year})</span>
           </h3>
+          <p className="text-gray-400 text-sm mb-4">{movie.overview}</p>
           {movie.tag && (
             <span className="inline-block self-start bg-slate-700 text-xs px-2 py-0.5 rounded">
               {movie.tag}
             </span>
           )}
 
-          {/* Spacer to push footer to bottom */}
           <div className="flex-1" />
 
-          {/* Footer buttons */}
           {actions?.length ? (
             <div className="mt-4 flex justify-end gap-3">
               {actions.map((a, i) => (
                 <button
                   key={i}
                   onClick={a.onClick}
-                  className="px-3 py-1 text-sm rounded-lg bg-slate-700 hover:bg-slate-600 transition"
+                  disabled={a.disabled} // Adicionada propriedade disabled
+                  className={`px-3 py-1 text-sm rounded-lg transition ${
+                    a.disabled 
+                      ? 'bg-slate-800 text-gray-500 cursor-not-allowed' // Estilos para disabled
+                      : 'bg-slate-700 hover:bg-slate-600' // Estilos normais
+                  }`}
                 >
                   {a.label}
                 </button>
@@ -76,7 +82,6 @@ export const MovieModal: React.FC<Props> = ({ movie, onClose, actions }) => {
           ) : null}
         </div>
 
-        {/* Close */}
         <button
           onClick={onClose}
           aria-label="Close"
