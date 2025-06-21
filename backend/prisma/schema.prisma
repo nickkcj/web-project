@@ -15,9 +15,10 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  Review  Review[]
-  Likes   Like[]
-  Comment Comment[]
+  Review    Review[]
+  Likes     Like[]
+  Comment   Comment[]
+  Favorites Favorite[]
 
   followers UserRelationship[] @relation("Follower")
   following UserRelationship[] @relation("Following")
@@ -86,7 +87,20 @@ model Movie {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  Review Review[]
+  Review    Review[]
+  Favorites Favorite[]
+}
+
+model Favorite {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  movieId   Int
+  user      User     @relation(fields: [userId], references: [id])
+  movie     Movie    @relation(fields: [movieId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, movieId])
 }
 
 enum Visibility {

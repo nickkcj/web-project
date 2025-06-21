@@ -2,6 +2,7 @@ import { FC, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Movie } from "./MoviesPage";
 import { MovieModal } from "../../components/movie/MovieModal";
+import services from "../../services/services";
 
 interface Props {
   movies: Movie[];
@@ -9,7 +10,39 @@ interface Props {
 
 const MovieGrid: FC<Props> = ({ movies }) => {
   const [selectedMovie, setSelectedMovie] = useState<Movie | null>(null);
+  const [favoriteStates, setFavoriteStates] = useState<Record<number, boolean>>({});
   const navigate = useNavigate();
+
+  const handleFavorite = async (movie: Movie) => {
+    try {
+      // First, create the movie in database if it doesn't exist
+      await services.createMovieInDatabase({
+        id: movie.id,
+        title: movie.title,
+        poster_path: movie.poster.replace('https://image.tmdb.org/t/p/w342', ''),
+        backdrop_path: '', // We don't have backdrop in this context
+        overview: '', // We don't have overview in this context
+        release_date: movie.year + '-01-01', // Approximate date
+        popularity: 0,
+        original_language: 'en'
+      });
+
+      // Then toggle favorite
+      const result = await services.toggleFavorite(movie.id);
+      setFavoriteStates(prev => ({
+        ...prev,
+        [movie.id]: result.favorited
+      }));
+      
+      console.log(result.favorited ? 'Filme favoritado!' : 'Filme removido dos favoritos!');
+    } catch (error) {
+      console.error('Error toggling favorite:', error);
+    }
+  };
+
+  const handleRate = (movie: Movie) => {
+    navigate("/rate", { state: { movie } });
+  };
 
   return (
     <>
@@ -46,13 +79,11 @@ const MovieGrid: FC<Props> = ({ movies }) => {
           actions={[
             {
               label: "Avaliar",
-              onClick: () =>
-                navigate("/rate", { state: { movie: selectedMovie } }),
+              onClick: () => handleRate(selectedMovie),
             },
-            { label: "Favoritar", onClick: () => console.log("Favoritar") },
-            {
-              label: "Adicionar ao Wishlist",
-              onClick: () => console.log("Wishlist"),
+            { 
+              label: favoriteStates[selectedMovie.id] ? "Desfavoritar" : "Favoritar", 
+              onClick: () => handleFavorite(selectedMovie) 
             },
           ]}
           onClose={() => setSelectedMovie(null)}

@@ -1,6 +1,7 @@
 import { FC, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Movie } from "../../components/movie/MovieModal";
+import services from "../../services/services";
 
 interface LocationState {
   movie: Movie;
@@ -11,6 +12,8 @@ const RateMoviePage: FC = () => {
   const { state } = useLocation();
   const [rating, setRating] = useState<number>(0);
   const [review, setReview] = useState<string>("");
+  const [visibility, setVisibility] = useState<'PUBLIC' | 'PRIVATE'>('PUBLIC');
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const movie = (state as LocationState | undefined)?.movie;
 
   if (!movie) {
@@ -18,9 +21,50 @@ const RateMoviePage: FC = () => {
     return null;
   }
 
-  const handleSubmit = () => {
-    console.log({ movieId: movie.id, rating, review });
-    navigate("/feed");
+  const handleSubmit = async () => {
+    if (rating === 0 || review.trim() === "") {
+      alert("Por favor, adicione uma avaliação e um comentário.");
+      return;
+    }
+
+    try {
+      setIsSubmitting(true);
+
+      // First, create the movie in database if it doesn't exist
+      await services.createMovieInDatabase({
+        id: movie.id,
+        title: movie.title,
+        poster_path: movie.poster.replace('https://image.tmdb.org/t/p/w342', ''),
+        backdrop_path: '', // We don't have backdrop in this context
+        overview: '', // We don't have overview in this context
+        release_date: movie.year + '-01-01', // Approximate date
+        popularity: 0,
+        original_language: 'en'
+      });
+
+      // Create the review
+      await services.createReview({
+        movieId: movie.id,
+        rating,
+        comment: review.trim(),
+        visibility
+      });
+
+      // Auto-favorite the movie when creating a review
+      try {
+        await services.toggleFavorite(movie.id);
+      } catch (favoriteError) {
+        console.log('Movie might already be favorited or error occurred:', favoriteError);
+      }
+
+      alert("Review criada com sucesso!");
+      navigate("/profile");
+    } catch (error) {
+      console.error('Error creating review:', error);
+      alert("Erro ao criar review. Tente novamente.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -42,30 +86,66 @@ const RateMoviePage: FC = () => {
           </header>
 
           {/* Star rating */}
-          <StarRating rating={rating} onChange={setRating} />
+          <div>
+            <label className="block text-sm font-medium mb-2">Sua avaliação:</label>
+            <StarRating rating={rating} onChange={setRating} />
+          </div>
+
+          {/* Visibility toggle */}
+          <div>
+            <label className="block text-sm font-medium mb-2">Visibilidade:</label>
+            <div className="flex gap-4">
+              <label className="flex items-center">
+                <input
+                  type="radio"
+                  name="visibility"
+                  value="PUBLIC"
+                  checked={visibility === 'PUBLIC'}
+                  onChange={(e) => setVisibility(e.target.value as 'PUBLIC' | 'PRIVATE')}
+                  className="mr-2"
+                />
+                Público
+              </label>
+              <label className="flex items-center">
+                <input
+                  type="radio"
+                  name="visibility"
+                  value="PRIVATE"
+                  checked={visibility === 'PRIVATE'}
+                  onChange={(e) => setVisibility(e.target.value as 'PUBLIC' | 'PRIVATE')}
+                  className="mr-2"
+                />
+                Privado
+              </label>
+            </div>
+          </div>
 
           {/* Review textarea */}
-          <textarea
-            className="w-full h-40 bg-[#0F141B] rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none"
-            placeholder="Escreva sua avaliação..."
-            value={review}
-            onChange={(e) => setReview(e.target.value)}
-          />
+          <div>
+            <label className="block text-sm font-medium mb-2">Sua resenha:</label>
+            <textarea
+              className="w-full h-40 bg-[#0F141B] rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none"
+              placeholder="Escreva sua avaliação..."
+              value={review}
+              onChange={(e) => setReview(e.target.value)}
+            />
+          </div>
 
           {/* Action buttons */}
           <div className="flex justify-end gap-4">
             <button
               className="px-4 py-2 rounded-lg bg-transparent border border-slate-500 hover:bg-slate-700 transition"
               onClick={() => navigate(-1)}
+              disabled={isSubmitting}
             >
               Cancelar
             </button>
             <button
-              disabled={rating === 0 || review.trim() === ""}
+              disabled={rating === 0 || review.trim() === "" || isSubmitting}
               className="px-6 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 transition"
               onClick={handleSubmit}
             >
-              Publicar
+              {isSubmitting ? "Publicando..." : "Publicar"}
             </button>
           </div>
         </div>

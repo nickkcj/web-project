@@ -257,6 +257,37 @@ const services = {
       return [];
     }
   },
+
+  // ===== FAVORITE SERVICES =====
+  toggleFavorite: async (movieId: number) => {
+    const response = await api.post(`/favorites/${movieId}/toggle`);
+    return response.data;
+  },
+
+  getUserFavorites: async () => {
+    const response = await api.get('/favorites');
+    return response.data;
+  },
+
+  hasUserFavorited: async (movieId: number) => {
+    const response = await api.get(`/favorites/${movieId}/status`);
+    return response.data;
+  },
+
+  // Helper to create movie in database when favoriting
+  createMovieInDatabase: async (movieData: {
+    id: number;
+    title: string;
+    poster_path: string;
+    backdrop_path: string;
+    overview: string;
+    release_date: string;
+    popularity: number;
+    original_language: string;
+  }) => {
+    const response = await api.post('/movies/create', movieData);
+    return response.data;
+  },
 };
 
 export default services;
