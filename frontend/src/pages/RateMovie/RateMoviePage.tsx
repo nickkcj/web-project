@@ -5,14 +5,21 @@ import services from "../../services/index";
 
 interface LocationState {
   movie: Movie;
+  review?: {
+    id: number;
+    rating: number;
+    comment: string;
+    visibility: 'PUBLIC' | 'PRIVATE';
+  };
 }
+
 
 const RateMoviePage: FC = () => {
   const navigate = useNavigate();
   const { state } = useLocation();
-  const [rating, setRating] = useState<number>(0);
-  const [review, setReview] = useState<string>("");
-  const [visibility, setVisibility] = useState<'PUBLIC' | 'PRIVATE'>('PUBLIC');
+  const [rating, setRating] = useState<number>(state?.review?.rating ?? 0);
+  const [review, setReview] = useState<string>(state?.review?.comment ?? "");
+  const [visibility, setVisibility] = useState<'PUBLIC' | 'PRIVATE'>(state?.review?.visibility ?? 'PUBLIC');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const movie = (state as LocationState | undefined)?.movie;
 
@@ -30,38 +37,51 @@ const RateMoviePage: FC = () => {
     try {
       setIsSubmitting(true);
 
-      // First, create the movie in database if it doesn't exist
-      await services.createMovieInDatabase({
-        id: movie.id,
-        title: movie.title,
-        poster_path: movie.poster.replace('https://image.tmdb.org/t/p/w342', ''),
-        backdrop_path: '', // We don't have backdrop in this context
-        overview: '', // We don't have overview in this context
-        release_date: movie.year + '-01-01', // Approximate date
-        popularity: 0,
-        original_language: 'en'
-      });
+      if (state?.review?.id) {
+        // Se tiver review.id, está editando
+        await services.updateReview(state.review.id, {
+          rating,
+          comment: review.trim(),
+          visibility,
+        });
+        alert("Review atualizada com sucesso!");
+      } else {
+        // Caso contrário, criar novo review
 
-      // Create the review
-      await services.createReview({
-        movieId: movie.id,
-        rating,
-        comment: review.trim(),
-        visibility
-      });
+        // Primeiro cria o filme na base de dados, se não existir
+        await services.createMovieInDatabase({
+          id: movie.id,
+          title: movie.title,
+          poster_path: movie.poster.replace('https://image.tmdb.org/t/p/w342', ''),
+          backdrop_path: '',
+          overview: '',
+          release_date: movie.year + '-01-01',
+          popularity: 0,
+          original_language: 'en'
+        });
 
-      // Auto-favorite the movie when creating a review
-      try {
-        await services.toggleFavorite(movie.id);
-      } catch (favoriteError) {
-        console.log('Movie might already be favorited or error occurred:', favoriteError);
+        // Cria a review
+        await services.createReview({
+          movieId: movie.id,
+          rating,
+          comment: review.trim(),
+          visibility,
+        });
+
+        // Auto-favorite do filme
+        try {
+          await services.toggleFavorite(movie.id);
+        } catch (favoriteError) {
+          console.log('Erro ao favoritar filme:', favoriteError);
+        }
+
+        alert("Review criada com sucesso!");
       }
 
-      alert("Review criada com sucesso!");
       navigate("/profile");
     } catch (error) {
-      console.error('Error creating review:', error);
-      alert("Erro ao criar review. Tente novamente.");
+      console.error('Erro ao salvar review:', error);
+      alert("Erro ao salvar review. Tente novamente.");
     } finally {
       setIsSubmitting(false);
     }
@@ -69,7 +89,9 @@ const RateMoviePage: FC = () => {
 
   return (
     <div className="min-h-screen flex flex-col items-center pt-10 px-4 bg-[#0B0E13] text-slate-100">
-      <h1 className="text-3xl font-bold mb-6">Avaliar filme</h1>
+      <h1 className="text-3xl font-bold mb-6">
+        {state?.review ? "Editar avaliação" : "Avaliar filme"}
+      </h1>
 
       <div className="flex flex-col md:flex-row gap-8 w-full max-w-4xl bg-[#1E252C] rounded-2xl p-6 shadow-2xl">
         <img
@@ -140,7 +162,7 @@ const RateMoviePage: FC = () => {
               className="px-6 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 transition"
               onClick={handleSubmit}
             >
-              {isSubmitting ? "Publicando..." : "Publicar"}
+              {isSubmitting ? (state?.review ? "Salvando..." : "Publicando...") : (state?.review ? "Salvar alterações" : "Publicar")}
             </button>
           </div>
         </div>

@@ -7,15 +7,18 @@ interface Review {
   rating: number;
   text: string;
   details: string;
+  overview?: string;
 }
 
 interface Props {
   review: Review;
   onClose: () => void;
-  onViewMovie?: () => void; // Função opcional para navegar para o filme
+  onViewMovie?: () => void;
+  onEdit?: () => void;
+  onDelete?: () => Promise<void>;
 }
 
-export const MovieReviewModal: React.FC<Props> = ({ review, onClose, onViewMovie }) => {
+export const MovieReviewModal: React.FC<Props> = ({ review, onClose, onViewMovie, onEdit, onDelete }) => {
   useEffect(() => {
     const handleEsc = (e: KeyboardEvent) => e.key === "Escape" && onClose();
     window.addEventListener("keydown", handleEsc);
@@ -55,6 +58,13 @@ export const MovieReviewModal: React.FC<Props> = ({ review, onClose, onViewMovie
         <div className="p-6 flex-1 flex flex-col gap-4">
           <div>
             <h3 className="text-2xl font-bold mb-2">{review.title}</h3>
+            {review.overview && (
+              <div className="text-sm text-slate-400 mt-4">
+                <strong className="text-white">Descrição do Filme:</strong>
+                <p className="mt-1">{review.overview}</p>
+              </div>
+            )}
+
             <div className="flex items-center gap-1 mb-4">
               {Array.from({ length: 5 }).map((_, i) => (
                 <span
@@ -80,8 +90,25 @@ export const MovieReviewModal: React.FC<Props> = ({ review, onClose, onViewMovie
             <p className="text-sm text-gray-400">{review.details}</p>
           </div>
 
-          {/* Botões de Ação */}
           <div className="flex justify-end gap-3 mt-4 pt-4 border-t border-slate-600">
+            {onEdit && (
+              <button
+                onClick={onEdit}
+                className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition-colors"
+              >
+                Editar
+              </button>
+            )}
+
+            {onDelete && (
+              <button
+                onClick={onDelete}
+                className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium transition-colors"
+              >
+                Deletar
+              </button>
+            )}
+
             {onViewMovie && (
               <button
                 onClick={onViewMovie}
@@ -90,16 +117,9 @@ export const MovieReviewModal: React.FC<Props> = ({ review, onClose, onViewMovie
                 Ver Filme
               </button>
             )}
-            <button
-              onClick={onClose}
-              className="px-4 py-2 bg-slate-600 hover:bg-slate-500 text-white rounded-lg font-medium transition-colors"
-            >
-              Fechar
-            </button>
           </div>
         </div>
 
-        {/* Botão de Fechar */}
         <button
           onClick={onClose}
           aria-label="Fechar modal"

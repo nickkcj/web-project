@@ -12,11 +12,13 @@ interface Review {
   rating: number;
   comment: string;
   createdAt: string;
+  visibility?: 'PUBLIC' | 'PRIVATE';
   movie?: {
     id: number;
     title: string;
     poster_path: string;
     release_date: string;
+    overview?: string;
   };
 }
 
@@ -38,12 +40,15 @@ interface Favorite {
 }
 
 interface ReviewModalData {
+  id: number;
   poster: string;
   title: string;
   rating: number;
   text: string;
   details: string;
+  visibility?: 'PUBLIC' | 'PRIVATE';
   movieId: number;
+  overview?: string;
 }
 
 interface MovieForModal {
@@ -51,6 +56,7 @@ interface MovieForModal {
   title: string;
   year: string;
   poster: string;
+  overview?: string;
 }
 
 interface CarouselItem {
@@ -158,12 +164,15 @@ export const ProfilePage: React.FC = () => {
   const handleReviewClick = (review: Review) => {
     if (review.movie) {
       const reviewData: ReviewModalData = {
+        id: review.id,
         poster: `https://image.tmdb.org/t/p/w300${review.movie.poster_path}`,
         title: review.movie.title,
         rating: review.rating,
         text: review.comment,
+        visibility: review["visibility"] ?? 'PUBLIC',
         details: `Avaliado em ${new Date(review.createdAt).toLocaleDateString('pt-BR')} • ${review.movie.release_date ? new Date(review.movie.release_date).getFullYear() : 'Ano não disponível'}`,
-        movieId: review.movieId
+        movieId: review.movieId,
+        overview: review.movie?.overview,
       };
       setSelectedReview(reviewData);
     }
@@ -332,12 +341,43 @@ export const ProfilePage: React.FC = () => {
         )}
       </div>
 
-      {/* Modal de Review */}
       {selectedReview && (
         <MovieReviewModal
           review={selectedReview}
           onClose={closeReviewModal}
           onViewMovie={handleViewMovieFromModal}
+          onEdit={() => {
+            navigate('/edit-rate', {
+              state: {
+                movie: {
+                  id: selectedReview.movieId,
+                  title: selectedReview.title,
+                  poster: selectedReview.poster,
+                  year: selectedReview.details.split('•')[1]?.trim() ?? ''
+                },
+                review: {
+                  id: selectedReview.id,
+                  rating: selectedReview.rating,
+                  comment: selectedReview.text,
+                  visibility: selectedReview.visibility ?? 'PUBLIC'
+                }
+              }
+            });
+            closeReviewModal();
+          }}
+          onDelete={async () => {
+            const confirmed = window.confirm("Tem certeza que deseja deletar essa review?");
+            if (confirmed) {
+              try {
+                await services.deleteReview(selectedReview.id);
+                setReviews(prev => prev.filter(r => r.id !== selectedReview.id));
+                closeReviewModal();
+              } catch (error) {
+                alert("Erro ao deletar review");
+                console.error(error);
+              }
+            }
+          }}
         />
       )}
 

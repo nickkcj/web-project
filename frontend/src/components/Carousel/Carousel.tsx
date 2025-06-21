@@ -43,9 +43,9 @@ export const Carousel: React.FC<CarouselProps> = ({
   const maxSlides = Math.max(0, items.length - Math.floor(window.innerWidth / slideW) || items.length - 1);
 
   return (
-    <section className="mb-10 relative">
+    <section className="mb-4 relative">
       {title && (
-        <h2 className="text-white text-2xl md:text-3xl font-bold mb-8 text-center">
+        <h2 className="text-white text-2xl md:text-3xl font-bold mb-1 text-center">
           {title}
         </h2>
       )}

@@ -62,6 +62,14 @@ function RouterContent() {
               <RateMoviePage />
             </ProtectedRoute>
           } />
+          <Route 
+            path="/edit-rate" 
+            element={
+              <ProtectedRoute>
+                <RateMoviePage />
+              </ProtectedRoute>
+            } 
+          />
           <Route path="/profile" element={
             <ProtectedRoute>
               <ProfilePage />

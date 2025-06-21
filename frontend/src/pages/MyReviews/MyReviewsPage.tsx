@@ -81,7 +81,7 @@ const MyReviewsPage: FC = () => {
       <div className="flex flex-wrap justify-center gap-6">
         {reviews.map((rev) => (
           <article
-            key={rev.id}
+            key={`${rev.id}-${rev.createdAt}`}
             className="w-72 bg-slate-800 rounded-xl overflow-hidden shadow-lg"
           >
             {rev.movie && (

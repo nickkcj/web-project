@@ -13,7 +13,7 @@ export interface Movie {
 interface Action {
   label: string;
   onClick: () => void;
-  disabled?: boolean; // Adicionada propriedade opcional disabled
+  disabled?: boolean;
 }
 
 interface Props {
@@ -40,14 +40,12 @@ export const MovieModal: React.FC<Props> = ({ movie, onClose, actions }) => {
         className="relative bg-[#1E252C] text-white rounded-2xl shadow-2xl w-[90%] max-w-3xl flex flex-col md:flex-row overflow-hidden animate-fade-in"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Poster */}
         <img
           src={movie.poster}
           alt={movie.title}
           className="h-64 md:h-auto md:w-1/3 object-cover"
         />
 
-        {/* Details */}
         <div className="p-6 flex-1 flex flex-col gap-4">
           <h3 className="text-2xl font-bold">
             {movie.title}{" "}
@@ -68,11 +66,11 @@ export const MovieModal: React.FC<Props> = ({ movie, onClose, actions }) => {
                 <button
                   key={i}
                   onClick={a.onClick}
-                  disabled={a.disabled} // Adicionada propriedade disabled
+                  disabled={a.disabled}
                   className={`px-3 py-1 text-sm rounded-lg transition ${
                     a.disabled 
-                      ? 'bg-slate-800 text-gray-500 cursor-not-allowed' // Estilos para disabled
-                      : 'bg-slate-700 hover:bg-slate-600' // Estilos normais
+                      ? 'bg-slate-800 text-gray-500 cursor-not-allowed'
+                      : 'bg-slate-700 hover:bg-slate-600'
                   }`}
                 >
                   {a.label}
