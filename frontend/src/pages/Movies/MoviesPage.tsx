@@ -2,7 +2,7 @@ import { FC, useEffect, useState } from "react";
 import SearchBar from "./SearchBar";
 import FilterRow from "./FilterRow";
 import MovieGrid from "./MovieGrid";
-import services from "../../services/services";
+import services from "../../services/index";
 
 export interface Movie {
   id: number;

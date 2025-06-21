@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { updateUser } from '../../services/Slices/loginSlice';
-import services from '../../services/services';
+import services from '../../services/index';
 
 export const EditProfilePage: React.FC = () => {
   const { user } = useSelector((state: any) => state.login);

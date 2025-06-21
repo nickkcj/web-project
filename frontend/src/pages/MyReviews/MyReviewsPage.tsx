@@ -1,7 +1,7 @@
 import { FC, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
-import services from "../../services/services";
+import services from "../../services/index";
 
 interface Review {
   id: number;
