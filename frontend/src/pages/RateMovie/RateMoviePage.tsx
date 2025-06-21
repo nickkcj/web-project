@@ -75,23 +75,20 @@ const RateMoviePage: FC = () => {
         <img
           src={movie.poster}
           alt={movie.title}
-          className="w-40 h-60 object-cover rounded-lg self-center"
+          className="w-50 h-[auto] object-cover rounded-lg self-center"
         />
 
-        <div className="flex-1 flex flex-col gap-6">
-          {/* Movie title & year */}
+        <div className="flex-1 flex flex-col gap-6 text-left">
           <header>
             <h2 className="text-2xl font-semibold">{movie.title}</h2>
             <p className="text-slate-400">{movie.year}</p>
           </header>
 
-          {/* Star rating */}
           <div>
             <label className="block text-sm font-medium mb-2">Sua avaliação:</label>
             <StarRating rating={rating} onChange={setRating} />
           </div>
 
-          {/* Visibility toggle */}
           <div>
             <label className="block text-sm font-medium mb-2">Visibilidade:</label>
             <div className="flex gap-4">
@@ -120,7 +117,6 @@ const RateMoviePage: FC = () => {
             </div>
           </div>
 
-          {/* Review textarea */}
           <div>
             <label className="block text-sm font-medium mb-2">Sua resenha:</label>
             <textarea
@@ -131,10 +127,9 @@ const RateMoviePage: FC = () => {
             />
           </div>
 
-          {/* Action buttons */}
           <div className="flex justify-end gap-4">
             <button
-              className="px-4 py-2 rounded-lg bg-transparent border border-slate-500 hover:bg-slate-700 transition"
+              className="w-fit ml-auto bg-red-600/90 hover:bg-red-700 text-white py-3 px-4 rounded-lg font-medium transition-colors border border-red-500/50 shadow-lg flex items-center justify-center gap-2"
               onClick={() => navigate(-1)}
               disabled={isSubmitting}
             >
