@@ -122,20 +122,37 @@ export const ProfilePage: React.FC = () => {
   }, [user, navigate, loadUserData]);
 
   useEffect(() => {
-    const movieId = searchParams.get('movieId');
-    if (movieId && favorites.length > 0) {
-      const favorite = favorites.find(f => f.movieId.toString() === movieId);
-      if (favorite) {
+    const movieIdStr = searchParams.get('movieId');
+    if (!movieIdStr) {
+      setSelectedMovie(null);
+      return;
+    }
+
+    const movieId = parseInt(movieIdStr);
+    if (isNaN(movieId)) {
+      setSelectedMovie(null);
+      return;
+    }
+
+    if (selectedMovie?.id === movieId) return;
+
+    services.getMovieDetails(movieId)
+      .then(movie => {
         const movieForModal: MovieForModal = {
-          id: favorite.movie.id,
-          title: favorite.movie.title,
-          year: favorite.movie.release_date ? new Date(favorite.movie.release_date).getFullYear().toString() : '',
-          poster: `https://image.tmdb.org/t/p/w342${favorite.movie.poster_path}`
+          id: movie.id,
+          title: movie.title,
+          year: movie.release_date ? new Date(movie.release_date).getFullYear().toString() : '',
+          poster: `https://image.tmdb.org/t/p/w342${movie.poster_path}`,
+          overview: movie.overview,
         };
         setSelectedMovie(movieForModal);
-      }
-    }
-  }, [searchParams, favorites]);
+      })
+      .catch(err => {
+        console.error('Erro ao buscar detalhes do filme:', err);
+        setSelectedMovie(null);
+      });
+  }, [searchParams, selectedMovie]);
+
 
   const favoritesCarouselItems: CarouselItem[] = favorites.map(favorite => ({
     id: favorite.movie.id,
