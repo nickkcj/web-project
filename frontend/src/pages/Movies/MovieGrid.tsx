@@ -1,7 +1,7 @@
 import { FC, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Movie } from "./MoviesPage";
-import { MovieModal } from "../../components/Movie/MovieModal";
+import { MovieModal } from "../../components/movie/MovieModal";
 
 interface Props {
   movies: Movie[];

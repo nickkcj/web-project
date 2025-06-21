@@ -36,7 +36,6 @@ export const ProfilePage: React.FC = () => {
     
     try {
       setLoading(true);
-      // Converter string para number se necessário
       const userId = typeof user.id === 'string' ? parseInt(user.id) : user.id;
       const userReviews = await services.getReviewsByUserId(userId);
       setReviews(Array.isArray(userReviews) ? userReviews : []);
@@ -79,7 +78,6 @@ export const ProfilePage: React.FC = () => {
   return (
     <div className="min-h-screen bg-[#0F172A] text-white">
       <div className="max-w-6xl mx-auto px-4 py-8">
-        {/* Header do Perfil */}
         <div className="bg-gradient-to-r from-slate-700/80 to-slate-600/80 rounded-2xl p-8 mb-8 backdrop-blur-sm border border-slate-500/30">
           <div className="flex items-center gap-6">
             <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white text-2xl font-bold shadow-lg border-4 border-white/20">
@@ -89,12 +87,10 @@ export const ProfilePage: React.FC = () => {
             <div className="flex-1">
               <div className="flex items-center justify-between mb-4">
                 <h1 className="text-3xl font-bold text-white">{user.name}</h1>
-                <button
-                  onClick={() => navigate('/movies')}
-                  className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-semibold transition-colors shadow-lg"
-                >
+                <button className="bg-[#1C354E] hover:bg-[#172B3F] text-white px-6 py-2 rounded-full font-normal transition-colors shadow-md">
                   Criar Review
                 </button>
+
               </div>
               
               <div className="flex items-center gap-4">
@@ -111,7 +107,6 @@ export const ProfilePage: React.FC = () => {
           </div>
         </div>
 
-        {/* Seção As Favoritas */}
         <div className="mb-12">
           <h2 className="text-2xl font-bold mb-6 text-left">As Favoritas</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

@@ -1,6 +1,6 @@
 import { FC, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import type { Movie } from "@/components/Movie/MovieModal";
+import type { Movie } from "@/components/movie/MovieModal";
 interface Review {
   id: number;
   movie: Movie;
