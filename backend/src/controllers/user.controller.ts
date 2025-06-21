@@ -23,8 +23,8 @@ export const getMyProfile = async (req: Request, res: Response) => {
     }
     res.json(user);
   } catch (error: any) {
-    console.error('Error fetching user:', error);
-    res.status(500).json({ error: error.message || 'Error fetching user' });
+    console.error('Error fetching user profile:', error);
+    res.status(500).json({ error: error.message || 'Error fetching user profile' });
   }
 };
 
@@ -36,8 +36,6 @@ export const getUserById = async (req: Request, res: Response) => {
     if (isNaN(userId)) {
       return res.status(400).json({ error: 'Invalid user ID' });
     }
-
-    console.log('Authenticated user:', req.authUser);
 
     const user = await UserService.getUserById(userId);
     if (!user) {
@@ -58,8 +56,8 @@ export const updateMyProfile = async (req: Request, res: Response) => {
     const user = await UserService.updateUser(userId, userData);
     res.json(user);
   } catch (error: any) {
-    console.error('Error updating user:', error);
-    res.status(500).json({ error: error.message || 'Error updating user' });
+    console.error('Error updating user profile:', error);
+    res.status(500).json({ error: error.message || 'Error updating user profile' });
   }
 };
 
@@ -87,8 +85,6 @@ export const updateUser = async (req: Request, res: Response) => {
 
 export const getUsers = async (req: Request, res: Response) => {
   try {
-    console.log('Request made by user:', req.authUser?.email);
-    
     const users = await UserService.getUsers();
     res.json(users);
   } catch (error: any) {
@@ -104,15 +100,23 @@ export const deleteMyAccount = async (req: Request, res: Response) => {
     await UserService.deleteUser(userId);
     res.status(204).send();
   } catch (error: any) {
-    console.error('Error deleting user:', error);
-    res.status(500).json({ error: error.message || 'Error deleting user' });
+    console.error('Error deleting user account:', error);
+    res.status(500).json({ error: error.message || 'Error deleting user account' });
   }
 };
 
 export const deleteUser = async (req: Request, res: Response) => {
   try {
-    const userId = req.authUser!.userId;
+    const userId = parseInt(req.params.id, 10);
     
+    if (isNaN(userId)) {
+      return res.status(400).json({ error: 'Invalid user ID' });
+    }
+    
+    // Check if user is deleting their own account
+    if (req.authUser && req.authUser.userId !== userId) {
+      return res.status(403).json({ error: 'You can only delete your own account' });
+    }
     
     await UserService.deleteUser(userId);
     res.status(204).send();

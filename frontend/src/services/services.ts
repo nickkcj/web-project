@@ -88,13 +88,7 @@ const services = {
 
   getUserProfile: async () => {
     try {
-      // Usar a rota correta do backend que não existe /users/me
-      // Vamos usar o ID do usuário do localStorage
-      const userStr = localStorage.getItem('authUser');
-      if (!userStr) throw new Error('No user data');
-      
-      const user = JSON.parse(userStr);
-      const response = await api.get(`/users/${user.id}`);
+      const response = await api.get('/users/me');
       return response.data;
     } catch (error) {
       throw new Error('Erro ao buscar perfil do usuário');
@@ -111,14 +105,9 @@ const services = {
     return response.data;
   },
 
-  updateUserProfile: async (data: { name?: string; email?: string }) => {
+  updateUserProfile: async (data: { name?: string; email?: string; password?: string }) => {
     try {
-      // Usar a rota correta do backend
-      const userStr = localStorage.getItem('authUser');
-      if (!userStr) throw new Error('No user data');
-      
-      const user = JSON.parse(userStr);
-      const response = await api.put(`/users/${user.id}`, data);
+      const response = await api.put('/users/me', data);
       return response.data;
     } catch (error: any) {
       console.error('Update profile error:', error);

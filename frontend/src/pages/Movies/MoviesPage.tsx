@@ -2,7 +2,7 @@ import { FC, useEffect, useState } from "react";
 import SearchBar from "./SearchBar";
 import FilterRow from "./FilterRow";
 import MovieGrid from "./MovieGrid";
-import { MoviesApi } from "../../api/movies";
+import services from "../../services/services";
 
 export interface Movie {
   id: number;
@@ -22,15 +22,19 @@ const MoviesPage: FC = () => {
 
   useEffect(() => {
     fetchTrending();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const fetchTrending = async () => {
     try {
       setLoading(true);
-      const raw = await MoviesApi.popular();
+      setError(null);
+      const response = await services.getPopularMovies();
+      
+      // Handle both array response and object with results property
+      const moviesData = Array.isArray(response) ? response : response.results || [];
+      
       setMovies(
-        raw.map((m) => ({
+        moviesData.map((m: any) => ({
           id: m.id,
           title: m.title,
           year: m.release_date?.slice(0, 4) ?? "",
@@ -40,6 +44,7 @@ const MoviesPage: FC = () => {
         }))
       );
     } catch (err: any) {
+      console.error('Error fetching popular movies:', err);
       setError(err.message ?? "Erro ao buscar filmes");
     } finally {
       setLoading(false);
@@ -53,9 +58,14 @@ const MoviesPage: FC = () => {
     }
     try {
       setLoading(true);
-      const raw = await MoviesApi.search(term);
+      setError(null);
+      const response = await services.searchMovies(term);
+      
+      // Handle both array response and object with results property
+      const moviesData = Array.isArray(response) ? response : response.results || [];
+      
       setMovies(
-        raw.map((m) => ({
+        moviesData.map((m: any) => ({
           id: m.id,
           title: m.title,
           year: m.release_date?.slice(0, 4) ?? "",
@@ -66,6 +76,7 @@ const MoviesPage: FC = () => {
       );
       setActiveFilter("Resultados");
     } catch (err: any) {
+      console.error('Error searching movies:', err);
       setError(err.message ?? "Erro na pesquisa");
     } finally {
       setLoading(false);

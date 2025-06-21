@@ -10,18 +10,37 @@ export class ReviewService {
       data: {
         ...reviewData,
         visibility: reviewData.visibility || Visibility.PUBLIC
+      },
+      include: {
+        movie: true,
+        User: {
+          select: {
+            id: true,
+            name: true,
+            email: true
+          }
+        }
       }
     });
   }
 
   public static async getReviewById(reviewId: number) {
     return prisma.review.findUnique({
-      where: { id: reviewId }
+      where: { id: reviewId },
+      include: {
+        movie: true,
+        User: {
+          select: {
+            id: true,
+            name: true,
+            email: true
+          }
+        }
+      }
     });
   }
 
   public static async getReviews(authUserId: number) {
-
     // Get the ids of the users that the user is following  
     const following = await prisma.userRelationship.findMany({
       where: { followerId: authUserId }
@@ -36,6 +55,19 @@ export class ReviewService {
           { userId: authUserId },
           { userId: { in: followingIds }, visibility: Visibility.PRIVATE }
         ]
+      },
+      include: {
+        movie: true,
+        User: {
+          select: {
+            id: true,
+            name: true,
+            email: true
+          }
+        }
+      },
+      orderBy: {
+        createdAt: 'desc'
       }
     });
   }
@@ -46,6 +78,19 @@ export class ReviewService {
       return prisma.review.findMany({
         where: {
           userId
+        },
+        include: {
+          movie: true,
+          User: {
+            select: {
+              id: true,
+              name: true,
+              email: true
+            }
+          }
+        },
+        orderBy: {
+          createdAt: 'desc'
         }
       });
     } 
@@ -62,6 +107,19 @@ export class ReviewService {
       return prisma.review.findMany({
         where: {
           userId
+        },
+        include: {
+          movie: true,
+          User: {
+            select: {
+              id: true,
+              name: true,
+              email: true
+            }
+          }
+        },
+        orderBy: {
+          createdAt: 'desc'
         }
       });
 
@@ -71,6 +129,19 @@ export class ReviewService {
         where: {
           userId,
           visibility: Visibility.PUBLIC
+        },
+        include: {
+          movie: true,
+          User: {
+            select: {
+              id: true,
+              name: true,
+              email: true
+            }
+          }
+        },
+        orderBy: {
+          createdAt: 'desc'
         }
       });
     }
@@ -81,6 +152,19 @@ export class ReviewService {
       where: { 
         movieId,
         visibility: Visibility.PUBLIC
+      },
+      include: {
+        movie: true,
+        User: {
+          select: {
+            id: true,
+            name: true,
+            email: true
+          }
+        }
+      },
+      orderBy: {
+        createdAt: 'desc'
       }
     });
   }
@@ -88,7 +172,17 @@ export class ReviewService {
   public static async updateReview(reviewId: number, reviewData: UpdateReviewDto) {
     return prisma.review.update({
       where: { id: reviewId },
-      data: reviewData
+      data: reviewData,
+      include: {
+        movie: true,
+        User: {
+          select: {
+            id: true,
+            name: true,
+            email: true
+          }
+        }
+      }
     });
   }
 
