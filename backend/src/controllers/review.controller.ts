@@ -19,6 +19,11 @@ export const createReview = async (req: Request, res: Response) => {
 export const getReviewById = async (req: Request, res: Response) => {
   try {
     const reviewId = parseInt(req.params.id, 10);
+    
+    if (isNaN(reviewId)) {
+      return res.status(400).json({ error: 'Invalid review ID' });
+    }
+
     const review = await ReviewService.getReviewById(reviewId);
     if (!review) {
       return res.status(404).json({ error: 'Review not found' });
@@ -49,19 +54,19 @@ export const getReviewsByUserId = async (req: Request, res: Response) => {
       return res.status(400).json({ error: 'Invalid user ID' });
     }
 
-    // Check if user exists first
-    const { UserService } = await import('../services/user.service');
-    const user = await UserService.getUserById(userId);
-    if (!user) {
-      return res.status(404).json({ error: 'User not found' });
-    }
+    console.log(`Fetching reviews for user ${userId}`);
 
     const authUserId = req.authUser!.userId;
     const reviews = await ReviewService.getReviewsByUserId(userId, authUserId);
+    
+    console.log(`Found ${reviews.length} reviews for user ${userId}`);
     res.json(reviews);
   } catch (error: any) {
     console.error('Error fetching reviews by user:', error);
-    res.status(500).json({ error: 'Error fetching reviews by user' });
+    res.status(500).json({ 
+      error: 'Error fetching reviews by user',
+      details: error.message 
+    });
   }
 };
 

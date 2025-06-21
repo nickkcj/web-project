@@ -149,7 +149,9 @@ const services = {
 
   getReviewsByUserId: async (userId: number) => {
     try {
+      console.log(`Fetching reviews for user ${userId}`);
       const response = await api.get(`/reviews/user/${userId}`);
+      console.log(`Successfully fetched ${response.data.length} reviews for user ${userId}`);
       return response.data;
     } catch (error: any) {
       console.error(`Error fetching reviews for user ${userId}:`, {
@@ -159,15 +161,6 @@ const services = {
         url: `/reviews/user/${userId}`,
         userId
       });
-      
-      if (error.response?.status === 500) {
-        console.error(`Server error when fetching reviews for user ${userId}. This could indicate:
-          - User doesn't exist in database
-          - Database connection issues
-          - Backend query problems
-          - User has corrupted data
-        `);
-      }
       
       // Return empty array instead of throwing to prevent UI crashes
       return [];
@@ -249,18 +242,33 @@ const services = {
 
   // ===== FAVORITE SERVICES =====
   toggleFavorite: async (movieId: number) => {
-    const response = await api.post(`/favorites/${movieId}/toggle`);
-    return response.data;
+    try {
+      const response = await api.post(`/favorites/${movieId}/toggle`);
+      return response.data;
+    } catch (error: any) {
+      console.error('Error toggling favorite:', error);
+      throw error;
+    }
   },
 
   getUserFavorites: async () => {
-    const response = await api.get('/favorites');
-    return response.data;
+    try {
+      const response = await api.get('/favorites');
+      return response.data;
+    } catch (error: any) {
+      console.error('Error fetching favorites:', error);
+      return [];
+    }
   },
 
   hasUserFavorited: async (movieId: number) => {
-    const response = await api.get(`/favorites/${movieId}/status`);
-    return response.data;
+    try {
+      const response = await api.get(`/favorites/${movieId}/status`);
+      return response.data;
+    } catch (error: any) {
+      console.error('Error checking favorite status:', error);
+      return { hasFavorited: false };
+    }
   },
 
   // Helper to create movie in database when favoriting
@@ -274,8 +282,13 @@ const services = {
     popularity: number;
     original_language: string;
   }) => {
-    const response = await api.post('/movies/create', movieData);
-    return response.data;
+    try {
+      const response = await api.post('/movies/create', movieData);
+      return response.data;
+    } catch (error: any) {
+      console.error('Error creating movie in database:', error);
+      throw error;
+    }
   },
 };
 

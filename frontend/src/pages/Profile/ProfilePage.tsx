@@ -56,11 +56,22 @@ export const ProfilePage: React.FC = () => {
       setLoading(true);
       const userId = typeof user.id === 'string' ? parseInt(user.id) : user.id;
       
+      console.log('Loading data for user:', userId);
+      
       // Load reviews and favorites in parallel
       const [userReviews, userFavorites] = await Promise.all([
-        services.getReviewsByUserId(userId),
-        services.getUserFavorites()
+        services.getReviewsByUserId(userId).catch(err => {
+          console.error('Error loading reviews:', err);
+          return [];
+        }),
+        services.getUserFavorites().catch(err => {
+          console.error('Error loading favorites:', err);
+          return [];
+        })
       ]);
+      
+      console.log('Loaded reviews:', userReviews.length);
+      console.log('Loaded favorites:', userFavorites.length);
       
       setReviews(Array.isArray(userReviews) ? userReviews : []);
       setFavorites(Array.isArray(userFavorites) ? userFavorites : []);
@@ -81,8 +92,11 @@ export const ProfilePage: React.FC = () => {
     return null;
   }
 
-  // Get top 3 favorites for display
-  const topFavorites = favorites.slice(0, 3);
+  // Get top 3 favorites for display (only movies that are actually favorited, not reviewed)
+  const actualFavorites = favorites.filter(fav => 
+    !reviews.some(review => review.movieId === fav.movieId)
+  );
+  const topFavorites = actualFavorites.slice(0, 3);
 
   return (
     <div className="min-h-screen bg-[#0F172A] text-white">
@@ -122,7 +136,7 @@ export const ProfilePage: React.FC = () => {
           </div>
         </div>
 
-        {/* Seção As Favoritas */}
+        {/* Seção As Favoritas - apenas filmes favoritados sem review */}
         <div className="mb-12">
           <h2 className="text-2xl font-bold mb-6 text-left">As Favoritas</h2>
           {loading ? (
@@ -131,48 +145,29 @@ export const ProfilePage: React.FC = () => {
             </div>
           ) : topFavorites.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {topFavorites.map((favorite) => {
-                // Find review for this movie to get rating and quote
-                const movieReview = reviews.find(r => r.movieId === favorite.movieId);
-                
-                return (
-                  <div key={favorite.id} className="bg-slate-800/50 rounded-lg p-4 backdrop-blur-sm border border-slate-600/30">
-                    <img
-                      src={`https://image.tmdb.org/t/p/w300${favorite.movie.poster_path}`}
-                      alt={favorite.movie.title}
-                      className="w-full h-64 object-cover rounded-lg mb-4"
-                      onError={(e) => {
-                        e.currentTarget.src = 'https://via.placeholder.com/300x450?text=No+Image';
-                      }}
-                    />
-                    <div className="flex items-center gap-1 mb-2">
-                      {movieReview ? (
-                        Array.from({ length: 5 }).map((_, i) => (
-                          <span
-                            key={i}
-                            className={`text-lg ${
-                              i < movieReview.rating ? 'text-yellow-400' : 'text-gray-600'
-                            }`}
-                          >
-                            ★
-                          </span>
-                        ))
-                      ) : (
-                        <span className="text-gray-400 text-sm">Sem avaliação</span>
-                      )}
-                      <span className="ml-2 text-sm text-blue-400">FAVORITO</span>
-                    </div>
-                    <h3 className="text-white font-semibold mb-2">{favorite.movie.title}</h3>
-                    <p className="text-gray-300 text-sm italic">
-                      {movieReview ? `"${movieReview.comment.substring(0, 50)}..."` : '"Filme favoritado"'}
-                    </p>
+              {topFavorites.map((favorite) => (
+                <div key={favorite.id} className="bg-slate-800/50 rounded-lg p-4 backdrop-blur-sm border border-slate-600/30">
+                  <img
+                    src={`https://image.tmdb.org/t/p/w300${favorite.movie.poster_path}`}
+                    alt={favorite.movie.title}
+                    className="w-full h-64 object-cover rounded-lg mb-4"
+                    onError={(e) => {
+                      e.currentTarget.src = 'https://via.placeholder.com/300x450?text=No+Image';
+                    }}
+                  />
+                  <div className="flex items-center gap-1 mb-2">
+                    <span className="text-blue-400 text-sm">FAVORITO</span>
                   </div>
-                );
-              })}
+                  <h3 className="text-white font-semibold mb-2">{favorite.movie.title}</h3>
+                  <p className="text-gray-300 text-sm italic">
+                    "Filme favoritado"
+                  </p>
+                </div>
+              ))}
             </div>
           ) : (
             <div className="text-center py-8">
-              <p className="text-gray-400 text-lg">Você ainda não tem filmes favoritos</p>
+              <p className="text-gray-400 text-lg">Você ainda não tem filmes favoritos sem review</p>
               <button
                 onClick={() => navigate('/movies')}
                 className="mt-4 bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-lg font-semibold transition-colors"

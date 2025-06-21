@@ -4,12 +4,17 @@ import { authMiddleware } from '../middleware/auth.middleware';
 
 const router = Router();
 
+// Protected routes that need authentication
 router.post('/', authMiddleware, createReview);
 router.get('/', authMiddleware, getReviews);
-router.get('/:id', getReviewById);
-router.get('/user/:userId', getReviewsByUserId);
+
+// Specific routes before parameterized routes
+router.get('/user/:userId', authMiddleware, getReviewsByUserId);
 router.get('/movie/:movieId', getReviewsByMovieId);
-router.delete('/:id', authMiddleware, deleteReview);
+
+// Parameterized routes last
+router.get('/:id', getReviewById);
 router.put('/:id', authMiddleware, updateReview);
+router.delete('/:id', authMiddleware, deleteReview);
 
 export default router;
