@@ -41,7 +41,11 @@ export class ReviewService {
         User: true,
         movie: true,
         Like: true,
-        Comment: true,
+        Comment: {
+          include: {
+            user: true
+          }
+        },
       },
       orderBy: {
         createdAt: 'desc'

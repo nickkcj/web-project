@@ -42,6 +42,12 @@ export const getReviews = async (req: Request, res: Response) => {
       rating: review.rating,
       text: review.comment,
       time: formatDistanceToNow(new Date(review.createdAt), { addSuffix: true, locale: ptBR }),
+      comments: review.Comment.map((comment) => ({
+        id: comment.id,
+        user: comment.user?.name || "Unknown",
+        text: comment.content,
+        time: formatDistanceToNow(new Date(comment.createdAt), { addSuffix: true, locale: ptBR })
+      }))
     }));
 
     res.json(response);
