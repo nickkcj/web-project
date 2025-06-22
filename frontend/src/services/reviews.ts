@@ -18,7 +18,7 @@ export interface ReviewApiResponse {
 export const getReviews = async (): Promise<ReviewApiResponse[]> => {
     console.log("getReviews");
 
-    const response = await axiosInstance.get<ReviewApiResponse[]>(`${PATH.base}/reviews`);
+    const response = await axiosInstance.get<ReviewApiResponse[]>(PATH.REVIEWS);
     console.log(response.data);
     return response.data;
 };

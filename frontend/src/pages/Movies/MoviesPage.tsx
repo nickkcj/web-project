@@ -2,7 +2,7 @@ import { FC, useEffect, useState } from "react";
 import SearchBar from "./SearchBar";
 import FilterRow from "./FilterRow";
 import MovieGrid from "./MovieGrid";
-import { MoviesApi } from "../../api/movies";
+import { getPopularMovies, getMovieDetails, searchMovies } from "../../services/movies";
 
 export interface Movie {
   id: number;
@@ -28,7 +28,7 @@ const MoviesPage: FC = () => {
   const fetchTrending = async () => {
     try {
       setLoading(true);
-      const raw = await MoviesApi.popular();
+      const raw = await getPopularMovies();
       setMovies(
         raw.map((m) => ({
           id: m.id,
@@ -53,7 +53,7 @@ const MoviesPage: FC = () => {
     }
     try {
       setLoading(true);
-      const raw = await MoviesApi.search(term);
+      const raw = await searchMovies(term);
       setMovies(
         raw.map((m) => ({
           id: m.id,

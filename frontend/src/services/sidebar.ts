@@ -1,4 +1,4 @@
-import axios from "axios";
+import axiosInstance from "./axiosInstance";
 import {PATH} from "../path";
 
 export interface PopularMovie {
@@ -9,7 +9,7 @@ export interface PopularMovie {
 }
 
 export const getPopularMovies = async (limit: number): Promise<PopularMovie[]> => {
-    const response = await axios.get<PopularMovie[]>(`${PATH.base}/movies/popular`, {
+    const response = await axiosInstance.get<PopularMovie[]>(PATH.MOVIES.POPULAR, {
         params: { limit, page: 1 },
     });
     console.log("getPopularMovies: ", response.data);
