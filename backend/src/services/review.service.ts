@@ -36,6 +36,15 @@ export class ReviewService {
           { userId: authUserId },
           { userId: { in: followingIds }, visibility: Visibility.PRIVATE }
         ]
+      },
+      include: {
+        User: true,
+        movie: true,
+        Like: true,
+        Comment: true,
+      },
+      orderBy: {
+        createdAt: 'desc'
       }
     });
   }

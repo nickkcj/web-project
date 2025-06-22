@@ -65,7 +65,7 @@ const FeedItem: FC<FeedItemProps> = ({
       </section>
 
       {/* ── comments ───────────────────────────────────────────── */}
-      <CommentFeed comments={comments} />
+      {/*<CommentFeed comments={comments} />*/}
 
       {/* ── actions ────────────────────────────────────────────── */}
       <div className="flex gap-6 pt-2 border-t border-slate-800 text-slate-400">

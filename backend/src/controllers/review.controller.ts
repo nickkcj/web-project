@@ -1,6 +1,8 @@
 import { ReviewService } from '../services/review.service';
 import { Request, Response } from 'express';
 import { CreateReviewDto, UpdateReviewDto } from '../dtos/review.dto';
+import { formatDistanceToNow } from "date-fns";
+import { ptBR } from "date-fns/locale";
 
 export const createReview = async (req: Request, res: Response) => {
   try {
@@ -32,7 +34,17 @@ export const getReviews = async (req: Request, res: Response) => {
   try {
     const authUserId = req.authUser!.userId;
     const reviews = await ReviewService.getReviews(authUserId);
-    res.json(reviews);
+
+    const response = reviews.map((review) => ({
+      id: review.id,
+      poster: "https://api.themoviedb.org/3" + review.movie?.poster_path || "",
+      user: review.User?.name || "Unknown",
+      rating: review.rating,
+      text: review.comment,
+      time: formatDistanceToNow(new Date(review.createdAt), { addSuffix: true, locale: ptBR }),
+    }));
+
+    res.json(response);
   } catch (error) {
     res.status(500).json({ error: 'Error fetching reviews' });
   }
