@@ -37,7 +37,7 @@ export const getReviews = async (req: Request, res: Response) => {
 
     const response = reviews.map((review) => ({
       id: review.id,
-      poster: "https://api.themoviedb.org/3" + review.movie?.poster_path || "",
+      posterUrl: "https://image.tmdb.org/t/p/w500" + review.movie?.poster_path || "",
       user: review.User?.name || "Unknown",
       rating: review.rating,
       text: review.comment,
