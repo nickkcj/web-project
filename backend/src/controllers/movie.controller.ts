@@ -6,7 +6,8 @@ export class MovieController {
   async getPopularMovies(req: Request, res: Response) {
     try {
       const page = Number(req.query.page) || 1;
-      const movies = await TMDBService.getPopularMovies(page);
+      const limit = Number(req.query.limit) || 20;
+      const movies = await TMDBService.getPopularMovies(page, limit);
       res.json(movies);
     } catch (error) {
       res.status(500).json({ error: 'Failed to fetch popular movies' });

@@ -1,4 +1,4 @@
-import { FC } from "react";
+import {FC, useEffect, useState} from "react";
 import { TrendingUp, Heart, Bookmark } from "lucide-react";
 import bladeRunner2049Poster from "../../Assets/Photos/bladeRunner2049Poster.jpg";
 import dunePartTwoPoster from "../../Assets/Photos/dunePartTwoPoster.jpg";
@@ -8,6 +8,7 @@ import saltburnPoster from "../../Assets/Photos/saltburnPoster.jpg";
 import poorThingsPoster from "../../Assets/Photos/poorThingsPoster.jpg";
 import theListPoster from "../../Assets/Photos/theListPoster.jpg";
 import whiplashPoster from "../../Assets/Photos/whiplashPoster.jpg";
+import {getPopularMovies, PopularMovie} from "../../services/sidebar";
 
 /* tiny clsx helper */
 const cn = (...c: (string | false | undefined)[]) => c.filter(Boolean).join(" ");
@@ -30,51 +31,76 @@ const watchlist = [
   { id: 13, title: "Dune: Part II", poster: dunePartTwoPoster },
 ];
 
-export const Sidebar: FC = () => (
-  <aside className="sticky top-20 space-y-10 hidden lg:block">
-    {/* ── Trending ───────────────────────────────────────────── */}
-    <Section title="Trending Films" icon={TrendingUp}>
-      <ul className="grid grid-cols-2 gap-4">
-        {trending.map((f) => (
-          <PosterCard key={f.id} film={f} showRating />
-        ))}
-      </ul>
-    </Section>
+export const Sidebar: FC = () => {
 
-    {/* ── Favourites ────────────────────────────────────────── */}
-    <Section title="Your Favourites" icon={Heart}>
-      {favourites.length ? (
-        <ul className="flex gap-4 overflow-x-auto pb-1 hide-scrollbar">
-          {favourites.map((f) => (
-            <PosterCard key={f.id} film={f} compact />
-          ))}
-        </ul>
-      ) : (
-        <p className="text-sm text-slate-500">Add movies to see them here ✨</p>
-      )}
-    </Section>
+    const [trending, setTrending] = useState<PopularMovie[]>([]);
 
-    {/* ── Watchlist ─────────────────────────────────────────── */}
-    <Section title="Watchlist" icon={Bookmark}>
-      {watchlist.length ? (
-        <ul className="space-y-3">
-          {watchlist.map((f) => (
-            <li key={f.id} className="flex gap-3 items-center">
-              <img
-                src={f.poster}
-                alt={f.title}
-                className="w-10 h-14 object-cover rounded-md"
-              />
-              <p className="text-sm truncate">{f.title}</p>
-            </li>
-          ))}
-        </ul>
-      ) : (
-        <p className="text-sm text-slate-500">Save films to watch later 🎬</p>
-      )}
-    </Section>
-  </aside>
-);
+    useEffect(() => {
+        const fetchTrending = async () => {
+            try {
+                const movies = await getPopularMovies(6);
+                setTrending(movies);
+            } catch (error) {
+                console.error("Erro ao carregar filmes populares:", error);
+            }
+        };
+
+        fetchTrending();
+    }, []);
+
+    return (
+        <aside className="sticky top-20 space-y-10 hidden lg:block">
+            {/* ── Trending ───────────────────────────────────────────── */}
+            <Section title="Trending Films" icon={TrendingUp}>
+                <ul className="grid grid-cols-2 gap-4">
+                    {trending.map((f) => (
+                        <PosterCard
+                            key={f.id}
+                            film={{
+                                ...f,
+                                poster: "https://image.tmdb.org/t/p/w500" + f.poster_path,
+                            }}
+                            showRating
+                        />
+                    ))}
+                </ul>
+            </Section>
+
+            {/* ── Favourites ────────────────────────────────────────── */}
+            <Section title="Your Favourites" icon={Heart}>
+                {favourites.length ? (
+                    <ul className="flex gap-4 overflow-x-auto pb-1 hide-scrollbar">
+                        {favourites.map((f) => (
+                            <PosterCard key={f.id} film={f} compact />
+                        ))}
+                    </ul>
+                ) : (
+                    <p className="text-sm text-slate-500">Add movies to see them here ✨</p>
+                )}
+            </Section>
+
+            {/* ── Watchlist ─────────────────────────────────────────── */}
+            <Section title="Watchlist" icon={Bookmark}>
+                {watchlist.length ? (
+                    <ul className="space-y-3">
+                        {watchlist.map((f) => (
+                            <li key={f.id} className="flex gap-3 items-center">
+                                <img
+                                    src={f.poster}
+                                    alt={f.title}
+                                    className="w-10 h-14 object-cover rounded-md"
+                                />
+                                <p className="text-sm truncate">{f.title}</p>
+                            </li>
+                        ))}
+                    </ul>
+                ) : (
+                    <p className="text-sm text-slate-500">Save films to watch later 🎬</p>
+                )}
+            </Section>
+        </aside>
+    );
+};
 
 /* -------------------------------------------------------------------------- */
 
@@ -95,7 +121,7 @@ const Section: FC<SectionProps> = ({ title, icon: Icon, children }) => (
 
 /* Compact poster w/ optional rating badge */
 const PosterCard: FC<{
-  film: { poster: string; title: string; rating?: number };
+  film: { poster: string; title: string; vote_average?: number };
   showRating?: boolean;
   compact?: boolean;
 }> = ({ film, showRating, compact }) => (
@@ -108,9 +134,9 @@ const PosterCard: FC<{
         compact ? "h-28 w-full" : "h-32 w-full"
       )}
     />
-    {showRating && film.rating && (
+    {showRating && film.vote_average && (
       <span className="absolute bottom-1 right-1 text-[10px] px-1 py-0.5 rounded bg-slate-900/80 text-amber-300">
-        ★ {film.rating.toFixed(1)}
+        ★ {film.vote_average.toFixed(1)}
       </span>
     )}
     <p
