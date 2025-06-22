@@ -3,6 +3,7 @@ import SearchBar from "./SearchBar";
 import FilterRow from "./FilterRow";
 import MovieGrid from "./MovieGrid";
 import { getPopularMovies, getMovieDetails, searchMovies } from "../../services/movies";
+import {getImageUrl} from "../../utils/image";
 
 export interface Movie {
   id: number;
@@ -35,7 +36,7 @@ const MoviesPage: FC = () => {
           title: m.title,
           year: m.release_date?.slice(0, 4) ?? "",
           poster: m.poster_path
-            ? `https://image.tmdb.org/t/p/w342${m.poster_path}`
+            ? getImageUrl(m.poster_path)
             : "/placeholder.jpg",
         }))
       );
@@ -60,7 +61,7 @@ const MoviesPage: FC = () => {
           title: m.title,
           year: m.release_date?.slice(0, 4) ?? "",
           poster: m.poster_path
-            ? `https://image.tmdb.org/t/p/w342${m.poster_path}`
+            ? getImageUrl(m.poster_path)
             : "/placeholder.jpg",
         }))
       );

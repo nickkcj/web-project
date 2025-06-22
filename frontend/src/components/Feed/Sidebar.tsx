@@ -9,6 +9,7 @@ import poorThingsPoster from "../../Assets/Photos/poorThingsPoster.jpg";
 import theListPoster from "../../Assets/Photos/theListPoster.jpg";
 import whiplashPoster from "../../Assets/Photos/whiplashPoster.jpg";
 import {getPopularMovies, PopularMovie} from "../../services/sidebar";
+import {getImageUrl} from "../../utils/image";
 
 /* tiny clsx helper */
 const cn = (...c: (string | false | undefined)[]) => c.filter(Boolean).join(" ");
@@ -58,7 +59,7 @@ export const Sidebar: FC = () => {
                             key={f.id}
                             film={{
                                 ...f,
-                                poster: "https://image.tmdb.org/t/p/w500" + f.poster_path,
+                                poster: getImageUrl(f.poster_path),
                             }}
                             showRating
                         />
