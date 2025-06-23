@@ -7,7 +7,7 @@ const TMDB_BASE_URL = 'https://api.themoviedb.org/3';
 export class TMDBService {
   private constructor() {}
 
-  public static async getPopularMovies(page: number = 1) {
+  public static async getPopularMovies(page: number = 1, limit: number = 20) {
     try {
       const response = await axios.get(`${TMDB_BASE_URL}/movie/popular`, {
         params: {
@@ -15,7 +15,7 @@ export class TMDBService {
           page,
         },
       });
-      return response.data;
+      return response.data.results.slice(0, limit);
     } catch (error) {
       console.error('Error fetching popular movies:', error);
       return MovieFallbackService.getPopularMovies(page);

@@ -75,7 +75,13 @@ export class ReviewService {
               name: true,
               email: true
             }
-          }
+          },
+          Like: true,
+          Comment: {
+            include: {
+              user: true
+            }
+        },
         },
         orderBy: {
           createdAt: 'desc'
