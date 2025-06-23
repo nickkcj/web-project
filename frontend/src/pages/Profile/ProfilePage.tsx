@@ -3,8 +3,8 @@ import { useSelector } from 'react-redux';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import services from '../../services/index';
 import { MovieReviewModal } from '../../components/MoveReviewModal/MoveReviewModal';
-import { MovieModal } from '../../components/movie/MovieModal';
-import { Carousel } from '../../components/Carousel/Carousel'; // Ajuste o caminho conforme necessário
+import { MovieModal } from '../../components/Movie/MovieModal';
+import { Carousel } from '../../components/Carousel/Carousel';
 
 interface Review {
   id: number;
