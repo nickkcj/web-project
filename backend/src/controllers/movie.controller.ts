@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { TMDBService } from '../services/tmdb.service';
+import { FavoriteService } from '../services/favorite.service';
 import { prisma } from '../config/database';
 
 export class MovieController {
@@ -39,4 +40,15 @@ export class MovieController {
       res.status(500).json({ error: 'Failed to search movies' });
     }
   }
-} 
+
+  async createMovie(req: Request, res: Response) {
+    try {
+      const movieData = req.body;
+      const movie = await FavoriteService.createMovieIfNotExists(movieData);
+      res.json(movie);
+    } catch (error) {
+      console.error('Error creating movie:', error);
+      res.status(500).json({ error: 'Failed to create movie' });
+    }
+  }
+}

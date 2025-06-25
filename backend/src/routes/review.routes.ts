@@ -4,12 +4,17 @@ import { authMiddleware } from '../middleware/auth.middleware';
 
 const router = Router();
 
+
 router.post('/', authMiddleware, createReview);
 router.get('/', authMiddleware, getReviews);
-router.get('/:id', getReviewById);
-router.get('/user/:userId', getReviewsByUserId);
+
+
+router.get('/user/:userId', authMiddleware, getReviewsByUserId);
 router.get('/movie/:movieId', getReviewsByMovieId);
-router.delete('/:id', authMiddleware, deleteReview);
+
+
+router.get('/:id', getReviewById);
 router.put('/:id', authMiddleware, updateReview);
+router.delete('/:id', authMiddleware, deleteReview);
 
 export default router;

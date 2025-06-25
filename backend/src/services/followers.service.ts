@@ -4,7 +4,7 @@ export class FollowersService {
   private constructor() {}
 
   public static async followUser(userId: number, followUserId: number) {
-    // Check if both users exist
+    
     const [follower, following] = await Promise.all([
       prisma.user.findUnique({ where: { id: userId } }),
       prisma.user.findUnique({ where: { id: followUserId } })
@@ -18,7 +18,7 @@ export class FollowersService {
       throw new Error(`User with id ${followUserId} not found`);
     }
 
-    // Check if relationship already exists
+    
     const existingRelationship = await prisma.userRelationship.findUnique({
       where: {
         followerId_followingId: {
@@ -41,7 +41,7 @@ export class FollowersService {
   }
 
   public static async unfollowUser(userId: number, unfollowUserId: number) {
-    // Check if both users exist
+    
     const [follower, following] = await Promise.all([
       prisma.user.findUnique({ where: { id: userId } }),
       prisma.user.findUnique({ where: { id: unfollowUserId } })
@@ -55,7 +55,7 @@ export class FollowersService {
       throw new Error(`User with id ${unfollowUserId} not found`);
     }
 
-    // Check if relationship exists
+    
     const existingRelationship = await prisma.userRelationship.findUnique({
       where: {
         followerId_followingId: {
@@ -75,7 +75,7 @@ export class FollowersService {
   }
 
   public static async getFollowers(userId: number) {
-    // Check if user exists
+    
     const user = await prisma.user.findUnique({ where: { id: userId } });
     
     if (!user) {
@@ -97,7 +97,7 @@ export class FollowersService {
   }
 
   public static async getFollowing(userId: number) {
-    // Check if user exists
+    
     const user = await prisma.user.findUnique({ where: { id: userId } });
     
     if (!user) {

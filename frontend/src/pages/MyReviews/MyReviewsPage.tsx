@@ -1,12 +1,20 @@
 import { FC, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import type { Movie } from "@/components/Movie/MovieModal";
+import { useSelector } from "react-redux";
+import services from "../../services/index";
+
 interface Review {
   id: number;
-  movie: Movie;
+  movieId: number;
   rating: number;
-  text: string;
+  comment: string;
   createdAt: string;
+  movie?: {
+    id: number;
+    title: string;
+    poster_path: string;
+    release_date: string;
+  };
 }
 
 const Stars: FC<{ n: number }> = ({ n }) => (
@@ -15,34 +23,29 @@ const Stars: FC<{ n: number }> = ({ n }) => (
 
 const MyReviewsPage: FC = () => {
   const [reviews, setReviews] = useState<Review[] | null>(null);
-  const [error,   setError]   = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const { user } = useSelector((state: any) => state.login);
   const navigate = useNavigate();
 
   useEffect(() => {
-    (async () => {
+    if (!user) {
+      navigate('/login');
+      return;
+    }
+
+    const loadReviews = async () => {
       try {
-        const res = await fetch("/api/reviews/me", {
-          credentials: "include",
-          headers: { Accept: "application/json" },
-        });
-
-        if (!res.ok) {
-          throw new Error(`Erro HTTP ${res.status}`);
-        }
-
-        const ct = res.headers.get("content-type") ?? "";
-        if (!ct.includes("application/json")) {
-          const body = await res.text();
-          throw new Error("Resposta não-JSON recebida");
-        }
-
-        const data: Review[] = await res.json();
-        setReviews(data);
+        const userId = typeof user.id === 'string' ? parseInt(user.id) : user.id;
+        const userReviews = await services.getReviewsByUserId(userId);
+        setReviews(Array.isArray(userReviews) ? userReviews : []);
       } catch (err: any) {
+        console.error('Error loading reviews:', err);
         setError(err.message ?? "Erro inesperado");
       }
-    })();
-  }, []);
+    };
+
+    loadReviews();
+  }, [user, navigate]);
 
   if (error)
     return (
@@ -63,10 +66,10 @@ const MyReviewsPage: FC = () => {
       <div className="min-h-screen flex flex-col items-center justify-center text-slate-300">
         <p className="text-lg mb-4">Você ainda não fez nenhuma avaliação.</p>
         <button
-          onClick={() => navigate("/feed")}
+          onClick={() => navigate("/movies")}
           className="px-4 py-2 bg-yellow-500 hover:bg-yellow-400 rounded-md"
         >
-          Ir para o feed
+          Explorar filmes
         </button>
       </div>
     );
@@ -78,21 +81,32 @@ const MyReviewsPage: FC = () => {
       <div className="flex flex-wrap justify-center gap-6">
         {reviews.map((rev) => (
           <article
-            key={rev.id}
+            key={`${rev.id}-${rev.createdAt}`}
             className="w-72 bg-slate-800 rounded-xl overflow-hidden shadow-lg"
           >
-            <img
-              src={rev.movie.poster}
-              alt={rev.movie.title}
-              className="h-44 w-full object-cover"
-            />
+            {rev.movie && (
+              <img
+                src={`https://image.tmdb.org/t/p/w342${rev.movie.poster_path}`}
+                alt={rev.movie.title}
+                className="h-44 w-full object-cover"
+                onError={(e) => {
+                  e.currentTarget.src = 'https://via.placeholder.com/300x450?text=No+Image';
+                }}
+              />
+            )}
             <div className="p-4 flex flex-col gap-2">
-              <h3 className="font-semibold truncate">{rev.movie.title}</h3>
-              <p className="text-sm text-slate-400">{rev.movie.year}</p>
+              {rev.movie && (
+                <>
+                  <h3 className="font-semibold truncate">{rev.movie.title}</h3>
+                  <p className="text-sm text-slate-400">
+                    {rev.movie.release_date ? new Date(rev.movie.release_date).getFullYear() : 'N/A'}
+                  </p>
+                </>
+              )}
 
               <Stars n={rev.rating} />
 
-              <p className="text-sm italic line-clamp-3">“{rev.text}”</p>
+              <p className="text-sm italic line-clamp-3">"{rev.comment}"</p>
 
               <p className="text-xs text-slate-500 mt-1">
                 {new Date(rev.createdAt).toLocaleDateString("pt-BR")}

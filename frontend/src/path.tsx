@@ -1,6 +1,6 @@
 //faz a conexção com o backend, colocando o link de onde ele ta hospedado
 const baseurl = {
-  apiUrl: "http://localhost:3001/api",
+  apiUrl: "http://localhost:5000/api",
   tmdbImageBaseUrl: "https://image.tmdb.org/t/p/original",
 };
 export const PATH = {
