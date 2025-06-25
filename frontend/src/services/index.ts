@@ -131,6 +131,11 @@ const services = {
     }
   },
 
+  getMoviesByGenre: async (genreId: number) => {
+    const response = await api.get(`/movies/genre?genre=${genreId}`);
+    return response.data;
+  },
+
   // REVIEW SERVICES
   createReview: async (data: { movieId: number; rating: number; comment: string; visibility?: 'PUBLIC' | 'PRIVATE' }) => {
     const response = await api.post('/reviews', data);

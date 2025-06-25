@@ -51,4 +51,15 @@ export class MovieController {
       res.status(500).json({ error: 'Failed to create movie' });
     }
   }
+
+  async getMoviesByGenre(req: Request, res: Response) {
+    try {
+      const genre = Number(req.query.genre);
+      console.log(genre)
+      const movie = await TMDBService.getMoviesByGenre(genre);
+      res.json(movie);
+    } catch (error) {
+      res.status(500).json({ error: 'Failed to fetch movies by genre' });
+    }
+  }
 }

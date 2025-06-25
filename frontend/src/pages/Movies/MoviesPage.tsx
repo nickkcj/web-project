@@ -51,6 +51,32 @@ const MoviesPage: FC = () => {
     }
   };
 
+  const fetchFilter = async (genreId: number) => {
+    try {
+      setLoading(true);
+      setError(null);
+      const response = await services.getMoviesByGenre(genreId);
+      
+      const moviesData = Array.isArray(response) ? response : response.results || [];
+      
+      setMovies(
+        moviesData.map((m: any) => ({
+          id: m.id,
+          title: m.title,
+          year: m.release_date?.slice(0, 4) ?? "",
+          poster: m.poster_path
+            ? getImageUrl(m.poster_path)
+            : "/placeholder.jpg",
+        }))
+      );
+    } catch (err: any) {
+      console.error('Error fetching popular movies:', err);
+      setError(err.message ?? "Erro ao buscar filmes");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleSearch = async (term: string) => {
     if (!term.trim()) {
       fetchTrending();
@@ -88,6 +114,15 @@ const MoviesPage: FC = () => {
     switch (label) {
       case "Trending":
         fetchTrending();
+        break;
+      case "Ação":
+        fetchFilter(28);
+        break;
+      case "Comédia":
+        fetchFilter(35);
+        break;
+      case "Drama":
+        fetchFilter(18);
         break;
       default:
         fetchTrending();

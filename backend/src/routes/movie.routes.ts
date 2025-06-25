@@ -11,8 +11,9 @@ router.get('/popular', movieController.getPopularMovies);
 // Search movies
 router.get('/search', movieController.searchMovies);
 
-
 router.post('/create', authMiddleware, movieController.createMovie);
+
+router.get('/genre', movieController.getMoviesByGenre);
 
 // Get movie details by ID (this should be last since it has a parameter)
 router.get('/:id', movieController.getMovieDetails);

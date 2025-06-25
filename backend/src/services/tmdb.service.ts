@@ -51,4 +51,19 @@ export class TMDBService {
       return MovieFallbackService.searchByTitle(query, page);
     }
   }
+
+  public static async getMoviesByGenre(genre: Number = 28) {
+    try {
+      const response = await axios.get(`${TMDB_BASE_URL}/discover/movie`, {
+        params: {
+          api_key: TMDB_API_KEY,
+          with_genres: genre,
+        },
+      });
+      return response.data.results;
+    } catch (error) {
+      console.error('Error fetching movies by genre:', error);
+      return MovieFallbackService.getPopularMovies(1);
+    }
+  }
 }
