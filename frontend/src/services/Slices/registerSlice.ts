@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import services from "../services";
+import services from "../index";
 
 interface RegisterState {
   loading: boolean;

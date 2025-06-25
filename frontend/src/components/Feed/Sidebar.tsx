@@ -15,7 +15,7 @@ import {getImageUrl} from "../../utils/image";
 const cn = (...c: (string | false | undefined)[]) => c.filter(Boolean).join(" ");
 
 /* mock data – swap for API calls */
-const trending = [
+const mockTrending = [
   { id: 1, title: "Mickey 17", rating: 4.3, poster: mickey17Poster },
   { id: 2, title: "The List",  rating: 4.1, poster: theListPoster },
   { id: 3, title: "Saltburn",  rating: 4.0, poster: saltburnPoster },
@@ -35,14 +35,19 @@ const watchlist = [
 export const Sidebar: FC = () => {
 
     const [trending, setTrending] = useState<PopularMovie[]>([]);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const fetchTrending = async () => {
             try {
+                setLoading(true);
                 const movies = await getPopularMovies(6);
-                setTrending(movies);
+                setTrending(Array.isArray(movies) ? movies : []);
             } catch (error) {
                 console.error("Erro ao carregar filmes populares:", error);
+                setTrending([]);
+            } finally {
+                setLoading(false);
             }
         };
 
@@ -53,18 +58,24 @@ export const Sidebar: FC = () => {
         <aside className="sticky top-20 space-y-10 hidden lg:block">
             {/* ── Trending ───────────────────────────────────────────── */}
             <Section title="Trending Films" icon={TrendingUp}>
-                <ul className="grid grid-cols-2 gap-4">
-                    {trending.map((f) => (
-                        <PosterCard
-                            key={f.id}
-                            film={{
-                                ...f,
-                                poster: getImageUrl(f.poster_path),
-                            }}
-                            showRating
-                        />
-                    ))}
-                </ul>
+                {loading ? (
+                    <p className="text-sm text-slate-500">Carregando...</p>
+                ) : trending && trending.length > 0 ? (
+                    <ul className="grid grid-cols-2 gap-4">
+                        {trending.map((f) => (
+                            <PosterCard
+                                key={f.id}
+                                film={{
+                                    ...f,
+                                    poster: getImageUrl(f.poster_path),
+                                }}
+                                showRating
+                            />
+                        ))}
+                    </ul>
+                ) : (
+                    <p className="text-sm text-slate-500">Nenhum filme encontrado</p>
+                )}
             </Section>
 
             {/* ── Favourites ────────────────────────────────────────── */}
