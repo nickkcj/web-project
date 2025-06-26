@@ -1,75 +1,112 @@
 import {FC, useEffect, useState} from "react";
-import { TrendingUp, Heart, Bookmark } from "lucide-react";
-import bladeRunner2049Poster from "../../Assets/Photos/bladeRunner2049Poster.jpg";
-import dunePartTwoPoster from "../../Assets/Photos/dunePartTwoPoster.jpg";
-import interstellarPoster from "../../Assets/Photos/interstellarPoster.jpg";
-import mickey17Poster from "../../Assets/Photos/mickey17Poster.jpg";
-import saltburnPoster from "../../Assets/Photos/saltburnPoster.jpg";
-import poorThingsPoster from "../../Assets/Photos/poorThingsPoster.jpg";
-import theListPoster from "../../Assets/Photos/theListPoster.jpg";
-import whiplashPoster from "../../Assets/Photos/whiplashPoster.jpg";
-import {getPopularMovies, PopularMovie} from "../../services/sidebar";
+import { TrendingUp, Heart } from "lucide-react";
+import services from "../../services";
+import { MovieModal } from "../Movie/MovieModal";
 import {getImageUrl} from "../../utils/image";
 
 /* tiny clsx helper */
 const cn = (...c: (string | false | undefined)[]) => c.filter(Boolean).join(" ");
 
-/* mock data – swap for API calls */
+/* Mock para trending movies */
 const mockTrending = [
-  { id: 1, title: "Mickey 17", rating: 4.3, poster: mickey17Poster },
-  { id: 2, title: "The List",  rating: 4.1, poster: theListPoster },
-  { id: 3, title: "Saltburn",  rating: 4.0, poster: saltburnPoster },
-];
-
-const favourites = [
-  { id: 7, title: "Whiplash", poster: whiplashPoster },
-  { id: 8, title: "Blade Runner 2049", poster: bladeRunner2049Poster },
-  { id: 9, title: "Interstellar", poster: interstellarPoster },
-];
-
-const watchlist = [
-  { id: 12, title: "Poor Things",   poster: poorThingsPoster },
-  { id: 13, title: "Dune: Part II", poster: dunePartTwoPoster },
+  {
+    id: 1,
+    title: "Mickey 17",
+    poster: "https://image.tmdb.org/t/p/w342/8QVDXDiOGHRcAD4oM6MXjE0osSj.jpg",
+    vote_average: 4.3,
+  },
+  {
+    id: 2,
+    title: "The List",
+    poster: "https://image.tmdb.org/t/p/w342/2u7zbn8EudG6kLlBzUYqP8RyFU4.jpg",
+    vote_average: 4.1,
+  },
+  {
+    id: 3,
+    title: "Saltburn",
+    poster: "https://image.tmdb.org/t/p/w342/6b7swg6DLqXCO3XUsMnv6RwDMW2.jpg",
+    vote_average: 4.0,
+  },
+  {
+    id: 4,
+    title: "Whiplash",
+    poster: "https://image.tmdb.org/t/p/w342/oPxnRhyAIzJKGUEdSiwTJQBa6hz.jpg",
+    vote_average: 4.7,
+  },
 ];
 
 export const Sidebar: FC = () => {
-
-    const [trending, setTrending] = useState<PopularMovie[]>([]);
-    const [loading, setLoading] = useState(true);
+    const [trending, setTrending] = useState<any[]>(mockTrending);
+    const [favorites, setFavorites] = useState<any[]>([]);
+    const [selectedMovie, setSelectedMovie] = useState<any | null>(null);
+    const [showModal, setShowModal] = useState(false);
+    const [unfavoriteLoading, setUnfavoriteLoading] = useState(false);
 
     useEffect(() => {
-        const fetchTrending = async () => {
+        const fetchFavorites = async () => {
             try {
-                setLoading(true);
-                const movies = await getPopularMovies(6);
-                setTrending(Array.isArray(movies) ? movies : []);
+                const favs = await services.getUserFavorites();
+                const mapped = Array.isArray(favs)
+                  ? favs.map((fav) => ({
+                      id: fav.movie?.id || fav.id,
+                      title: fav.movie?.title || '',
+                      poster: fav.movie?.poster_path ? getImageUrl(fav.movie.poster_path) : '',
+                      movieId: fav.movie?.id || fav.movieId || fav.id,
+                  }))
+                  : [];
+                setFavorites(mapped);
             } catch (error) {
-                console.error("Erro ao carregar filmes populares:", error);
-                setTrending([]);
-            } finally {
-                setLoading(false);
+                setFavorites([]);
             }
         };
-
-        fetchTrending();
+        fetchFavorites();
     }, []);
+
+    const handlePosterClick = async (movieId: number) => {
+        try {
+            const details = await services.getMovieDetails(movieId);
+            setSelectedMovie({
+                id: details.id,
+                title: details.title,
+                year: details.release_date ? new Date(details.release_date).getFullYear().toString() : '',
+                poster: getImageUrl(details.poster_path),
+                overview: details.overview,
+            });
+            setShowModal(true);
+        } catch (error) {
+            setSelectedMovie(null);
+            setShowModal(false);
+        }
+    };
+
+    const handleUnfavorite = async (movie: any) => {
+        if (unfavoriteLoading) return;
+        try {
+            setUnfavoriteLoading(true);
+            await services.toggleFavorite(movie.id);
+            setFavorites((prev) => prev.filter((f) => f.movieId !== movie.id && f.id !== movie.id));
+            setShowModal(false);
+        } catch (error) {
+            console.error('Erro ao remover dos favoritos:', error);
+        } finally {
+            setUnfavoriteLoading(false);
+        }
+    };
+    const handleRate = (movie: any) => {
+        window.location.href = `/rate?movieId=${movie.id}`;
+    };
 
     return (
         <aside className="sticky top-20 space-y-10 hidden lg:block">
-            {/* ── Trending ───────────────────────────────────────────── */}
             <Section title="Trending Films" icon={TrendingUp}>
-                {loading ? (
-                    <p className="text-sm text-slate-500">Carregando...</p>
-                ) : trending && trending.length > 0 ? (
+                {trending && trending.length > 0 ? (
                     <ul className="grid grid-cols-2 gap-4">
                         {trending.map((f) => (
                             <PosterCard
                                 key={f.id}
-                                film={{
-                                    ...f,
-                                    poster: getImageUrl(f.poster_path),
-                                }}
+                                film={f}
                                 showRating
+                                // Não precisa de onClick para trending
                             />
                         ))}
                     </ul>
@@ -78,12 +115,19 @@ export const Sidebar: FC = () => {
                 )}
             </Section>
 
-            {/* ── Favourites ────────────────────────────────────────── */}
             <Section title="Your Favourites" icon={Heart}>
-                {favourites.length ? (
+                {favorites.length ? (
                     <ul className="flex gap-4 overflow-x-auto pb-1 hide-scrollbar">
-                        {favourites.map((f) => (
-                            <PosterCard key={f.id} film={f} compact />
+                        {favorites.map((f) => (
+                            <PosterCard
+                                key={f.id}
+                                film={{
+                                    ...f,
+                                    poster: f.poster
+                                }}
+                                compact
+                                onClick={() => handlePosterClick(f.movieId)}
+                            />
                         ))}
                     </ul>
                 ) : (
@@ -91,7 +135,7 @@ export const Sidebar: FC = () => {
                 )}
             </Section>
 
-            {/* ── Watchlist ─────────────────────────────────────────── */}
+            {/* por hora é uma ideia, não implementada
             <Section title="Watchlist" icon={Bookmark}>
                 {watchlist.length ? (
                     <ul className="space-y-3">
@@ -109,12 +153,28 @@ export const Sidebar: FC = () => {
                 ) : (
                     <p className="text-sm text-slate-500">Save films to watch later 🎬</p>
                 )}
-            </Section>
+            </Section>*/}
+
+            {showModal && selectedMovie && (
+                <MovieModal
+                    movie={selectedMovie}
+                    actions={[
+                        {
+                            label: "Avaliar",
+                            onClick: () => handleRate(selectedMovie),
+                        },
+                        {
+                            label: unfavoriteLoading ? "Removendo..." : "Desfavoritar",
+                            onClick: () => handleUnfavorite(selectedMovie),
+                            disabled: unfavoriteLoading,
+                        },
+                    ]}
+                    onClose={() => setShowModal(false)}
+                />
+            )}
         </aside>
     );
 };
-
-/* -------------------------------------------------------------------------- */
 
 interface SectionProps {
   title: string;
@@ -131,13 +191,13 @@ const Section: FC<SectionProps> = ({ title, icon: Icon, children }) => (
   </section>
 );
 
-/* Compact poster w/ optional rating badge */
 const PosterCard: FC<{
   film: { poster: string; title: string; vote_average?: number };
   showRating?: boolean;
   compact?: boolean;
-}> = ({ film, showRating, compact }) => (
-  <li className={cn("relative group", compact && "flex-none w-20")}>
+  onClick?: () => void;
+}> = ({ film, showRating, compact, onClick }) => (
+  <li className={cn("relative group cursor-pointer", compact && "flex-none w-20")} onClick={onClick}>
     <img
       src={film.poster}
       alt={film.title}
