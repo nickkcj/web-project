@@ -83,7 +83,6 @@ export const ProfilePage: React.FC = () => {
   const [unfavoriteLoading, setUnfavoriteLoading] = useState(false);
   const [followed, setFollowed] = useState(false);
 
-  // Carrega dados do usuário do perfil (logado ou outro)
   const loadUserData = useCallback(async () => {
     setLoading(true);
     try {
@@ -97,7 +96,6 @@ export const ProfilePage: React.FC = () => {
         userId = typeof loggedUser.id === 'string' ? parseInt(loggedUser.id) : loggedUser.id;
       }
       setProfileUser(userData);
-      // Busca reviews e favoritos do usuário do perfil
       const [userReviews, userFavorites] = await Promise.all([
         services.getReviewsByUserId(userId).catch(() => []),
         userId === loggedUser.id
@@ -106,7 +104,6 @@ export const ProfilePage: React.FC = () => {
       ]);
       setReviews(Array.isArray(userReviews) ? userReviews : []);
       setFavorites(Array.isArray(userFavorites) ? userFavorites : []);
-      // Verifica se o usuário logado já segue este perfil
       if (loggedUser && userId !== loggedUser.id) {
         const following = await services.getFollowing(loggedUser.id);
         const ids = following.map((u: any) => u.followingId ?? u.following?.id).filter(Boolean);
@@ -166,7 +163,7 @@ export const ProfilePage: React.FC = () => {
     id: favorite.movie.id,
     poster: `https://image.tmdb.org/t/p/w342${favorite.movie.poster_path}`,
     title: favorite.movie.title,
-    rating: undefined, // Favoritos não têm rating, meio que seila da pra por se tiver review
+    rating: undefined,
     text: favorite.movie.release_date ? new Date(favorite.movie.release_date).getFullYear().toString() : '',
     isFavorite: true
   }));
@@ -225,7 +222,7 @@ export const ProfilePage: React.FC = () => {
     try {
       setUnfavoriteLoading(true);
       
-      const result = await services.toggleFavorite(movie.id);
+      await services.toggleFavorite(movie.id);
       console.log('Filme removido dos favoritos!');
       
       setFavorites(prev => prev.filter(fav => fav.movieId !== movie.id));
@@ -269,7 +266,6 @@ export const ProfilePage: React.FC = () => {
     }
   };
 
-  // Seguir/Deixar de seguir
   const handleFollow = async () => {
     if (!profileUser) return;
     await services.followUser(profileUser.id);
@@ -281,7 +277,6 @@ export const ProfilePage: React.FC = () => {
     setFollowed(false);
   };
 
-  // Determina se é o próprio perfil ou de outro usuário
   const isOwnProfile = !paramId || Number(paramId) === loggedUser.id;
 
   if (!profileUser) {
@@ -340,7 +335,6 @@ export const ProfilePage: React.FC = () => {
           </div>
         </div>
 
-        {/* Carousel de Favoritos */}
         {loading ? (
           <div className="text-center py-8">
             <div className="text-gray-400">Carregando favoritos...</div>
@@ -369,7 +363,6 @@ export const ProfilePage: React.FC = () => {
           </div>
         )}
 
-        {/* Carousel de Reviews */}
         {loading ? (
           <div className="text-center py-8">
             <div className="text-gray-400">Carregando reviews...</div>
@@ -439,7 +432,6 @@ export const ProfilePage: React.FC = () => {
         />
       )}
 
-      {/* Modal de Filme Favorito */}
       {selectedMovie && (
         <MovieModal
           movie={selectedMovie}
