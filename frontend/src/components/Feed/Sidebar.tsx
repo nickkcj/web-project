@@ -1,6 +1,7 @@
 import {FC, useEffect, useState} from "react";
 import { TrendingUp, Heart, ImageOff } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { getPopularMovies, PopularMovie } from "../../services/sidebar";
 import services from "../../services";
 import { MovieModal } from "../Movie/MovieModal";
 import {getImageUrl} from "../../utils/image";
@@ -8,32 +9,32 @@ import {getImageUrl} from "../../utils/image";
 const cn = (...c: (string | false | undefined)[]) => c.filter(Boolean).join(" ");
 
 export const Sidebar: FC = () => {
-    const [trending, setTrending] = useState<any[]>([]);
+    const [trending, setTrending] = useState<PopularMovie[]>([]);
     const [favorites, setFavorites] = useState<any[]>([]);
     const [selectedMovie, setSelectedMovie] = useState<any | null>(null);
     const [showModal, setShowModal] = useState(false);
     const [unfavoriteLoading, setUnfavoriteLoading] = useState(false);
+    const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
 
     useEffect(() => {
         const fetchTrending = async () => {
             try {
-                const response = await services.getPopularMovies(6);
-                const moviesData = Array.isArray(response) ? response : response.results || [];
-                setTrending(
-                    moviesData.map((m: any) => ({
-                        id: m.id,
-                        title: m.title,
-                        poster: m.poster_path ? getImageUrl(m.poster_path) : null,
-                        vote_average: m.vote_average,
-                    }))
-                );
+                setLoading(true);
+                const movies = await getPopularMovies(6);
+                setTrending(Array.isArray(movies) ? movies : []);
             } catch (error) {
+                console.error("Erro ao carregar filmes populares:", error);
                 setTrending([]);
+            } finally {
+                setLoading(false);
             }
         };
-        fetchTrending();
 
+        fetchTrending();
+    }, []);
+
+    useEffect(() => {
         const fetchFavorites = async () => {
             try {
                 const favs = await services.getUserFavorites();
@@ -97,12 +98,17 @@ export const Sidebar: FC = () => {
     return (
         <aside className="sticky top-20 space-y-10 hidden lg:block">
             <Section title="Trending Films" icon={TrendingUp}>
-                {trending && trending.length > 0 ? (
+                {loading ? (
+                    <p className="text-sm text-slate-500">Carregando...</p>
+                ) : trending && trending.length > 0 ? (
                     <ul className="grid grid-cols-2 gap-4">
-                        {trending.slice(0, 6).map((f) => (
+                        {trending.map((f) => (
                             <PosterCard
                                 key={f.id}
-                                film={f}
+                                film={{
+                                    ...f,
+                                    poster: getImageUrl(f.poster_path),
+                                }}
                                 showRating
                                 onClick={() => handlePosterClick(f.id)}
                             />
