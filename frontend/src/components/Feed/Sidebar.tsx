@@ -1,5 +1,5 @@
 import {FC, useEffect, useState} from "react";
-import { TrendingUp, Heart } from "lucide-react";
+import { TrendingUp, Heart, ImageOff } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import services from "../../services";
 import { MovieModal } from "../Movie/MovieModal";
@@ -18,15 +18,13 @@ export const Sidebar: FC = () => {
     useEffect(() => {
         const fetchTrending = async () => {
             try {
-                const response = await services.getPopularMovies();
+                const response = await services.getPopularMovies(6);
                 const moviesData = Array.isArray(response) ? response : response.results || [];
                 setTrending(
-                    moviesData.slice(0, 8).map((m: any) => ({
+                    moviesData.map((m: any) => ({
                         id: m.id,
                         title: m.title,
-                        poster: m.poster_path
-                            ? getImageUrl(m.poster_path)
-                            : "/placeholder.jpg",
+                        poster: m.poster_path ? getImageUrl(m.poster_path) : null,
                         vote_average: m.vote_average,
                     }))
                 );
@@ -117,7 +115,7 @@ export const Sidebar: FC = () => {
 
             <Section title="Your Favourites" icon={Heart}>
                 {favorites.length ? (
-                    <ul className="flex gap-4 overflow-x-auto pb-1 hide-scrollbar">
+                    <ul className="flex gap-4 overflow-x-auto pb-1 hide-scrollbar custom-scrollbar">
                         {favorites.slice(0, 6).map((f) => (
                             <PosterCard
                                 key={f.id}
@@ -192,21 +190,32 @@ const Section: FC<SectionProps> = ({ title, icon: Icon, children }) => (
 );
 
 const PosterCard: FC<{
-  film: { poster: string; title: string; vote_average?: number };
+  film: { poster: string | null; title: string; vote_average?: number };
   showRating?: boolean;
   compact?: boolean;
   onClick?: () => void;
 }> = ({ film, showRating, compact, onClick }) => (
   <li className={cn("relative group cursor-pointer flex-none w-24") + (compact ? "" : "") } onClick={onClick}>
     <div className="relative">
-      <img
-        src={film.poster}
-        alt={film.title}
-        className={cn(
-          "rounded-lg object-cover",
-          compact ? "h-32 w-full" : "h-36 w-full"
-        )}
-      />
+      {film.poster ? (
+        <img
+          src={film.poster}
+          alt={film.title}
+          className={cn(
+            "rounded-lg object-cover",
+            compact ? "h-32 w-full" : "h-36 w-full"
+          )}
+        />
+      ) : (
+        <div
+          className={cn(
+            "flex items-center justify-center rounded-lg border border-slate-300/60 bg-transparent",
+            compact ? "h-32 w-full" : "h-36 w-full"
+          )}
+        >
+          <ImageOff className="text-slate-300 w-8 h-8" />
+        </div>
+      )}
       {showRating && film.vote_average && (
         <span className="absolute bottom-1 right-1 z-10 text-[11px] px-2 py-0.5 rounded bg-slate-900/80 text-amber-300 flex items-center gap-1 shadow-md">
           ★ {film.vote_average.toFixed(1)}
