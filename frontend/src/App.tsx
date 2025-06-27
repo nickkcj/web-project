@@ -7,7 +7,7 @@ import Footer from "./components/Footer/Footer";
 import Login from "./pages/Login/LoginPage";
 import RegisterPage from "./pages/Register/RegisterPage";
 import FeedPage from "./pages/Feed/FeedPage";
-import MoviesPage from "./pages/Movies/MoviesPage";
+import Discovery from "./pages/Movies/DiscoveryPage";
 import RateMoviePage from "./pages/RateMovie/RateMoviePage";
 import MyReviewsPage from "./pages/MyReviews/MyReviewsPage";
 import { ProfilePage } from "./pages/Profile/ProfilePage";
@@ -40,7 +40,7 @@ function RouterContent() {
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<RegisterPage />} />
-          <Route path="/movie/:id" element={<MoviesPage />} />
+          <Route path="/movie/:id" element={<Discovery />} />
           
           <Route path="/feed" element={
             <ProtectedRoute>
@@ -49,7 +49,7 @@ function RouterContent() {
           } />
           <Route path="/movies" element={
             <ProtectedRoute>
-              <MoviesPage />
+              <Discovery />
             </ProtectedRoute>
           } />
           <Route path="/my-reviews" element={
