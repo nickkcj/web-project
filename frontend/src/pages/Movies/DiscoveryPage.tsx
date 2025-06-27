@@ -1,4 +1,5 @@
 import { FC, useEffect, useState } from "react";
+import { useNavigate } from 'react-router-dom';
 import SearchBar from "./SearchBar";
 import FilterRow from "./FilterRow";
 import MovieGrid from "./MovieGrid";
@@ -33,6 +34,7 @@ const Discovery: FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [currentUserId, setCurrentUserId] = useState<number | null>(null);
   const [userStats, setUserStats] = useState<Record<number, {reviews: number, followers: number, following: number}>>({});
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (activeTab === 'users') {
@@ -311,16 +313,24 @@ const Discovery: FC = () => {
               {userResults.filter(user => user.id !== currentUserId).map((user) => (
                 <div key={user.id} className="bg-slate-800 rounded-lg p-4 flex flex-col justify-center h-28 w-[25rem] min-w-0">
                   <div className="flex items-center gap-4 w-full h-full">
-                    <div className="w-12 h-12 bg-gray-600 rounded-full flex items-center justify-center text-white font-bold text-lg shrink-0">
+                    <div
+                      className="w-12 h-12 bg-gray-600 rounded-full flex items-center justify-center text-white font-bold text-lg shrink-0 cursor-pointer"
+                      onClick={() => navigate(`/user/${user.id}`)}
+                      title="Ver perfil"
+                    >
                       {user.name.charAt(0).toUpperCase()}
                     </div>
-                    <div className="flex-1 min-w-0">
+                    <div
+                      className="flex-1 min-w-0 cursor-pointer"
+                      onClick={() => navigate(`/user/${user.id}`)}
+                      title="Ver perfil"
+                    >
                       <h3 className="text-white font-semibold truncate max-w-[350px]" title={user.name}>{user.name}</h3>
                       <p className="text-gray-400 text-sm truncate max-w-[350px]" title={user.email}>{user.email}</p>
                     </div>
                     <button
                       className={`px-3 py-1 rounded shrink-0 text-white text-xs ${followedUsers.includes(user.id) ? 'bg-red-500 hover:bg-red-600' : 'bg-green-500 hover:bg-green-600'}`}
-                      onClick={() => followedUsers.includes(user.id) ? handleUnfollow(user.id) : handleFollow(user.id)}
+                      onClick={e => { e.stopPropagation(); followedUsers.includes(user.id) ? handleUnfollow(user.id) : handleFollow(user.id); }}
                     >
                       {followedUsers.includes(user.id) ? <span className="block leading-tight">Deixar<br/>de seguir</span> : "Seguir"}
                     </button>

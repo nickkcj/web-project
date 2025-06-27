@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { 
   toggleFavorite, 
   hasUserFavorited,
+  getFavoritesByUserId,
   getUserFavorites 
 } from '../controllers/favorite.controller';
 import { authMiddleware } from '../middleware/auth.middleware';
@@ -14,6 +15,7 @@ router.post('/:movieId/toggle', authMiddleware, toggleFavorite);
 
 router.get('/:movieId/status', authMiddleware, hasUserFavorited);
 
+router.get('/user/:userId', authMiddleware, getFavoritesByUserId);
 
 router.get('/', authMiddleware, getUserFavorites);
 
