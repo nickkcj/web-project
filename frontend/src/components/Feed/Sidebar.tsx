@@ -5,39 +5,10 @@ import services from "../../services";
 import { MovieModal } from "../Movie/MovieModal";
 import {getImageUrl} from "../../utils/image";
 
-/* tiny clsx helper */
 const cn = (...c: (string | false | undefined)[]) => c.filter(Boolean).join(" ");
 
-/* Mock para trending movies */
-const mockTrending = [
-  {
-    id: 1,
-    title: "Mickey 17",
-    poster: "https://image.tmdb.org/t/p/w342/8QVDXDiOGHRcAD4oM6MXjE0osSj.jpg",
-    vote_average: 4.3,
-  },
-  {
-    id: 2,
-    title: "The List",
-    poster: "https://image.tmdb.org/t/p/w342/2u7zbn8EudG6kLlBzUYqP8RyFU4.jpg",
-    vote_average: 4.1,
-  },
-  {
-    id: 3,
-    title: "Saltburn",
-    poster: "https://image.tmdb.org/t/p/w342/6b7swg6DLqXCO3XUsMnv6RwDMW2.jpg",
-    vote_average: 4.0,
-  },
-  {
-    id: 4,
-    title: "Whiplash",
-    poster: "https://image.tmdb.org/t/p/w342/oPxnRhyAIzJKGUEdSiwTJQBa6hz.jpg",
-    vote_average: 4.7,
-  },
-];
-
 export const Sidebar: FC = () => {
-    const [trending, setTrending] = useState<any[]>(mockTrending);
+    const [trending, setTrending] = useState<any[]>([]);
     const [favorites, setFavorites] = useState<any[]>([]);
     const [selectedMovie, setSelectedMovie] = useState<any | null>(null);
     const [showModal, setShowModal] = useState(false);
@@ -45,6 +16,26 @@ export const Sidebar: FC = () => {
     const navigate = useNavigate();
 
     useEffect(() => {
+        const fetchTrending = async () => {
+            try {
+                const response = await services.getPopularMovies();
+                const moviesData = Array.isArray(response) ? response : response.results || [];
+                setTrending(
+                    moviesData.slice(0, 8).map((m: any) => ({
+                        id: m.id,
+                        title: m.title,
+                        poster: m.poster_path
+                            ? getImageUrl(m.poster_path)
+                            : "/placeholder.jpg",
+                        vote_average: m.vote_average,
+                    }))
+                );
+            } catch (error) {
+                setTrending([]);
+            }
+        };
+        fetchTrending();
+
         const fetchFavorites = async () => {
             try {
                 const favs = await services.getUserFavorites();
@@ -81,7 +72,6 @@ export const Sidebar: FC = () => {
         }
     };
     const handleRate = (movie: any) => {
-        // Garante que o objeto movie tem os campos corretos
         const movieForModal = {
             id: movie.id,
             title: movie.title,
@@ -111,12 +101,12 @@ export const Sidebar: FC = () => {
             <Section title="Trending Films" icon={TrendingUp}>
                 {trending && trending.length > 0 ? (
                     <ul className="grid grid-cols-2 gap-4">
-                        {trending.map((f) => (
+                        {trending.slice(0, 6).map((f) => (
                             <PosterCard
                                 key={f.id}
                                 film={f}
                                 showRating
-                                // Não precisa de onClick para trending
+                                onClick={() => handlePosterClick(f.id)}
                             />
                         ))}
                     </ul>
@@ -128,7 +118,7 @@ export const Sidebar: FC = () => {
             <Section title="Your Favourites" icon={Heart}>
                 {favorites.length ? (
                     <ul className="flex gap-4 overflow-x-auto pb-1 hide-scrollbar">
-                        {favorites.map((f) => (
+                        {favorites.slice(0, 6).map((f) => (
                             <PosterCard
                                 key={f.id}
                                 film={{
@@ -207,27 +197,24 @@ const PosterCard: FC<{
   compact?: boolean;
   onClick?: () => void;
 }> = ({ film, showRating, compact, onClick }) => (
-  <li className={cn("relative group cursor-pointer", compact && "flex-none w-20")} onClick={onClick}>
-    <img
-      src={film.poster}
-      alt={film.title}
-      className={cn(
-        "rounded-lg object-cover",
-        compact ? "h-28 w-full" : "h-32 w-full"
+  <li className={cn("relative group cursor-pointer flex-none w-24") + (compact ? "" : "") } onClick={onClick}>
+    <div className="relative">
+      <img
+        src={film.poster}
+        alt={film.title}
+        className={cn(
+          "rounded-lg object-cover",
+          compact ? "h-32 w-full" : "h-36 w-full"
+        )}
+      />
+      {showRating && film.vote_average && (
+        <span className="absolute bottom-1 right-1 z-10 text-[11px] px-2 py-0.5 rounded bg-slate-900/80 text-amber-300 flex items-center gap-1 shadow-md">
+          ★ {film.vote_average.toFixed(1)}
+        </span>
       )}
-    />
-    {showRating && film.vote_average && (
-      <span className="absolute bottom-1 right-1 text-[10px] px-1 py-0.5 rounded bg-slate-900/80 text-amber-300">
-        ★ {film.vote_average.toFixed(1)}
-      </span>
-    )}
-    <p
-      className={cn(
-        "mt-1 text-xs text-center truncate w-full",
-        compact && "hidden"
-      )}
-    >
-      {film.title}
-    </p>
+    </div>
+    <div className="mt-2">
+      <span className="block text-xs text-center truncate w-full">{film.title}</span>
+    </div>
   </li>
 );
