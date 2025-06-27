@@ -1,5 +1,6 @@
 import {FC, useEffect, useState} from "react";
 import { TrendingUp, Heart } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import services from "../../services";
 import { MovieModal } from "../Movie/MovieModal";
 import {getImageUrl} from "../../utils/image";
@@ -41,6 +42,7 @@ export const Sidebar: FC = () => {
     const [selectedMovie, setSelectedMovie] = useState<any | null>(null);
     const [showModal, setShowModal] = useState(false);
     const [unfavoriteLoading, setUnfavoriteLoading] = useState(false);
+    const navigate = useNavigate();
 
     useEffect(() => {
         const fetchFavorites = async () => {
@@ -69,7 +71,7 @@ export const Sidebar: FC = () => {
                 id: details.id,
                 title: details.title,
                 year: details.release_date ? new Date(details.release_date).getFullYear().toString() : '',
-                poster: getImageUrl(details.poster_path),
+                poster: `https://image.tmdb.org/t/p/w342${details.poster_path}`,
                 overview: details.overview,
             });
             setShowModal(true);
@@ -77,6 +79,17 @@ export const Sidebar: FC = () => {
             setSelectedMovie(null);
             setShowModal(false);
         }
+    };
+    const handleRate = (movie: any) => {
+        // Garante que o objeto movie tem os campos corretos
+        const movieForModal = {
+            id: movie.id,
+            title: movie.title,
+            year: movie.year,
+            poster: movie.poster,
+            overview: movie.overview,
+        };
+        navigate("/rate", { state: { movie: movieForModal } });
     };
 
     const handleUnfavorite = async (movie: any) => {
@@ -91,9 +104,6 @@ export const Sidebar: FC = () => {
         } finally {
             setUnfavoriteLoading(false);
         }
-    };
-    const handleRate = (movie: any) => {
-        window.location.href = `/rate?movieId=${movie.id}`;
     };
 
     return (
