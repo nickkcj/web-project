@@ -62,12 +62,6 @@ const RateMoviePage: FC = () => {
           visibility,
         });
 
-        try {
-          await services.toggleFavorite(movie.id);
-        } catch (favoriteError) {
-          console.log('Erro ao favoritar filme:', favoriteError);
-        }
-
         alert("Review criada com sucesso!");
       }
 
@@ -87,11 +81,13 @@ const RateMoviePage: FC = () => {
       </h1>
 
       <div className="flex flex-col md:flex-row gap-8 w-full max-w-4xl bg-[#1E252C] rounded-2xl p-6 shadow-2xl">
-        <img
-          src={movie.poster}
-          alt={movie.title}
-          className="w-50 h-[auto] object-cover rounded-lg self-center"
-        />
+        <div className="w-full md:w-1/3 lg:w-1/2 flex justify-center">
+          <img
+            src={movie.poster}
+            alt={movie.title}
+            className="w-full h-auto object-cover rounded-lg"
+          />
+        </div>
 
         <div className="flex-1 flex flex-col gap-6 text-left">
           <header>
@@ -155,7 +151,13 @@ const RateMoviePage: FC = () => {
               className="px-6 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 transition"
               onClick={handleSubmit}
             >
-              {isSubmitting ? (state?.review ? "Salvando..." : "Publicando...") : (state?.review ? "Salvar alterações" : "Publicar")}
+              {isSubmitting
+                ? state?.review
+                  ? "Salvando..."
+                  : "Publicando..."
+                : state?.review
+                ? "Salvar alterações"
+                : "Publicar"}
             </button>
           </div>
         </div>
