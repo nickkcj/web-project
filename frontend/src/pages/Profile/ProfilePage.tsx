@@ -5,7 +5,8 @@ import services from '../../services/index';
 import { MovieReviewModal } from '../../components/MoveReviewModal/MoveReviewModal';
 import { MovieModal } from '../../components/Movie/MovieModal';
 import { Carousel } from '../../components/Carousel/Carousel';
-import { Users, UserCheck, Star, SquarePen  } from "lucide-react";
+import { Users, UserCheck, Star, SquarePen, X } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../../components/ui/dialog';
 
 interface Review {
   id: number;
@@ -82,6 +83,16 @@ export const ProfilePage: React.FC = () => {
   const [selectedMovie, setSelectedMovie] = useState<MovieForModal | null>(null);
   const [unfavoriteLoading, setUnfavoriteLoading] = useState(false);
   const [followed, setFollowed] = useState(false);
+  const [followersModalOpen, setFollowersModalOpen] = useState(false);
+  const [followersTab, setFollowersTab] = useState<'followers' | 'following'>('followers');
+  const [followersList, setFollowersList] = useState<any[]>([]);
+  const [followingList, setFollowingList] = useState<any[]>([]);
+  const [followersLoading, setFollowersLoading] = useState(false);
+  const [activeTab, setActiveTab] = useState<'movies' | 'users'>('movies');
+  const [ownFollowersCount, setOwnFollowersCount] = useState<number>(0);
+  const [ownFollowingCount, setOwnFollowingCount] = useState<number>(0);
+  const [profileFollowersCount, setProfileFollowersCount] = useState<number>(0);
+  const [profileFollowingCount, setProfileFollowingCount] = useState<number>(0);
 
   const loadUserData = useCallback(async () => {
     setLoading(true);
@@ -92,8 +103,18 @@ export const ProfilePage: React.FC = () => {
         userData = await services.getUserById(Number(paramId));
         userId = Number(paramId);
       } else {
-        userData = loggedUser;
-        userId = typeof loggedUser.id === 'string' ? parseInt(loggedUser.id) : loggedUser.id;
+        userData = await services.getUserProfile();
+        userId = typeof userData.id === 'string' ? parseInt(userData.id) : userData.id;
+      }
+      const [followers, following] = await Promise.all([
+        services.getFollowers(userId),
+        services.getFollowing(userId)
+      ]);
+      setProfileFollowersCount(Array.isArray(followers) ? followers.length : 0);
+      setProfileFollowingCount(Array.isArray(following) ? following.length : 0);
+      if (!paramId) {
+        setOwnFollowersCount(Array.isArray(followers) ? followers.length : 0);
+        setOwnFollowingCount(Array.isArray(following) ? following.length : 0);
       }
       setProfileUser(userData);
       const [userReviews, userFavorites] = await Promise.all([
@@ -113,6 +134,8 @@ export const ProfilePage: React.FC = () => {
       setProfileUser(null);
       setReviews([]);
       setFavorites([]);
+      setProfileFollowersCount(0);
+      setProfileFollowingCount(0);
     } finally {
       setLoading(false);
     }
@@ -180,7 +203,7 @@ export const ProfilePage: React.FC = () => {
     }));
 
   const handleCreateReview = () => {
-    navigate('/movies');
+    navigate('/discovery');
   };
 
   const handleReviewClick = (review: Review) => {
@@ -277,7 +300,53 @@ export const ProfilePage: React.FC = () => {
     setFollowed(false);
   };
 
+  const openFollowersModal = async (tab: 'followers' | 'following') => {
+    setFollowersTab(tab);
+    setFollowersModalOpen(true);
+    setFollowersLoading(true);
+    try {
+      const [followers, following] = await Promise.all([
+        services.getFollowers(profileUser.id),
+        services.getFollowing(profileUser.id)
+      ]);
+      setFollowersList(Array.isArray(followers) ? followers : []);
+      setFollowingList(Array.isArray(following) ? following : []);
+    } catch {
+      setFollowersList([]);
+      setFollowingList([]);
+    } finally {
+      setFollowersLoading(false);
+    }
+  };
+
   const isOwnProfile = !paramId || Number(paramId) === loggedUser.id;
+
+  const handleFollowModal = async (userId: number) => {
+    try {
+      await services.followUser(userId);
+      const [followers, following] = await Promise.all([
+        services.getFollowers(profileUser.id),
+        services.getFollowing(profileUser.id)
+      ]);
+      setFollowersList(Array.isArray(followers) ? followers : []);
+      setFollowingList(Array.isArray(following) ? following : []);
+    } catch (err) {
+      alert("Erro ao seguir usuário");
+    }
+  };
+  const handleUnfollowModal = async (userId: number) => {
+    try {
+      await services.unfollowUser(userId);
+      const [followers, following] = await Promise.all([
+        services.getFollowers(profileUser.id),
+        services.getFollowing(profileUser.id)
+      ]);
+      setFollowersList(Array.isArray(followers) ? followers : []);
+      setFollowingList(Array.isArray(following) ? following : []);
+    } catch (err) {
+      alert("Erro ao deixar de seguir usuário");
+    }
+  };
 
   if (!profileUser) {
     return null;
@@ -286,14 +355,14 @@ export const ProfilePage: React.FC = () => {
   return (
     <div className="min-h-screen bg-[#0F172A] text-white">
       <div className="max-w-6xl mx-auto px-4 py-8">
-        <div className="bg-gradient-to-r from-slate-700/80 to-slate-600/80 rounded-2xl p-8 mb-8 backdrop-blur-sm border border-slate-500/30">
+        <div className="bg-gradient-to-r from-slate-700/80 to-slate-600/80 rounded-2xl p-6 mb-8 backdrop-blur-sm border border-slate-500/30">
           <div className="flex items-center gap-6">
-            <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white text-2xl font-bold shadow-lg border-4 border-white/20">
+            <div className="w-[4rem] h-[4rem] bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white text-2xl font-bold shadow-lg border-4 border-white/20">
               {profileUser.name.charAt(0).toUpperCase()}
             </div>
             <div className="flex-1">
               <div className="flex items-center justify-between mb-4">
-                <h1 className="text-3xl font-bold text-white">{profileUser.name}</h1>
+                <h1 className="text-xl font-bold text-white">{profileUser.name}</h1>
                 {isOwnProfile ? (
                   <button 
                     onClick={handleCreateReview}
@@ -312,23 +381,23 @@ export const ProfilePage: React.FC = () => {
               </div>
               
               <div className="flex items-center gap-4">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 cursor-pointer" onClick={() => openFollowersModal('following')}>
                   <UserCheck className="text-blue-400 w-5 h-5" />
                   <span className="text-sm text-gray-300">Seguindo</span>
-                  <span className="text-sm text-gray-300">{profileUser.followingCount ?? 0}</span>
+                  <span className="text-sm text-gray-300">{profileFollowingCount}</span>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 cursor-pointer" onClick={() => openFollowersModal('followers')}>
                   <Users className="text-green-400 w-5 h-5" />
                   <span className="text-sm text-gray-300">Seguidores</span>
-                  <span className="text-sm text-gray-300">{profileUser.followersCount ?? 0}</span>
+                  <span className="text-sm text-gray-300">{profileFollowersCount}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <SquarePen  className="text-yellow-200 w-5 h-5" />
-                  <span className="text-sm text-gray-300">{reviews.length} Reviews</span>
+                  <span className="text-sm text-gray-300"> Reviews</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Star className="text-yellow-700 w-5 h-5" />
-                  <span className="text-sm text-gray-300">{favorites.length} Favoritos</span>
+                  <span className="text-sm text-gray-300"> Favoritos</span>
                 </div>
               </div>
             </div>
@@ -345,6 +414,7 @@ export const ProfilePage: React.FC = () => {
             onSelect={handleFavoriteCarouselSelect}
             title={isOwnProfile ? "Meus Filmes Favoritos" : "Filmes Favoritos"}
             type="favorites"
+            itemSize="small"
           />
         ) : (
           <div className="mb-12">
@@ -353,7 +423,7 @@ export const ProfilePage: React.FC = () => {
               <p className="text-gray-400 text-lg">{isOwnProfile ? "Você ainda não tem filmes favoritos" : "Esse usuário ainda não fez nenhum registro"}</p>
               {isOwnProfile && (
                 <button
-                  onClick={() => navigate('/movies')}
+                  onClick={() => navigate('/discovery')}
                   className="mt-4 bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-lg font-semibold transition-colors"
                 >
                   Explorar Filmes
@@ -373,6 +443,7 @@ export const ProfilePage: React.FC = () => {
             onSelect={handleReviewCarouselSelect}
             title={isOwnProfile ? "Minhas Reviews" : "Reviews"}
             type="reviews"
+            itemSize="small"
           />
         ) : (
           <div className="mb-12">
@@ -381,7 +452,7 @@ export const ProfilePage: React.FC = () => {
               <p className="text-gray-400 text-lg">{isOwnProfile ? "Você ainda não escreveu nenhuma review" : "Esse usuário ainda não fez nenhum registro"}</p>
               {isOwnProfile && (
                 <button
-                  onClick={() => navigate('/movies')}
+                  onClick={() => navigate('/discovery')}
                   className="mt-4 bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-semibold transition-colors"
                 >
                   Explorar Filmes
@@ -449,6 +520,97 @@ export const ProfilePage: React.FC = () => {
           onClose={handleCloseMovieModal}
         />
       )}
+
+      <Dialog open={followersModalOpen} onOpenChange={setFollowersModalOpen}>
+        <DialogContent className="h-[70vh] overflow-y-auto">
+          <button
+            className="absolute top-4 right-4 z-10 p-1 rounded hover:bg-slate-700 transition-colors"
+            onClick={() => setFollowersModalOpen(false)}
+            aria-label="Fechar"
+            type="button"
+          >
+            <X className="w-6 h-6 text-white" />
+          </button>
+          <div className="flex justify-center mb-6">
+            <div className="flex bg-slate-800 rounded-lg p-1">
+              <button
+                onClick={() => setFollowersTab('following')}
+                className={`px-6 py-2 rounded-md font-semibold transition-colors ${
+                  followersTab === 'following'
+                    ? 'bg-white text-slate-900'
+                    : 'text-white hover:bg-slate-700'
+                }`}
+              >
+                Seguindo
+              </button>
+              <button
+                onClick={() => setFollowersTab('followers')}
+                className={`px-6 py-2 rounded-md font-semibold transition-colors ${
+                  followersTab === 'followers'
+                    ? 'bg-white text-slate-900'
+                    : 'text-white hover:bg-slate-700'
+                }`}
+              >
+                Seguidores
+              </button>
+            </div>
+          </div>
+          <DialogHeader>
+            <DialogTitle>{followersTab === 'following' ? 'Seguindo' : 'Seguidores'}</DialogTitle>
+          </DialogHeader>
+          {followersLoading ? (
+            <div className="text-center py-8 text-slate-300">Carregando...</div>
+          ) : (
+            <ul className="max-h-72 overflow-y-auto divide-y divide-slate-700">
+              {(followersTab === 'following' ? followingList : followersList).length === 0 ? (
+                <li className="text-center text-slate-400 py-8">Nenhum usuário encontrado</li>
+              ) : (
+                (followersTab === 'following' ? followingList : followersList).map((user: any) => {
+                  const u = user.following || user.follower || user;
+                  const isOwn = u.id === loggedUser.id;
+                  const isFollowing = followingList.some((f: any) => (f.following?.id ?? f.followingId) === u.id);
+                  return (
+                    <li key={u.id} className="py-3 px-2 flex items-center gap-3">
+                      <div
+                        className="w-10 h-10 bg-gray-600 rounded-full flex items-center justify-center text-white font-bold text-lg cursor-pointer"
+                        onClick={() => navigate(`/user/${u.id}`)}
+                        title="Ver perfil"
+                      >
+                        {u.name?.charAt(0).toUpperCase()}
+                      </div>
+                      <div
+                        className="flex-1 min-w-0 cursor-pointer"
+                        onClick={() => navigate(`/user/${u.id}`)}
+                        title="Ver perfil"
+                      >
+                        <div className="text-white font-semibold truncate">{u.name}</div>
+                        <div className="text-slate-400 text-xs truncate">{u.email}</div>
+                      </div>
+                      {!isOwn && (
+                        isFollowing ? (
+                          <button
+                            className="px-3 py-1 rounded text-xs text-white bg-red-500 hover:bg-red-600 transition-colors"
+                            onClick={() => handleUnfollowModal(u.id)}
+                          >
+                            Deixar de seguir
+                          </button>
+                        ) : (
+                          <button
+                            className="px-3 py-1 rounded text-xs text-white bg-green-500 hover:bg-green-600 transition-colors"
+                            onClick={() => handleFollowModal(u.id)}
+                          >
+                            Seguir
+                          </button>
+                        )
+                      )}
+                    </li>
+                  );
+                })
+              )}
+            </ul>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

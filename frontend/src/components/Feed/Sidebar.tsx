@@ -1,41 +1,21 @@
 import {FC, useEffect, useState} from "react";
-import { TrendingUp, Heart, Bookmark } from "lucide-react";
-import bladeRunner2049Poster from "../../Assets/Photos/bladeRunner2049Poster.jpg";
-import dunePartTwoPoster from "../../Assets/Photos/dunePartTwoPoster.jpg";
-import interstellarPoster from "../../Assets/Photos/interstellarPoster.jpg";
-import mickey17Poster from "../../Assets/Photos/mickey17Poster.jpg";
-import saltburnPoster from "../../Assets/Photos/saltburnPoster.jpg";
-import poorThingsPoster from "../../Assets/Photos/poorThingsPoster.jpg";
-import theListPoster from "../../Assets/Photos/theListPoster.jpg";
-import whiplashPoster from "../../Assets/Photos/whiplashPoster.jpg";
-import {getPopularMovies, PopularMovie} from "../../services/sidebar";
+import { TrendingUp, Heart, ImageOff } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { getPopularMovies, PopularMovie } from "../../services/sidebar";
+import services from "../../services";
+import { MovieModal } from "../Movie/MovieModal";
 import {getImageUrl} from "../../utils/image";
 
-/* tiny clsx helper */
 const cn = (...c: (string | false | undefined)[]) => c.filter(Boolean).join(" ");
 
-/* mock data – swap for API calls */
-const mockTrending = [
-  { id: 1, title: "Mickey 17", rating: 4.3, poster: mickey17Poster },
-  { id: 2, title: "The List",  rating: 4.1, poster: theListPoster },
-  { id: 3, title: "Saltburn",  rating: 4.0, poster: saltburnPoster },
-];
-
-const favourites = [
-  { id: 7, title: "Whiplash", poster: whiplashPoster },
-  { id: 8, title: "Blade Runner 2049", poster: bladeRunner2049Poster },
-  { id: 9, title: "Interstellar", poster: interstellarPoster },
-];
-
-const watchlist = [
-  { id: 12, title: "Poor Things",   poster: poorThingsPoster },
-  { id: 13, title: "Dune: Part II", poster: dunePartTwoPoster },
-];
-
 export const Sidebar: FC = () => {
-
     const [trending, setTrending] = useState<PopularMovie[]>([]);
-    const [loading, setLoading] = useState(true);
+    const [favorites, setFavorites] = useState<any[]>([]);
+    const [selectedMovie, setSelectedMovie] = useState<any | null>(null);
+    const [showModal, setShowModal] = useState(false);
+    const [unfavoriteLoading, setUnfavoriteLoading] = useState(false);
+    const [loading, setLoading] = useState(false);
+    const navigate = useNavigate();
 
     useEffect(() => {
         const fetchTrending = async () => {
@@ -54,9 +34,69 @@ export const Sidebar: FC = () => {
         fetchTrending();
     }, []);
 
+    useEffect(() => {
+        const fetchFavorites = async () => {
+            try {
+                const favs = await services.getUserFavorites();
+                const mapped = Array.isArray(favs)
+                  ? favs.map((fav) => ({
+                      id: fav.movie?.id || fav.id,
+                      title: fav.movie?.title || '',
+                      poster: fav.movie?.poster_path ? getImageUrl(fav.movie.poster_path) : '',
+                      movieId: fav.movie?.id || fav.movieId || fav.id,
+                  }))
+                  : [];
+                setFavorites(mapped);
+            } catch (error) {
+                setFavorites([]);
+            }
+        };
+        fetchFavorites();
+    }, []);
+
+    const handlePosterClick = async (movieId: number) => {
+        try {
+            const details = await services.getMovieDetails(movieId);
+            setSelectedMovie({
+                id: details.id,
+                title: details.title,
+                year: details.release_date ? new Date(details.release_date).getFullYear().toString() : '',
+                poster: `https://image.tmdb.org/t/p/w342${details.poster_path}`,
+                overview: details.overview,
+            });
+            setShowModal(true);
+        } catch (error) {
+            setSelectedMovie(null);
+            setShowModal(false);
+        }
+    };
+    const handleRate = (movie: any) => {
+        const movieForModal = {
+            id: movie.id,
+            title: movie.title,
+            year: movie.year,
+            poster: movie.poster,
+            overview: movie.overview,
+        };
+        navigate("/rate", { state: { movie: movieForModal } });
+    };
+
+    const handleUnfavorite = async (movie: any) => {
+        if (unfavoriteLoading) return;
+        try {
+            setUnfavoriteLoading(true);
+            await services.toggleFavorite(movie.id);
+            setFavorites((prev) => prev.filter((f) => f.movieId !== movie.id && f.id !== movie.id));
+            setShowModal(false);
+        } catch (error) {
+            console.error('Erro ao remover dos favoritos:', error);
+        } finally {
+            setUnfavoriteLoading(false);
+        }
+    };
+
     return (
         <aside className="sticky top-20 space-y-10 hidden lg:block">
-            {/* ── Trending ───────────────────────────────────────────── */}
             <Section title="Trending Films" icon={TrendingUp}>
                 {loading ? (
                     <p className="text-sm text-slate-500">Carregando...</p>
@@ -70,6 +110,7 @@ export const Sidebar: FC = () => {
                                     poster: getImageUrl(f.poster_path),
                                 }}
                                 showRating
+                                onClick={() => handlePosterClick(f.id)}
                             />
                         ))}
                     </ul>
@@ -78,12 +119,19 @@ export const Sidebar: FC = () => {
                 )}
             </Section>
 
-            {/* ── Favourites ────────────────────────────────────────── */}
             <Section title="Your Favourites" icon={Heart}>
-                {favourites.length ? (
-                    <ul className="flex gap-4 overflow-x-auto pb-1 hide-scrollbar">
-                        {favourites.map((f) => (
-                            <PosterCard key={f.id} film={f} compact />
+                {favorites.length ? (
+                    <ul className="flex gap-4 overflow-x-auto pb-1 hide-scrollbar custom-scrollbar">
+                        {favorites.slice(0, 6).map((f) => (
+                            <PosterCard
+                                key={f.id}
+                                film={{
+                                    ...f,
+                                    poster: f.poster
+                                }}
+                                compact
+                                onClick={() => handlePosterClick(f.movieId)}
+                            />
                         ))}
                     </ul>
                 ) : (
@@ -91,7 +139,7 @@ export const Sidebar: FC = () => {
                 )}
             </Section>
 
-            {/* ── Watchlist ─────────────────────────────────────────── */}
+            {/* por hora é uma ideia, não implementada
             <Section title="Watchlist" icon={Bookmark}>
                 {watchlist.length ? (
                     <ul className="space-y-3">
@@ -109,12 +157,28 @@ export const Sidebar: FC = () => {
                 ) : (
                     <p className="text-sm text-slate-500">Save films to watch later 🎬</p>
                 )}
-            </Section>
+            </Section>*/}
+
+            {showModal && selectedMovie && (
+                <MovieModal
+                    movie={selectedMovie}
+                    actions={[
+                        {
+                            label: "Avaliar",
+                            onClick: () => handleRate(selectedMovie),
+                        },
+                        {
+                            label: unfavoriteLoading ? "Removendo..." : "Desfavoritar",
+                            onClick: () => handleUnfavorite(selectedMovie),
+                            disabled: unfavoriteLoading,
+                        },
+                    ]}
+                    onClose={() => setShowModal(false)}
+                />
+            )}
         </aside>
     );
 };
-
-/* -------------------------------------------------------------------------- */
 
 interface SectionProps {
   title: string;
@@ -131,33 +195,41 @@ const Section: FC<SectionProps> = ({ title, icon: Icon, children }) => (
   </section>
 );
 
-/* Compact poster w/ optional rating badge */
 const PosterCard: FC<{
-  film: { poster: string; title: string; vote_average?: number };
+  film: { poster: string | null; title: string; vote_average?: number };
   showRating?: boolean;
   compact?: boolean;
-}> = ({ film, showRating, compact }) => (
-  <li className={cn("relative group", compact && "flex-none w-20")}>
-    <img
-      src={film.poster}
-      alt={film.title}
-      className={cn(
-        "rounded-lg object-cover",
-        compact ? "h-28 w-full" : "h-32 w-full"
+  onClick?: () => void;
+}> = ({ film, showRating, compact, onClick }) => (
+  <li className={cn("relative group cursor-pointer flex-none w-24") + (compact ? "" : "") } onClick={onClick}>
+    <div className="relative">
+      {film.poster ? (
+        <img
+          src={film.poster}
+          alt={film.title}
+          className={cn(
+            "rounded-lg object-cover",
+            compact ? "h-32 w-full" : "h-36 w-full"
+          )}
+        />
+      ) : (
+        <div
+          className={cn(
+            "flex items-center justify-center rounded-lg border border-slate-300/60 bg-transparent",
+            compact ? "h-32 w-full" : "h-36 w-full"
+          )}
+        >
+          <ImageOff className="text-slate-300 w-8 h-8" />
+        </div>
       )}
-    />
-    {showRating && film.vote_average && (
-      <span className="absolute bottom-1 right-1 text-[10px] px-1 py-0.5 rounded bg-slate-900/80 text-amber-300">
-        ★ {film.vote_average.toFixed(1)}
-      </span>
-    )}
-    <p
-      className={cn(
-        "mt-1 text-xs text-center truncate w-full",
-        compact && "hidden"
+      {showRating && film.vote_average && (
+        <span className="absolute bottom-1 right-1 z-10 text-[11px] px-2 py-0.5 rounded bg-slate-900/80 text-amber-300 flex items-center gap-1 shadow-md">
+          ★ {film.vote_average.toFixed(1)}
+        </span>
       )}
-    >
-      {film.title}
-    </p>
+    </div>
+    <div className="mt-2">
+      <span className="block text-xs text-center truncate w-full">{film.title}</span>
+    </div>
   </li>
 );

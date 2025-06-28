@@ -47,7 +47,7 @@ function RouterContent() {
               <FeedPage />
             </ProtectedRoute>
           } />
-          <Route path="/movies" element={
+          <Route path="/discovery" element={
             <ProtectedRoute>
               <Discovery />
             </ProtectedRoute>

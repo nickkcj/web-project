@@ -1,6 +1,5 @@
-import {Movie, PrismaClient} from '@prisma/client';
-
-const prisma = new PrismaClient();
+import {Movie} from '@prisma/client';
+import { prisma } from '../config/database';
 
 export class MovieFallbackService {
     static async searchByTitle(query: string, page: number, pageSize: number = 10) {

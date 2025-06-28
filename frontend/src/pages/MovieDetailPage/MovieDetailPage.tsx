@@ -150,7 +150,7 @@ export const MovieDetailPage: React.FC = () => {
         <div className="text-center">
           <p className="text-red-400 text-lg mb-4">{error || 'Filme não encontrado'}</p>
           <button
-            onClick={() => navigate('/movies')}
+            onClick={() => navigate('/discovery')}
             className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-semibold transition-colors"
           >
             Voltar aos Filmes
