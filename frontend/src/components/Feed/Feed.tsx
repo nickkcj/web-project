@@ -1,11 +1,13 @@
 import {FC, useEffect, useState} from "react";
 import FeedItem from "./FeedItem";
 import {getReviews, ReviewApiResponse} from "../../services/reviews";
+import { useSelector } from "react-redux";
 
 const Feed: FC = () => {
   const [reviews, setReviews] = useState<ReviewApiResponse[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const currentUser = useSelector((state: any) => state.login.user);
 
   useEffect(() => {
     const fetchReviews = async () => {
@@ -43,6 +45,7 @@ const Feed: FC = () => {
                 text={p.text}
                 time={p.time}
                 comments={p.comments}
+                currentUser={currentUser}
             />
         ))}
       </div>

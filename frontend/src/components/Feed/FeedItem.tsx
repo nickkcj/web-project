@@ -1,8 +1,9 @@
-import { FC, useState } from "react";
+import { FC, useState, useEffect } from "react";
 import { Heart, MessageCircle, Star } from "lucide-react";
 import { motion } from "framer-motion";
 import CommentFeed, { Comment } from "./CommentFeed";
 import AddCommentModal from "./AddCommentModal";
+import services from '../../services/index';
 
 export interface FeedItemProps {
   id: number;
@@ -12,28 +13,72 @@ export interface FeedItemProps {
   text: string;
   time: string;
   comments: Comment[];
+  currentUser?: { id: string | number; name: string } | null;
 }
 
 const FeedItem: FC<FeedItemProps> = ({
+  id,
   poster,
   user,
   rating,
   text,
   time,
   comments: initialComments,
+  currentUser,
 }) => {
   const [liked, setLiked] = useState(false);
   const [comments, setComments] = useState<Comment[]>(initialComments);
   const [openModal, setOpenModal] = useState(false);
+  const [likeLoading, setLikeLoading] = useState(false);
+
+  useEffect(() => {
+    let mounted = true;
+    if (currentUser) {
+      services.hasUserLikedReview(id).then(res => {
+        if (mounted) setLiked(!!res.hasLiked);
+      }).catch(() => {});
+    }
+    return () => { mounted = false; };
+  }, [id, currentUser]);
 
   /* ---- actions -------------------------------------------------- */
-  const toggleLike = () => setLiked((l) => !l);
+  const toggleLike = async () => {
+    if (likeLoading) return;
+    setLikeLoading(true);
+    // Optimistic update
+    setLiked((l) => !l);
+    try {
+      const res = await services.toggleLike(id);
+      setLiked(res.liked);
+    } catch (err) {
+      // revert optimistic update on error
+      setLiked((l) => !l);
+      // Optionally show error
+      // alert('Failed to like/unlike.');
+    } finally {
+      setLikeLoading(false);
+    }
+  };
 
-  const addComment = (content: string) =>
-    setComments((prev) => [
-      { id: Date.now(), user: "you", text: content }, // new comment on TOP
-      ...prev,
-    ]);
+  const addComment = async (content: string) => {
+    try {
+      const newComment = await services.createComment(id, content);
+      setComments((prev) => [
+        {
+          id: newComment.id || Date.now(),
+          user: (currentUser && newComment.user?.id == currentUser.id) ? 'you' : (newComment.user?.name || 'you'),
+          text: newComment.content || content,
+        },
+        ...prev,
+      ]);
+    } catch (err) {
+      // Optionally show error
+      // alert('Failed to add comment.');
+    }
+  };
+
+  // Mostra 'you' se for o autor da review
+  const displayUser = currentUser && (currentUser.name === user) ? 'you' : user;
 
   return (
     <motion.article
@@ -44,7 +89,7 @@ const FeedItem: FC<FeedItemProps> = ({
     >
       {/* ── header ──────────────────────────────────────────────── */}
       <div className="flex items-center gap-2 text-sm">
-        <span className="font-semibold">{user}</span>
+        <span className="font-semibold">{displayUser}</span>
         <span className="text-slate-500">· {time}</span>
         <span className="ml-auto flex items-center gap-1 text-amber-300">
           <Star size={16} /> {rating}/5
@@ -65,7 +110,7 @@ const FeedItem: FC<FeedItemProps> = ({
       </section>
 
       {/* ── comments ───────────────────────────────────────────── */}
-      <CommentFeed comments={comments} />
+      <CommentFeed comments={comments} currentUser={currentUser} />
 
       {/* ── actions ────────────────────────────────────────────── */}
       <div className="flex gap-6 pt-2 border-t border-slate-800 text-slate-400">

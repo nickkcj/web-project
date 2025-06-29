@@ -9,14 +9,15 @@ export interface Comment {
 
 /**
  * Shows up to `previewCount` comments collapsed,
- * with an expandable “View all n comments” link.
+ * with an expandable "View all n comments" link.
  */
 interface CommentFeedProps {
   comments: Comment[];
   previewCount?: number;
+  currentUser?: { id: string | number; name: string } | null;
 }
 
-const CommentFeed: FC<CommentFeedProps> = ({ comments, previewCount = 2 }) => {
+const CommentFeed: FC<CommentFeedProps> = ({ comments, previewCount = 2, currentUser }) => {
   const [expanded, setExpanded] = useState(false);
   const shown = expanded ? comments : comments.slice(0, previewCount);
 
@@ -45,7 +46,7 @@ const CommentFeed: FC<CommentFeedProps> = ({ comments, previewCount = 2 }) => {
             transition={{ duration: 0.15 }}
             className="text-slate-300"
           >
-            <span className="font-medium mr-2">{c.user}:</span>
+            <span className="font-medium mr-2">{currentUser && (c.user === currentUser.name || c.user === 'you') ? 'you' : c.user}:</span>
             {c.text}
           </motion.p>
         ))}
