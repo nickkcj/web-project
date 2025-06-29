@@ -68,7 +68,7 @@ export const MovieModal: React.FC<Props> = ({ movie, onClose, actions }) => {
                   onClick={a.onClick}
                   disabled={a.disabled}
                   className={`px-3 py-1 text-sm rounded-lg transition ${
-                    a.disabled 
+                    a.disabled
                       ? 'bg-slate-800 text-gray-500 cursor-not-allowed'
                       : 'bg-slate-700 hover:bg-slate-600'
                   }`}

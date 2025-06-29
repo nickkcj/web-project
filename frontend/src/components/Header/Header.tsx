@@ -18,7 +18,7 @@ const Header: React.FC<Props> = ({ isLoggedIn, username = "user" }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const navLogged = [
-    { to: "/movies", label: "Filmes" },
+    { to: "/discovery", label: "Descobrir" },
     { to: "/profile", label: "Diário" },
     { to: "/feed", label: "Feed" },
   ];

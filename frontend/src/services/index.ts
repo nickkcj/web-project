@@ -256,6 +256,11 @@ const services = {
     return response.data;
   },
 
+  getFavoritesByUserId: async (userId: number) => {
+    const response = await api.get(`/favorites/user/${userId}`);
+    return response.data;
+  },
+
 };
 
 export default services;

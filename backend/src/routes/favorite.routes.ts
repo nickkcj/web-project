@@ -2,11 +2,12 @@ import { Router } from 'express';
 import { 
   toggleFavorite, 
   hasUserFavorited,
-  getUserFavorites 
+  getUserFavorites,
+  getFavoritesByUserId
 } from '../controllers/favorite.controller';
 import { authMiddleware } from '../middleware/auth.middleware';
 import { handleValidationErrors } from '../middleware/error.middleware';
-import { validateMovieIdParam } from '../middleware/validation.middleware';
+import { validateMovieIdParam, validateUserIdParam } from '../middleware/validation.middleware';
 
 const router = Router();
 
@@ -17,5 +18,7 @@ router.post('/:movieId/toggle', validateMovieIdParam, handleValidationErrors, to
 router.get('/', getUserFavorites);
 
 router.get('/:movieId/status', validateMovieIdParam, handleValidationErrors, hasUserFavorited);
+
+router.get('/:userId', validateUserIdParam, handleValidationErrors, getFavoritesByUserId);
 
 export default router;

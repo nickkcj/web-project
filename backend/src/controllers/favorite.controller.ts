@@ -20,7 +20,17 @@ export const getUserFavorites = asyncHandler(
   async (req: Request, res: Response) => {
     const userId = req.authUser!.userId;
     const favorites = await FavoriteService.getUserFavorites(userId);
-    res.json(favorites);
+    const favoritesWithUserId = favorites.map((fav: any) => ({ ...fav, userId }));
+    res.json(favoritesWithUserId);
+  }
+);
+
+export const getFavoritesByUserId = asyncHandler(
+  async (req: Request, res: Response) => {
+    const userId = Number(req.params.userId);
+    const favorites = await FavoriteService.getUserFavorites(userId);
+    const favoritesWithUserId = favorites.map((fav) => ({ ...fav, userId }));
+    res.json(favoritesWithUserId);
   }
 );
 

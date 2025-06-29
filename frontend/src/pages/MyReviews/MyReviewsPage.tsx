@@ -66,7 +66,7 @@ const MyReviewsPage: FC = () => {
       <div className="min-h-screen flex flex-col items-center justify-center text-slate-300">
         <p className="text-lg mb-4">Você ainda não fez nenhuma avaliação.</p>
         <button
-          onClick={() => navigate("/movies")}
+          onClick={() => navigate("/discovery")}
           className="px-4 py-2 bg-yellow-500 hover:bg-yellow-400 rounded-md"
         >
           Explorar filmes
