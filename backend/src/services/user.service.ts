@@ -2,6 +2,7 @@ import { CreateUserDto, UpdateUserDto } from '../dtos/user.dto';
 import * as bcrypt from 'bcrypt';
 import * as jwt from 'jsonwebtoken';
 import { prisma } from '../config/database';
+import { AppError } from '../middleware/error.middleware';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key'; // Use environment variable in production
 const SALT_ROUNDS = 10;
@@ -75,18 +76,18 @@ export class UserService {
     });
   
     if (!user) {
-      throw new Error('Invalid credentials');
+      throw new AppError('Invalid credentials', 401);
     }
   
     // Check if the user has a password set. Google authenticated users will not have.
     // If user was created via Google and no password exists, they cannot use this method.
     if (!user.password) {
-       throw new Error('Invalid credentials');
+       throw new AppError('Invalid credentials', 401);
     }
   
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
-      throw new Error('Invalid credentials');
+      throw new AppError('Invalid credentials', 401);
     }
   
     // Generate JWT token

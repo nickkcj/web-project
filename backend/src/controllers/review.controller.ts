@@ -3,136 +3,117 @@ import { Request, Response } from 'express';
 import { CreateReviewDto, UpdateReviewDto } from '../dtos/review.dto';
 import { formatDistanceToNow } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { asyncHandler, AppError } from '../middleware/error.middleware';
 
-export const createReview = async (req: Request, res: Response) => {
-  try {
+export const createReview = asyncHandler(
+  async (req: Request, res: Response) => {
     const reviewData: CreateReviewDto = {
       ...req.body,
-      userId: req.authUser!.userId
+      userId: req.authUser!.userId,
     };
     const review = await ReviewService.createReview(reviewData);
     res.status(201).json(review);
-  } catch (error: any) {
-    console.error('Error creating review:', error);
-    res.status(500).json({ error: 'Error creating review' });
   }
-};
+);
 
-export const getReviewById = async (req: Request, res: Response) => {
-  try {
+export const getReviewById = asyncHandler(
+  async (req: Request, res: Response) => {
     const reviewId = parseInt(req.params.id, 10);
-    
+
     if (isNaN(reviewId)) {
-      return res.status(400).json({ error: 'Invalid review ID' });
+      throw new AppError('Invalid review ID', 400);
     }
 
     const review = await ReviewService.getReviewById(reviewId);
     if (!review) {
-      return res.status(404).json({ error: 'Review not found' });
+      throw new AppError('Review not found', 404);
     }
     res.json(review);
-  } catch (error: any) {
-    console.error('Error fetching review:', error);
-    res.status(500).json({ error: 'Error fetching review' });
   }
-};
+);
 
-export const getReviews = async (req: Request, res: Response) => {
-  try {
+export const getReviews = asyncHandler(
+  async (req: Request, res: Response) => {
     const authUserId = req.authUser!.userId;
     const reviews = await ReviewService.getReviews(authUserId);
 
     const response = reviews.map((review) => ({
       id: review.id,
-      posterUrl: "https://image.tmdb.org/t/p/w500" + review.movie?.poster_path || "",
-      user: review.User?.name || "Unknown",
+      posterUrl:
+        'https://image.tmdb.org/t/p/w500' + review.movie?.poster_path || '',
+      user: review.User?.name || 'Unknown',
       rating: review.rating,
       text: review.comment,
-      time: formatDistanceToNow(new Date(review.createdAt), { addSuffix: true, locale: ptBR }),
+      time: formatDistanceToNow(new Date(review.createdAt), {
+        addSuffix: true,
+        locale: ptBR,
+      }),
       comments: review.Comment.map((comment) => ({
         id: comment.id,
-        user: comment.user?.name || "Unknown",
+        user: comment.user?.name || 'Unknown',
         text: comment.content,
-        time: formatDistanceToNow(new Date(comment.createdAt), { addSuffix: true, locale: ptBR })
-      }))
+        time: formatDistanceToNow(new Date(comment.createdAt), {
+          addSuffix: true,
+          locale: ptBR,
+        }),
+      })),
     }));
 
     res.json(response);
-  } catch (error: any) {
-    console.error('Error fetching reviews:', error);
-    res.status(500).json({ error: 'Error fetching reviews' });
   }
-};
+);
 
-export const getReviewsByUserId = async (req: Request, res: Response) => {
-  try {
+export const getReviewsByUserId = asyncHandler(
+  async (req: Request, res: Response) => {
     const userId = parseInt(req.params.userId, 10);
-    
-    if (isNaN(userId)) {
-      return res.status(400).json({ error: 'Invalid user ID' });
-    }
 
-    console.log(`Fetching reviews for user ${userId}`);
+    if (isNaN(userId)) {
+      throw new AppError('Invalid user ID', 400);
+    }
 
     const authUserId = req.authUser!.userId;
     const reviews = await ReviewService.getReviewsByUserId(userId, authUserId);
-    
-    console.log(`Found ${reviews.length} reviews for user ${userId}`);
-    res.json(reviews);
-  } catch (error: any) {
-    console.error('Error fetching reviews by user:', error);
-    res.status(500).json({ 
-      error: 'Error fetching reviews by user',
-      details: error.message 
-    });
-  }
-};
 
-export const getReviewsByMovieId = async (req: Request, res: Response) => {
-  try {
+    res.json(reviews);
+  }
+);
+
+export const getReviewsByMovieId = asyncHandler(
+  async (req: Request, res: Response) => {
     const movieId = parseInt(req.params.movieId, 10);
-    
+
     if (isNaN(movieId)) {
-      return res.status(400).json({ error: 'Invalid movie ID' });
+      throw new AppError('Invalid movie ID', 400);
     }
 
     const reviews = await ReviewService.getReviewsByMovieId(movieId);
     res.json(reviews);
-  } catch (error: any) {
-    console.error('Error fetching reviews by movie:', error);
-    res.status(500).json({ error: 'Error fetching reviews by movie' });
   }
-};
+);
 
-export const updateReview = async (req: Request, res: Response) => {
-  try {
+export const updateReview = asyncHandler(
+  async (req: Request, res: Response) => {
     const reviewId = parseInt(req.params.id, 10);
-    
+
     if (isNaN(reviewId)) {
-      return res.status(400).json({ error: 'Invalid review ID' });
+      throw new AppError('Invalid review ID', 400);
     }
 
     const reviewData: UpdateReviewDto = req.body;
     const review = await ReviewService.updateReview(reviewId, reviewData);
     res.json(review);
-  } catch (error: any) {
-    console.error('Error updating review:', error);
-    res.status(500).json({ error: 'Error updating review' });
   }
-};
+);
 
-export const deleteReview = async (req: Request, res: Response) => {
-  try {
+export const deleteReview = asyncHandler(
+  async (req: Request, res: Response) => {
     const reviewId = parseInt(req.params.id, 10);
-    
+
     if (isNaN(reviewId)) {
-      return res.status(400).json({ error: 'Invalid review ID' });
+      throw new AppError('Invalid review ID', 400);
     }
 
     await ReviewService.deleteReview(reviewId);
-    res.status(200).json({ message: "Review deleted successfully" });
-  } catch (error: any) {
-    console.error('Error deleting review:', error);
-    res.status(500).json({ error: 'Error deleting review' });
+    res.status(200).json({ message: 'Review deleted successfully' });
   }
-};
+);

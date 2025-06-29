@@ -217,7 +217,7 @@ const services = {
 
   getFollowers: async (userId: number) => {
     try {
-      const response = await api.post('/followers/get-followers', { userId });
+      const response = await api.get(`/followers/${userId}/followers`);
       return response.data.followers || [];
     } catch (error) {
       console.error('Error fetching followers:', error);
@@ -227,7 +227,7 @@ const services = {
 
   getFollowing: async (userId: number) => {
     try {
-      const response = await api.post('/followers/get-following', { userId });
+      const response = await api.get(`/followers/${userId}/following`);
       return response.data.following || [];
     } catch (error) {
       console.error('Error fetching following:', error);
@@ -253,6 +253,11 @@ const services = {
 
   toggleFavorite: async (movieId: number) => {
     const response = await api.post(`/favorites/${movieId}/toggle`);
+    return response.data;
+  },
+
+  getFavoritesByUserId: async (userId: number) => {
+    const response = await api.get(`/favorites/user/${userId}`);
     return response.data;
   },
 

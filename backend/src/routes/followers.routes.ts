@@ -1,12 +1,21 @@
 import { Router } from 'express';
-import { followUser, unfollowUser, getFollowersByUserId, getFollowingByUserId } from '../controllers/follower.controller';
+import {
+  followUser,
+  unfollowUser,
+  getFollowersByUserId,
+  getFollowingByUserId
+} from '../controllers/follower.controller';
 import { authMiddleware } from '../middleware/auth.middleware';
+import { handleValidationErrors } from '../middleware/error.middleware';
+import { validateFollowUser, validateUnfollowUser, validateUserIdParam } from '../middleware/validation.middleware';
 
 const router = Router();
 
-router.post('/follow', authMiddleware, followUser);
-router.post('/unfollow', authMiddleware, unfollowUser);
-router.get('/get-followers', authMiddleware, getFollowersByUserId);
-router.get('/get-following', authMiddleware, getFollowingByUserId);
+router.use(authMiddleware);
 
-export default router;  
+router.post('/follow', validateFollowUser, handleValidationErrors, followUser);
+router.post('/unfollow', validateUnfollowUser, handleValidationErrors, unfollowUser);
+router.get('/:userId/followers', validateUserIdParam, handleValidationErrors, getFollowersByUserId);
+router.get('/:userId/following', validateUserIdParam, handleValidationErrors, getFollowingByUserId);
+
+export default router;
