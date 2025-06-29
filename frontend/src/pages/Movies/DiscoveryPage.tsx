@@ -51,7 +51,13 @@ const Discovery: FC = () => {
     if (!userId) return;
     try {
       const following = await services.getFollowing(userId);
-      const ids = following.map((u: any) => u.followingId ?? u.following?.id).filter(Boolean);
+      const ids = following.map((u: any) => {
+        if (u.followingId) return u.followingId;
+        if (u.following?.id) return u.following.id;
+        if (u.id) return u.id;
+        return null;
+      }).filter(Boolean);
+      console.log('Extracted IDs in Discovery:', ids);
       setFollowedUsers(ids);
     } catch {
       setFollowedUsers([]);

@@ -10,6 +10,7 @@ import followersRoutes from './routes/followers.routes';
 import commentRoutes from './routes/comment.routes';
 import likeRoutes from './routes/like.routes';
 import favoriteRoutes from './routes/favorite.routes';
+import { errorHandler, notFound } from './middleware/error.middleware';
 import * as dotenv from 'dotenv';
 
 dotenv.config();
@@ -39,6 +40,12 @@ app.get('/health', (req, res) => {
 app.get('/api/test', (req, res) => {
   res.json({ message: 'API is working' });
 });
+
+// 404 handler
+app.use(notFound);
+
+// Error handler
+app.use(errorHandler);
 
 async function main() {
   await DatabaseService.connect();
