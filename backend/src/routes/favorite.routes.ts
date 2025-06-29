@@ -5,16 +5,17 @@ import {
   getUserFavorites 
 } from '../controllers/favorite.controller';
 import { authMiddleware } from '../middleware/auth.middleware';
+import { handleValidationErrors } from '../middleware/error.middleware';
+import { validateMovieIdParam } from '../middleware/validation.middleware';
 
 const router = Router();
 
+router.use(authMiddleware);
 
-router.post('/:movieId/toggle', authMiddleware, toggleFavorite);
+router.post('/:movieId/toggle', validateMovieIdParam, handleValidationErrors, toggleFavorite);
 
+router.get('/', getUserFavorites);
 
-router.get('/:movieId/status', authMiddleware, hasUserFavorited);
-
-
-router.get('/', authMiddleware, getUserFavorites);
+router.get('/:movieId/status', validateMovieIdParam, handleValidationErrors, hasUserFavorited);
 
 export default router;
