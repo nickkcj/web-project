@@ -3,9 +3,10 @@ import { Search, ArrowRight } from "lucide-react";
 
 interface Props {
   onSearch: (term: string) => void;
+  activeTab?: "movies" | "users";
 }
 
-const SearchBar: FC<Props> = ({ onSearch }) => {
+const SearchBar: FC<Props> = ({ onSearch, activeTab }) => {
   const [query, setQuery] = useState("");
 
   const submit = (e: FormEvent) => {
@@ -26,7 +27,11 @@ const SearchBar: FC<Props> = ({ onSearch }) => {
         type="text"
         value={query}
         onChange={(e) => setQuery(e.target.value)}
-        placeholder="Digite um título, ator, diretor…"
+        placeholder={
+          activeTab === "users"
+            ? "Encontre pessoas pelo nome ou e-mail…"
+            : "Encontre quem compartilha da sua paixão por cinema"
+        }
         className="w-full h-14 pl-12 pr-16 rounded-full bg-slate-800 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-400"
       />
       <button

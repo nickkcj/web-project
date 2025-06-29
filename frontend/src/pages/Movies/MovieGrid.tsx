@@ -1,6 +1,6 @@
 import { FC, useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { Movie } from "./MoviesPage";
+import { Movie } from "./DiscoveryPage";
 import { MovieModal} from "../../components/Movie/MovieModal";
 import services from "../../services/index";
 

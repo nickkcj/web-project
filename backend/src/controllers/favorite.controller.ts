@@ -24,13 +24,25 @@ export const getUserFavorites = async (req: Request, res: Response) => {
   try {
     const userId = req.authUser!.userId;
     const favorites = await FavoriteService.getUserFavorites(userId);
-    res.json(favorites);
+    const favoritesWithUserId = favorites.map((fav: any) => ({ ...fav, userId }));
+    res.json(favoritesWithUserId);
   } catch (error: any) {
     console.error('Error fetching favorites:', error);
     res.status(500).json({ error: 'Error fetching favorites' });
   }
 };
 
+export const getFavoritesByUserId = async (req: Request, res: Response) => {
+  try {
+    const userId = Number(req.params.userId);
+    const favorites = await FavoriteService.getUserFavorites(userId);
+    const favoritesWithUserId = favorites.map((fav) => ({ ...fav, userId }));
+    res.json(favoritesWithUserId);
+  } catch (error) {
+    console.error('Error fetching favorites:', error);
+    res.status(500).json({ error: 'Error fetching favorites' });
+  }
+};
 
 export const hasUserFavorited = async (req: Request, res: Response) => {
   try {

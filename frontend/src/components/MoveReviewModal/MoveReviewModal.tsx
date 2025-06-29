@@ -83,7 +83,7 @@ export const MovieReviewModal: React.FC<Props> = ({ review, onClose, onViewMovie
           </div>
 
           <div className="flex-1">
-            <h4 className="text-lg font-semibold mb-2 text-blue-300">Minha Review:</h4>
+            <h4 className="text-lg font-semibold mb-2 text-blue-300">Review:</h4>
             <p className="text-gray-300 leading-relaxed italic text-lg mb-4">
               "{review.text}"
             </p>

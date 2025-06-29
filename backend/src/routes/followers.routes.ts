@@ -6,7 +6,7 @@ const router = Router();
 
 router.post('/follow', authMiddleware, followUser);
 router.post('/unfollow', authMiddleware, unfollowUser);
-router.get('/get-followers', authMiddleware, getFollowersByUserId);
-router.get('/get-following', authMiddleware, getFollowingByUserId);
+router.post('/get-followers', authMiddleware, getFollowersByUserId);
+router.post('/get-following', authMiddleware, getFollowingByUserId);
 
-export default router;  
+export default router;
