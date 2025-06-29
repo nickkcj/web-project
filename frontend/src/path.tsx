@@ -1,6 +1,6 @@
 //faz a conexção com o backend, colocando o link de onde ele ta hospedado
 const baseurl = {
-  apiUrl: "http://localhost:5000/api",
+  apiUrl: process.env.REACT_APP_API_URL || "http://localhost:5000/api",
   tmdbImageBaseUrl: "https://image.tmdb.org/t/p/original",
 };
 export const PATH = {
