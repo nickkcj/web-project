@@ -51,13 +51,18 @@ export const unfollowUser = asyncHandler(
 // Get all followers for a user
 export const getFollowersByUserId = asyncHandler(
   async (req: Request, res: Response) => {
-    const userId = parseInt(req.params.userId, 10);
+    const { userId } = req.params;
     
-    if (isNaN(userId)) {
+    if (isNaN(parseInt(userId))) {
       throw new AppError('Invalid user ID parameter', 400);
     }
-    
-    const followers = await FollowersService.getFollowers(userId);
+
+    const parsedUserId = parseInt(userId);
+    if (isNaN(parsedUserId)) {
+      return res.status(400).json({ error: 'userId must be a valid number' });
+    }
+
+    const followers = await FollowersService.getFollowers(parsedUserId);
     res.json({ message: "Followers fetched successfully.", followers });
   }
 );
@@ -65,13 +70,18 @@ export const getFollowersByUserId = asyncHandler(
 // Get all following for a user
 export const getFollowingByUserId = asyncHandler(
   async (req: Request, res: Response) => {
-    const userId = parseInt(req.params.userId, 10);
+    const { userId } = req.params;
     
-    if (isNaN(userId)) {
+    if (isNaN(parseInt(userId))) {
       throw new AppError('Invalid user ID parameter', 400);
     }
-    
-    const following = await FollowersService.getFollowing(userId);
+
+    const parsedUserId = parseInt(userId);
+    if (isNaN(parsedUserId)) {
+      return res.status(400).json({ error: 'userId must be a valid number' });
+    }
+
+    const following = await FollowersService.getFollowing(parsedUserId);
     res.json({ message: "Following fetched successfully.", following });
   }
 );

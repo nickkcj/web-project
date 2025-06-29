@@ -129,7 +129,13 @@ export const ProfilePage: React.FC = () => {
       setFavorites(Array.isArray(userFavorites) ? userFavorites : []);
       if (loggedUser && userId !== loggedUser.id) {
         const following = await services.getFollowing(loggedUser.id);
-        const ids = following.map((u: any) => u.followingId ?? u.following?.id).filter(Boolean);
+        const ids = following.map((u: any) => {
+          if (u.followingId) return u.followingId;
+          if (u.following?.id) return u.following.id;
+          if (u.id) return u.id;
+          return null;
+        }).filter(Boolean);
+        console.log('Extracted IDs:', ids, 'Checking for userId:', userId);
         setFollowed(ids.includes(userId));
       }
     } catch (error) {
@@ -627,7 +633,10 @@ export const ProfilePage: React.FC = () => {
                 (followersTab === 'following' ? followingList : followersList).map((user: any) => {
                   const u = user.following || user.follower || user;
                   const isOwn = u.id === loggedUser.id;
-                  const isFollowing = followingList.some((f: any) => (f.following?.id ?? f.followingId) === u.id);
+                  const isFollowing = followingList.some((f: any) => {
+                    const fId = f.followingId || f.following?.id || f.id;
+                    return fId === u.id;
+                  });
                   return (
                     <li key={u.id} className="py-3 px-2 flex items-center gap-3">
                       <div

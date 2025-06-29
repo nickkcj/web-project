@@ -217,7 +217,7 @@ const services = {
 
   getFollowers: async (userId: number) => {
     try {
-      const response = await api.post('/followers/get-followers', { userId });
+      const response = await api.get(`/followers/${userId}/followers`);
       return response.data.followers || [];
     } catch (error) {
       console.error('Error fetching followers:', error);
@@ -227,7 +227,7 @@ const services = {
 
   getFollowing: async (userId: number) => {
     try {
-      const response = await api.post('/followers/get-following', { userId });
+      const response = await api.get(`/followers/${userId}/following`);
       return response.data.following || [];
     } catch (error) {
       console.error('Error fetching following:', error);
