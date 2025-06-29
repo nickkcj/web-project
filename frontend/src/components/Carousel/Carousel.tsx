@@ -26,7 +26,6 @@ export const Carousel: React.FC<CarouselProps> = ({
 }) => {
   const [current, setCurrent] = useState(0);
   const [slideW, setSlideW] = useState(0);
-
   const cardRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -42,7 +41,15 @@ export const Carousel: React.FC<CarouselProps> = ({
 
   if (items.length === 0) return null;
 
-  const maxSlides = Math.max(0, items.length - Math.floor(window.innerWidth / slideW) || items.length - 1);
+  let maxSlides = 0;
+  let visibleCards = 1;
+  if (slideW > 0) {
+    visibleCards = Math.max(1, Math.floor(window.innerWidth / slideW));
+    maxSlides = Math.max(0, items.length - visibleCards);
+  }
+
+  const canGoNext = slideW === 0 || current < maxSlides;
+  const canGoPrev = current > 0;
 
   return (
     <section className="mb-4 relative">
@@ -51,7 +58,6 @@ export const Carousel: React.FC<CarouselProps> = ({
           {title}
         </h2>
       )}
-
       <div className="overflow-hidden" tabIndex={0}>
         <div
           className="flex gap-4 sm:gap-6"
@@ -102,7 +108,6 @@ export const Carousel: React.FC<CarouselProps> = ({
           ))}
         </div>
       </div>
-
       {items.length > 1 && (
         <>
           <button
@@ -112,7 +117,7 @@ export const Carousel: React.FC<CarouselProps> = ({
             className="absolute left-0 top-1/2 -translate-y-1/2 text-2xl text-white bg-[#1E252C] rounded-full px-2 py-1 shadow hover:bg-[#323a42] transition z-10 disabled:opacity-50 disabled:cursor-not-allowed"
             aria-label="Previous"
             style={{ left: "10px" }}
-            disabled={current === 0}
+            disabled={!canGoPrev}
           >
             ‹
           </button>
@@ -123,7 +128,7 @@ export const Carousel: React.FC<CarouselProps> = ({
             className="absolute right-0 top-1/2 -translate-y-1/2 text-2xl text-white bg-[#1E252C] rounded-full px-2 py-1 shadow hover:bg-[#323a42] transition z-10 disabled:opacity-50 disabled:cursor-not-allowed"
             aria-label="Next"
             style={{ right: "10px" }}
-            disabled={current >= maxSlides}
+            disabled={!canGoNext}
           >
             ›
           </button>
