@@ -8,6 +8,7 @@ import theAvengersPoster from "../../Assets/Photos/theAvengersPoster.jpg";
 import transformersPoster from "../../Assets/Photos/transformersPoster.jpg";
 import spiderManAcrossTheSpiderVersePoster from "../../Assets/Photos/spiderManAcrossTheSpiderVersePoster.jpg";
 import {getReviews, ReviewApiResponse} from "../../services/reviews";
+import { useSelector } from "react-redux";
 
 /* TODO replace with API fetch / RTK Query */
 const demo: FeedItemProps[] = [
@@ -84,6 +85,7 @@ const Feed: FC = () => {
   const [reviews, setReviews] = useState<ReviewApiResponse[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const currentUser = useSelector((state: any) => state.login.user);
 
   useEffect(() => {
     const fetchReviews = async () => {
@@ -121,6 +123,7 @@ const Feed: FC = () => {
                 text={p.text}
                 time={p.time}
                 comments={p.comments}
+                currentUser={currentUser}
             />
         ))}
       </div>
