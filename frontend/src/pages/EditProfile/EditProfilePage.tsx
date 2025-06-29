@@ -100,7 +100,6 @@ export const EditProfilePage: React.FC = () => {
       <div className="w-[75%] max-w-4xl mx-auto">
         <div className="bg-gradient-to-br from-slate-700/90 to-slate-800/90 backdrop-blur-md rounded-3xl shadow-2xl border border-[#6B8AAA] overflow-hidden">
           <div className="flex flex-row w-full max-md:flex-col">
-            {/* Avatar e menu lateral */}
             <div className="p-8 flex gap-8 w-full max-md:flex-col max-md:p-4 max-md:gap-4">
               <div className="flex flex-row mt-[4rem] max-md:mt-0 max-md:justify-center">
                 <div className="flex flex-col justify-center pt-4 text-center mb-auto">
@@ -122,7 +121,6 @@ export const EditProfilePage: React.FC = () => {
                   </button>
                 </div>
               </div>
-              {/* Formulário */}
               <div className="flex flex-col w-full max-md:mt-4">
                 <div className="pb-6">
                   <div className="border-b border-white-400/30 from-slate-600/60 to-slate-700/60">
