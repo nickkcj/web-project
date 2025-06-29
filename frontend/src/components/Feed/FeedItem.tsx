@@ -66,7 +66,7 @@ const FeedItem: FC<FeedItemProps> = ({
       setComments((prev) => [
         {
           id: newComment.id || Date.now(),
-          user: (currentUser && newComment.user?.id == currentUser.id) ? 'you' : (newComment.user?.name || 'you'),
+          user: (currentUser && newComment.user?.id === currentUser.id) ? 'you' : (newComment.user?.name || 'you'),
           text: newComment.content || content,
         },
         ...prev,
