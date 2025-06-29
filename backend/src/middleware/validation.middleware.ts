@@ -17,8 +17,6 @@ export const validateCreateUser = [
   body('password')
     .isLength({ min: 6 })
     .withMessage('Password must be at least 6 characters long')
-    .matches(/^(?=.*[a-zA-Z])(?=.*\d)/)
-    .withMessage('Password must contain at least one letter and one number'),
 ];
 
 export const validateUpdateUser = [
@@ -38,8 +36,6 @@ export const validateUpdateUser = [
     .optional()
     .isLength({ min: 6 })
     .withMessage('Password must be at least 6 characters long')
-    .matches(/^(?=.*[a-zA-Z])(?=.*\d)/)
-    .withMessage('Password must contain at least one letter and one number'),
 ];
 
 export const validateLoginUser = [
