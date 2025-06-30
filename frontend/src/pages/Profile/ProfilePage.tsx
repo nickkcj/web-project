@@ -7,6 +7,9 @@ import { MovieModal } from '../../components/Movie/MovieModal';
 import { Carousel } from '../../components/Carousel/Carousel';
 import { Users, UserCheck, Star, SquarePen, X } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../../components/ui/dialog';
+import Snackbar from '@mui/material/Snackbar';
+import Alert     from '@mui/material/Alert';
+
 
 interface Review {
   id: number;
@@ -92,6 +95,20 @@ export const ProfilePage: React.FC = () => {
   const [followersLoading, setFollowersLoading] = useState(false);
   const [profileFollowersCount, setProfileFollowersCount] = useState<number>(0);
   const [profileFollowingCount, setProfileFollowingCount] = useState<number>(0);
+
+  const [snackbar, setSnackbar] = useState<{
+    open: boolean;
+    message: string;
+    severity: 'success' | 'error';
+  }>({ open: false, message: '', severity: 'success' });
+
+  const showSnackbar = (
+    message: string,
+    severity: 'success' | 'error' = 'success'
+  ) => setSnackbar({ open: true, message, severity });
+
+  const handleCloseSnackbar = () =>
+    setSnackbar(s => ({ ...s, open: false }));
 
   useEffect(() => {
     if (!loggedUser) return;
@@ -337,7 +354,7 @@ export const ProfilePage: React.FC = () => {
       setFollowingList(Array.isArray(following) ? following : []);
       await reloadReviews();
     } catch (err) {
-      alert("Erro ao seguir usuário");
+      showSnackbar("Erro ao seguir usuário", "error");
     }
   };
   const handleUnfollowModal = async (userId: number) => {
@@ -351,7 +368,7 @@ export const ProfilePage: React.FC = () => {
       setFollowingList(Array.isArray(following) ? following : []);
       await reloadReviews();
     } catch (err) {
-      alert("Erro ao deixar de seguir usuário");
+      showSnackbar("Erro ao deixar de seguir usuário", "error");
     }
   };
 
@@ -552,7 +569,7 @@ export const ProfilePage: React.FC = () => {
                 setReviews(prev => prev.filter(r => r.id !== selectedReview.id));
                 closeReviewModal();
               } catch (error) {
-                alert("Erro ao deletar review");
+                showSnackbar("Erro ao deletar review", "error");
                 console.error(error);
               }
             }
@@ -679,6 +696,22 @@ export const ProfilePage: React.FC = () => {
           )}
         </DialogContent>
       </Dialog>
+
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={4000}
+        onClose={handleCloseSnackbar}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+        sx={{ mt: 2 }}
+      >
+        <Alert
+          onClose={handleCloseSnackbar}
+          severity={snackbar.severity}
+          sx={{ width: '100%' }}
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </div>
   );
 };

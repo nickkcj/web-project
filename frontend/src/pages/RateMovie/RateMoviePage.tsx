@@ -2,6 +2,8 @@ import { FC, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Movie } from "../../components/Movie/MovieModal";
 import services from "../../services/index";
+import Snackbar from "@mui/material/Snackbar";
+import Alert from "@mui/material/Alert";
 
 interface LocationState {
   movie: Movie;
@@ -9,7 +11,7 @@ interface LocationState {
     id: number;
     rating: number;
     comment: string;
-    visibility: 'PUBLIC' | 'PRIVATE';
+    visibility: "PUBLIC" | "PRIVATE";
   };
 }
 
@@ -18,8 +20,21 @@ const RateMoviePage: FC = () => {
   const { state } = useLocation();
   const [rating, setRating] = useState<number>(state?.review?.rating ?? 0);
   const [review, setReview] = useState<string>(state?.review?.comment ?? "");
-  const [visibility, setVisibility] = useState<'PUBLIC' | 'PRIVATE'>(state?.review?.visibility ?? 'PUBLIC');
+  const [visibility, setVisibility] = useState<"PUBLIC" | "PRIVATE">(
+    state?.review?.visibility ?? "PUBLIC"
+  );
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const [snackbar, setSnackbar] = useState<{
+    open: boolean;
+    message: string;
+    severity: "success" | "error";
+  }>({ open: false, message: "", severity: "success" });
+
+  const handleCloseSnackbar = () => {
+    setSnackbar((s) => ({ ...s, open: false }));
+  };
+
   const movie = (state as LocationState | undefined)?.movie;
 
   if (!movie) {
@@ -29,7 +44,11 @@ const RateMoviePage: FC = () => {
 
   const handleSubmit = async () => {
     if (rating === 0 || review.trim() === "") {
-      alert("Por favor, adicione uma avaliação e um comentário.");
+      setSnackbar({
+        open: true,
+        message: "Por favor, adicione uma avaliação e um comentário.",
+        severity: "error",
+      });
       return;
     }
 
@@ -42,17 +61,25 @@ const RateMoviePage: FC = () => {
           comment: review.trim(),
           visibility,
         });
-        alert("Review atualizada com sucesso!");
+        setSnackbar({
+          open: true,
+          message: "Review atualizada com sucesso!",
+          severity: "success",
+        });
       } else {
+        // garante que o filme existe no banco
         await services.createMovieInDatabase({
           id: movie.id,
           title: movie.title,
-          poster_path: movie.poster.replace('https://image.tmdb.org/t/p/w342', ''),
-          backdrop_path: '',
-          overview: '',
-          release_date: movie.year + '-01-01',
+          poster_path: movie.poster.replace(
+            "https://image.tmdb.org/t/p/w342",
+            ""
+          ),
+          backdrop_path: "",
+          overview: "",
+          release_date: movie.year + "-01-01",
           popularity: 0,
-          original_language: 'en'
+          original_language: "en",
         });
 
         await services.createReview({
@@ -62,13 +89,21 @@ const RateMoviePage: FC = () => {
           visibility,
         });
 
-        alert("Review criada com sucesso!");
+        setSnackbar({
+          open: true,
+          message: "Review criada com sucesso!",
+          severity: "success",
+        });
       }
 
       navigate("/profile");
     } catch (error) {
-      console.error('Erro ao salvar review:', error);
-      alert("Erro ao salvar review. Tente novamente.");
+      console.error("Erro ao salvar review:", error);
+      setSnackbar({
+        open: true,
+        message: "Erro ao salvar review. Tente novamente.",
+        severity: "error",
+      });
     } finally {
       setIsSubmitting(false);
     }
@@ -96,20 +131,26 @@ const RateMoviePage: FC = () => {
           </header>
 
           <div>
-            <label className="block text-sm font-medium mb-2">Sua avaliação:</label>
+            <label className="block text-sm font-medium mb-2">
+              Sua avaliação:
+            </label>
             <StarRating rating={rating} onChange={setRating} />
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-2">Visibilidade:</label>
+            <label className="block text-sm font-medium mb-2">
+              Visibilidade:
+            </label>
             <div className="flex gap-4">
               <label className="flex items-center">
                 <input
                   type="radio"
                   name="visibility"
                   value="PUBLIC"
-                  checked={visibility === 'PUBLIC'}
-                  onChange={(e) => setVisibility(e.target.value as 'PUBLIC' | 'PRIVATE')}
+                  checked={visibility === "PUBLIC"}
+                  onChange={(e) =>
+                    setVisibility(e.target.value as "PUBLIC" | "PRIVATE")
+                  }
                   className="mr-2"
                 />
                 Público
@@ -119,8 +160,10 @@ const RateMoviePage: FC = () => {
                   type="radio"
                   name="visibility"
                   value="PRIVATE"
-                  checked={visibility === 'PRIVATE'}
-                  onChange={(e) => setVisibility(e.target.value as 'PUBLIC' | 'PRIVATE')}
+                  checked={visibility === "PRIVATE"}
+                  onChange={(e) =>
+                    setVisibility(e.target.value as "PUBLIC" | "PRIVATE")
+                  }
                   className="mr-2"
                 />
                 Privado
@@ -129,7 +172,9 @@ const RateMoviePage: FC = () => {
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-2">Sua resenha:</label>
+            <label className="block text-sm font-medium mb-2">
+              Sua resenha:
+            </label>
             <textarea
               className="w-full h-40 bg-[#0F141B] rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none"
               placeholder="Escreva sua avaliação..."
@@ -147,7 +192,9 @@ const RateMoviePage: FC = () => {
               Cancelar
             </button>
             <button
-              disabled={rating === 0 || review.trim() === "" || isSubmitting}
+              disabled={
+                rating === 0 || review.trim() === "" || isSubmitting
+              }
               className="px-6 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 transition"
               onClick={handleSubmit}
             >
@@ -162,6 +209,22 @@ const RateMoviePage: FC = () => {
           </div>
         </div>
       </div>
+
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={4000}
+        onClose={handleCloseSnackbar}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+        sx={{ mt: 2 }}
+      >
+        <Alert
+          onClose={handleCloseSnackbar}
+          severity={snackbar.severity}
+          sx={{ width: "100%" }}
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </div>
   );
 };

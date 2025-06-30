@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { updateUser } from '../../services/Slices/loginSlice';
 import services from '../../services/index';
+import Snackbar from '@mui/material/Snackbar';
+import Alert    from '@mui/material/Alert';
 
 export const EditProfilePage: React.FC = () => {
   const { user } = useSelector((state: any) => state.login);
@@ -15,6 +17,20 @@ export const EditProfilePage: React.FC = () => {
     email: user?.email || '',
     password: ''
   });
+  const [snackbar, setSnackbar] = useState<{
+    open: boolean;
+    message: string;
+    severity: 'success' | 'error';
+  }>({ open: false, message: '', severity: 'success' });
+
+  const showSnackbar = (
+    message: string,
+    severity: 'success' | 'error' = 'success'
+  ) => setSnackbar({ open: true, message, severity });
+
+const handleCloseSnackbar = () =>
+  setSnackbar(s => ({ ...s, open: false }));
+
 
   let memberSince = '';
   if (user && user.createdAt) {
@@ -33,23 +49,23 @@ export const EditProfilePage: React.FC = () => {
     e.preventDefault();
 
     if (!formData.name.trim()) {
-      alert('O nome é obrigatório');
+      showSnackbar('O nome é obrigatório', "error");
       return;
     }
 
     if (!formData.email.trim()) {
-      alert('O email é obrigatório');
+      showSnackbar('O email é obrigatório', "error");
       return;
     }
 
     if (formData.name.trim().length < 2) {
-      alert('O nome deve ter pelo menos 2 caracteres');
+      showSnackbar('O nome deve ter pelo menos 2 caracteres', "error");
       return;
     }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(formData.email)) {
-      alert('Por favor, insira um email válido');
+      showSnackbar('Por favor, insira um email válido', "error");
       return;
     }
 
@@ -68,14 +84,14 @@ export const EditProfilePage: React.FC = () => {
       const updatedUser = await services.updateUserProfile(updateData);
 
       dispatch(updateUser(updatedUser));
-      alert('Perfil atualizado com sucesso!');
+      showSnackbar('Perfil atualizado com sucesso!', "success");
       navigate('/profile');
     } catch (error: any) {
       console.error('Error updating profile:', error);
       const errorMessage = error.response?.data?.error || 
                           error.response?.data?.message || 
                           'Erro ao atualizar perfil';
-      alert(errorMessage);
+      showSnackbar(errorMessage, "error");
     } finally {
       setUpdating(false);
     }
@@ -91,7 +107,7 @@ export const EditProfilePage: React.FC = () => {
 
   const handleDeleteAccount = () => {
     if (window.confirm('Tem certeza que deseja excluir sua conta? Esta ação não pode ser desfeita.')) {
-      alert('Funcionalidade de exclusão de conta em desenvolvimento');
+      showSnackbar('Funcionalidade de exclusão de conta em desenvolvimento', "error");
     }
   };
 
@@ -202,6 +218,21 @@ export const EditProfilePage: React.FC = () => {
           </div>
         </div>
       </div>
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={4000}
+        onClose={handleCloseSnackbar}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+        sx={{ mt: 2 }}
+      >
+        <Alert
+          onClose={handleCloseSnackbar}
+          severity={snackbar.severity}
+          sx={{ width: '100%' }}
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </div>
   );
 };

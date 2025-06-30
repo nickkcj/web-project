@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import Snackbar from "@mui/material/Snackbar";
+import Alert from "@mui/material/Alert";
 
 const registrationSchema = z.object({
   email: z.string().email("Por favor, insira um e-mail válido"),
@@ -22,20 +24,29 @@ interface RegisterFormProps {
 
 export function RegisterForm({ onSubmit, onCancel }: RegisterFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  
+  const [snackbar, setSnackbar] = useState<{
+    open: boolean;
+    message: string;
+    severity: "success" | "error";
+  }>({ open: false, message: "", severity: "success" });
+
   const { register, handleSubmit, formState: { errors } } = useForm<RegistrationFormData>({
     resolver: zodResolver(registrationSchema)
   });
+
+  const handleCloseSnackbar = () => {
+    setSnackbar(s => ({ ...s, open: false }));
+  };
 
   const handleFormSubmit = async (data: RegistrationFormData) => {
     setIsSubmitting(true);
     try {
       onSubmit(data.name, data.email, data.password);
-      // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000));
-      alert("Registration successful!"); // Colocar a snack bar de aviso aqui
+      setSnackbar({ open: true, message: "Registro realizado com sucesso!", severity: "success" });
     } catch (error) {
-      console.error("Registration failed:", error); // Colocar a snack bar de aviso aqui
+      console.error("Registration failed:", error);
+      setSnackbar({ open: true, message: "Falha no registro. Tente novamente.", severity: "error" });
     } finally {
       setIsSubmitting(false);
     }
@@ -111,6 +122,21 @@ export function RegisterForm({ onSubmit, onCancel }: RegisterFormProps) {
           {isSubmitting ? "Processando..." : "Registrar"}
         </button>
       </form>
+
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={4000}
+        onClose={handleCloseSnackbar}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+      >
+        <Alert
+          onClose={handleCloseSnackbar}
+          severity={snackbar.severity}
+          sx={{ width: "100%" }}
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </div>
   );
-};
+}

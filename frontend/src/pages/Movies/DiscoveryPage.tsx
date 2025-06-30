@@ -1,10 +1,12 @@
 import { FC, useEffect, useState } from "react";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 import SearchBar from "./SearchBar";
 import FilterRow from "./FilterRow";
 import MovieGrid from "./MovieGrid";
 import services from "../../services/index";
 import { getImageUrl } from "../../utils/image";
+import Snackbar from "@mui/material/Snackbar";
+import Alert from "@mui/material/Alert";
 
 export interface Movie {
   id: number;
@@ -30,39 +32,34 @@ const Discovery: FC = () => {
   const [userResults, setUserResults] = useState<User[]>([]);
   const [userSearchLoading, setUserSearchLoading] = useState(false);
   const [followedUsers, setFollowedUsers] = useState<number[]>([]);
-  const [activeTab, setActiveTab] = useState<'movies' | 'users'>('movies');
-  const [searchQuery, setSearchQuery] = useState('');
+  const [activeTab, setActiveTab] = useState<"movies" | "users">("movies");
+  const [searchQuery, setSearchQuery] = useState("");
   const [currentUserId, setCurrentUserId] = useState<number | null>(null);
-  const [userStats, setUserStats] = useState<Record<number, {reviews: number, followers: number, following: number}>>({});
+  const [userStats, setUserStats] = useState<
+    Record<number, { reviews: number; followers: number; following: number }>
+  >({});
   const navigate = useNavigate();
 
+  const [snackbar, setSnackbar] = useState<{
+    open: boolean;
+    message: string;
+    severity: "success" | "error";
+  }>({ open: false, message: "", severity: "success" });
+
+  const handleCloseSnackbar = () => {
+    setSnackbar((s) => ({ ...s, open: false }));
+  };
+
   useEffect(() => {
-    if (activeTab === 'users') {
+    if (activeTab === "users") {
       fetchAllUsers();
     } else {
       fetchTrending();
     }
-    setSearchQuery('');
+    setSearchQuery("");
     setUserResults([]);
     setError(null);
   }, [activeTab]);
-
-  const updateFollowedUsers = async (userId: number | null) => {
-    if (!userId) return;
-    try {
-      const following = await services.getFollowing(userId);
-      const ids = following.map((u: any) => {
-        if (u.followingId) return u.followingId;
-        if (u.following?.id) return u.following.id;
-        if (u.id) return u.id;
-        return null;
-      }).filter(Boolean);
-      console.log('Extracted IDs in Discovery:', ids);
-      setFollowedUsers(ids);
-    } catch {
-      setFollowedUsers([]);
-    }
-  };
 
   useEffect(() => {
     const fetchCurrentUser = async () => {
@@ -70,7 +67,7 @@ const Discovery: FC = () => {
         const user = await services.getUserProfile();
         setCurrentUserId(user.id);
         await updateFollowedUsers(user.id);
-      } catch (err) {
+      } catch {
         setCurrentUserId(null);
         setFollowedUsers([]);
       }
@@ -78,26 +75,70 @@ const Discovery: FC = () => {
     fetchCurrentUser();
   }, []);
 
+  useEffect(() => {
+    if (activeTab !== "users" || userResults.length === 0) return;
+    const fetchStats = async () => {
+      const stats: Record<
+        number,
+        { reviews: number; followers: number; following: number }
+      > = {};
+      await Promise.all(
+        userResults.map(async (user) => {
+          if (user.id === currentUserId) return;
+          try {
+            const [reviews, followers, following] = await Promise.all([
+              services.getReviewsByUserId(user.id),
+              services.getFollowers(user.id),
+              services.getFollowing(user.id),
+            ]);
+            stats[user.id] = {
+              reviews: Array.isArray(reviews) ? reviews.length : 0,
+              followers: Array.isArray(followers) ? followers.length : 0,
+              following: Array.isArray(following) ? following.length : 0,
+            };
+          } catch {
+            stats[user.id] = { reviews: 0, followers: 0, following: 0 };
+          }
+        })
+      );
+      setUserStats(stats);
+    };
+    fetchStats();
+  }, [userResults, activeTab, currentUserId]);
+
+  const updateFollowedUsers = async (userId: number | null) => {
+    if (!userId) return;
+    try {
+      const following = await services.getFollowing(userId);
+      const ids = following
+        .map((u: any) => {
+          if (u.followingId) return u.followingId;
+          if (u.following?.id) return u.following.id;
+          if (u.id) return u.id;
+          return null;
+        })
+        .filter(Boolean) as number[];
+      setFollowedUsers(ids);
+    } catch {
+      setFollowedUsers([]);
+    }
+  };
+
   const fetchTrending = async () => {
     try {
       setLoading(true);
       setError(null);
       const response = await services.getPopularMovies();
-      
       const moviesData = Array.isArray(response) ? response : response.results || [];
-      
       setMovies(
         moviesData.map((m: any) => ({
           id: m.id,
           title: m.title,
           year: m.release_date?.slice(0, 4) ?? "",
-          poster: m.poster_path
-            ? getImageUrl(m.poster_path)
-            : "/placeholder.jpg",
+          poster: m.poster_path ? getImageUrl(m.poster_path) : "/placeholder.jpg",
         }))
       );
     } catch (err: any) {
-      console.error('Error fetching popular movies:', err);
       setError(err.message ?? "Erro ao buscar filmes");
     } finally {
       setLoading(false);
@@ -109,21 +150,16 @@ const Discovery: FC = () => {
       setLoading(true);
       setError(null);
       const response = await services.getMoviesByGenre(genreId);
-      
       const moviesData = Array.isArray(response) ? response : response.results || [];
-      
       setMovies(
         moviesData.map((m: any) => ({
           id: m.id,
           title: m.title,
           year: m.release_date?.slice(0, 4) ?? "",
-          poster: m.poster_path
-            ? getImageUrl(m.poster_path)
-            : "/placeholder.jpg",
+          poster: m.poster_path ? getImageUrl(m.poster_path) : "/placeholder.jpg",
         }))
       );
     } catch (err: any) {
-      console.error('Error fetching popular movies:', err);
       setError(err.message ?? "Erro ao buscar filmes");
     } finally {
       setLoading(false);
@@ -135,8 +171,8 @@ const Discovery: FC = () => {
     try {
       const users = await services.getUsers();
       setUserResults(users);
-    } catch (err) {
-      setError('Erro ao buscar usuários');
+    } catch {
+      setError("Erro ao buscar usuários");
     } finally {
       setUserSearchLoading(false);
     }
@@ -145,14 +181,11 @@ const Discovery: FC = () => {
   const handleSearch = async (term: string) => {
     setSearchQuery(term);
     if (!term.trim()) {
-      if (activeTab === 'movies') {
-        fetchTrending();
-      } else {
-        fetchAllUsers();
-      }
+      activeTab === "movies" ? fetchTrending() : fetchAllUsers();
       return;
     }
-    if (activeTab === 'movies') {
+
+    if (activeTab === "movies") {
       setLoading(true);
       setError(null);
       try {
@@ -183,8 +216,8 @@ const Discovery: FC = () => {
           u.email.toLowerCase().includes(term.toLowerCase())
         );
         setUserResults(filtered);
-      } catch (err) {
-        setError('Erro ao buscar usuários');
+      } catch {
+        setError("Erro ao buscar usuários");
       } finally {
         setUserSearchLoading(false);
       }
@@ -215,8 +248,17 @@ const Discovery: FC = () => {
     try {
       await services.followUser(userId);
       await updateFollowedUsers(currentUserId);
-    } catch (err) {
-      alert("Erro ao seguir usuário");
+      setSnackbar({
+        open: true,
+        message: "Agora você segue este usuário.",
+        severity: "success",
+      });
+    } catch {
+      setSnackbar({
+        open: true,
+        message: "Erro ao seguir usuário",
+        severity: "error",
+      });
     }
   };
 
@@ -224,68 +266,50 @@ const Discovery: FC = () => {
     try {
       await services.unfollowUser(userId);
       await updateFollowedUsers(currentUserId);
-    } catch (err) {
-      alert("Erro ao deixar de seguir usuário");
+      setSnackbar({
+        open: true,
+        message: "Você deixou de seguir o usuário.",
+        severity: "success",
+      });
+    } catch {
+      setSnackbar({
+        open: true,
+        message: "Erro ao deixar de seguir usuário",
+        severity: "error",
+      });
     }
   };
-
-  useEffect(() => {
-    if (activeTab !== 'users' || userResults.length === 0) return;
-    const fetchStats = async () => {
-      const stats: Record<number, {reviews: number, followers: number, following: number}> = {};
-      await Promise.all(userResults.map(async (user) => {
-        if (user.id === currentUserId) return;
-        try {
-          const [reviews, followers, following] = await Promise.all([
-            services.getReviewsByUserId(user.id),
-            services.getFollowers(user.id),
-            services.getFollowing(user.id)
-          ]);
-          stats[user.id] = {
-            reviews: Array.isArray(reviews) ? reviews.length : 0,
-            followers: Array.isArray(followers) ? followers.length : 0,
-            following: Array.isArray(following) ? following.length : 0
-          };
-        } catch {
-          stats[user.id] = {reviews: 0, followers: 0, following: 0};
-        }
-      }));
-      setUserStats(stats);
-    };
-    fetchStats();
-  }, [userResults, activeTab, currentUserId]);
 
   return (
     <div className="px-5 pb-16 max-w-5xl mx-auto">
       <div className="flex justify-center mb-6">
         <div className="flex bg-slate-800 rounded-lg p-1">
           <button
-            onClick={() => setActiveTab('movies')}
+            onClick={() => setActiveTab("movies")}
             className={`px-6 py-2 rounded-md font-semibold transition-colors ${
-              activeTab === 'movies'
-                ? 'bg-white text-slate-900'
-                : 'text-white hover:bg-slate-700'
+              activeTab === "movies"
+                ? "bg-white text-slate-900"
+                : "text-white hover:bg-slate-700"
             }`}
           >
             Filmes
           </button>
           <button
-            onClick={() => setActiveTab('users')}
+            onClick={() => setActiveTab("users")}
             className={`px-6 py-2 rounded-md font-semibold transition-colors ${
-              activeTab === 'users'
-                ? 'bg-white text-slate-900'
-                : 'text-white hover:bg-slate-700'
+              activeTab === "users"
+                ? "bg-white text-slate-900"
+                : "text-white hover:bg-slate-700"
             }`}
           >
             Usuários
           </button>
         </div>
       </div>
-      <SearchBar
-        onSearch={handleSearch}
-        activeTab={activeTab}
-      />
-      {activeTab === 'movies' && (
+
+      <SearchBar onSearch={handleSearch} activeTab={activeTab} />
+
+      {activeTab === "movies" && (
         <>
           <FilterRow
             filters={filterLabels}
@@ -305,59 +329,114 @@ const Discovery: FC = () => {
           )}
         </>
       )}
-      {activeTab === 'users' && (
+
+      {activeTab === "users" && (
         <div>
           <h2 className="text-slate-100 text-2xl font-bold mb-6">
-            {searchQuery ? `Usuários encontrados` : 'Todos os Usuários'}
+            {searchQuery ? "Usuários encontrados" : "Todos os Usuários"}
           </h2>
           {userSearchLoading ? (
             <div className="text-center py-12">
               <div className="text-white text-xl">Carregando usuários...</div>
             </div>
-          ) : userResults.filter(u => u.id !== currentUserId).length > 0 ? (
-            <div className="flex flex-row row-break flex-wrap gap-6 itens-center justify-center">
-              {userResults.filter(user => user.id !== currentUserId).map((user) => (
-                <div key={user.id} className="bg-slate-800 rounded-lg p-4 flex flex-col justify-center h-28 w-[25rem] min-w-0">
-                  <div className="flex items-center gap-4 w-full h-full">
-                    <div
-                      className="w-12 h-12 bg-gray-600 rounded-full flex items-center justify-center text-white font-bold text-lg shrink-0 cursor-pointer"
-                      onClick={() => navigate(`/user/${user.id}`)}
-                      title="Ver perfil"
-                    >
-                      {user.name.charAt(0).toUpperCase()}
+          ) : userResults.filter((u) => u.id !== currentUserId).length > 0 ? (
+            <div className="flex flex-row flex-wrap gap-6 justify-center">
+              {userResults
+                .filter((user) => user.id !== currentUserId)
+                .map((user) => (
+                  <div
+                    key={user.id}
+                    className="bg-slate-800 rounded-lg p-4 flex flex-col justify-center h-28 w-[25rem]"
+                  >
+                    <div className="flex items-center gap-4 w-full h-full">
+                      <div
+                        className="w-12 h-12 bg-gray-600 rounded-full flex items-center justify-center text-white font-bold text-lg shrink-0 cursor-pointer"
+                        onClick={() => navigate(`/user/${user.id}`)}
+                        title="Ver perfil"
+                      >
+                        {user.name.charAt(0).toUpperCase()}
+                      </div>
+                      <div
+                        className="flex-1 min-w-0 cursor-pointer"
+                        onClick={() => navigate(`/user/${user.id}`)}
+                        title="Ver perfil"
+                      >
+                        <h3
+                          className="text-white font-semibold truncate max-w-[350px]"
+                          title={user.name}
+                        >
+                          {user.name}
+                        </h3>
+                        <p
+                          className="text-gray-400 text-sm truncate max-w-[350px]"
+                          title={user.email}
+                        >
+                          {user.email}
+                        </p>
+                      </div>
+                      <button
+                        className={`px-3 py-1 rounded shrink-0 text-white text-xs ${
+                          followedUsers.includes(user.id)
+                            ? "bg-red-500 hover:bg-red-600"
+                            : "bg-green-500 hover:bg-green-600"
+                        }`}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          followedUsers.includes(user.id)
+                            ? handleUnfollow(user.id)
+                            : handleFollow(user.id);
+                        }}
+                      >
+                        {followedUsers.includes(user.id) ? (
+                          <span className="block leading-tight">
+                            Deixar
+                            <br />
+                            de seguir
+                          </span>
+                        ) : (
+                          "Seguir"
+                        )}
+                      </button>
                     </div>
-                    <div
-                      className="flex-1 min-w-0 cursor-pointer"
-                      onClick={() => navigate(`/user/${user.id}`)}
-                      title="Ver perfil"
-                    >
-                      <h3 className="text-white font-semibold truncate max-w-[350px]" title={user.name}>{user.name}</h3>
-                      <p className="text-gray-400 text-sm truncate max-w-[350px]" title={user.email}>{user.email}</p>
+                    <div className="flex gap-4 mt-2 text-xs text-slate-300">
+                      <span>Reviews: {userStats[user.id]?.reviews ?? "-"}</span>
+                      <span>
+                        Seguidores: {userStats[user.id]?.followers ?? "-"}
+                      </span>
+                      <span>
+                        Seguindo: {userStats[user.id]?.following ?? "-"}
+                      </span>
                     </div>
-                    <button
-                      className={`px-3 py-1 rounded shrink-0 text-white text-xs ${followedUsers.includes(user.id) ? 'bg-red-500 hover:bg-red-600' : 'bg-green-500 hover:bg-green-600'}`}
-                      onClick={e => { e.stopPropagation(); followedUsers.includes(user.id) ? handleUnfollow(user.id) : handleFollow(user.id); }}
-                    >
-                      {followedUsers.includes(user.id) ? <span className="block leading-tight">Deixar<br/>de seguir</span> : "Seguir"}
-                    </button>
                   </div>
-                  <div className="flex gap-4 mt-2 text-xs text-slate-300">
-                    <span>Reviews: {userStats[user.id]?.reviews ?? '-'}</span>
-                    <span>Seguidores: {userStats[user.id]?.followers ?? '-'}</span>
-                    <span>Seguindo: {userStats[user.id]?.following ?? '-'}</span>
-                  </div>
-                </div>
-              ))}
+                ))}
             </div>
           ) : (
             <div className="text-center py-12">
               <p className="text-gray-400 text-lg">
-                {searchQuery ? 'Nenhum usuário encontrado' : 'Nenhum usuário cadastrado'}
+                {searchQuery
+                  ? "Nenhum usuário encontrado"
+                  : "Nenhum usuário cadastrado"}
               </p>
             </div>
           )}
         </div>
       )}
+
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={4000}
+        onClose={handleCloseSnackbar}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+        sx={{ mt: 2 }}
+      >
+        <Alert
+          onClose={handleCloseSnackbar}
+          severity={snackbar.severity}
+          sx={{ width: "100%" }}
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </div>
   );
 };
