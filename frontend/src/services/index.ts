@@ -30,7 +30,9 @@ api.interceptors.response.use(
 
     if (error.response?.status === 401) {
       const currentPath = window.location.pathname;
-      if (!currentPath.includes('/login') && !currentPath.includes('/register')) {
+      const publicPaths = ['/',, '/login', '/register'];
+      const isPublic = publicPaths.some((p) => currentPath === p || currentPath.startsWith(p + '/'));
+      if (!isPublic) {
         localStorage.removeItem('authToken');
         localStorage.removeItem('authUser');
         window.location.href = '/login';

@@ -98,12 +98,7 @@ const Header: React.FC<Props> = ({ isLoggedIn, username = "user" }) => {
               </div>
             </div>
           </div>
-        ) : (
-          <div className="lg:hidden flex gap-4 text-sm font-medium">
-            <Link to="/login" className="text-white hover:text-gray-300" onClick={() => setIsMobileMenuOpen(false)}>Login</Link>
-            <Link to="/register" className="text-white hover:text-gray-300" onClick={() => setIsMobileMenuOpen(false)}>Register</Link>
-          </div>
-        )}
+        ) : null}
 
         <button
           className="text-white lg:hidden"

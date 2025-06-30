@@ -1,34 +1,115 @@
-import React from 'react';
-import aqui from '../../Assets/Photos/aqui.jpg';
-
-
-const favorites = [
-  {
-    poster: aqui,
-    title: 'The Active',
-  },
-  {
-    poster: aqui,
-    title: 'Ainda Estou Aqui',
-  },
-  {
-    poster: aqui,
-    title: 'Another Movie',
-  },
-];
+import React, { useEffect, useState } from 'react';
+import services from '../../services';
+import { Carousel } from '../Carousel/Carousel';
 
 export const FeaturedSection: React.FC = () => {
+  const [trending, setTrending] = useState<any[]>([]);
+  const [globalFavorites, setGlobalFavorites] = useState<any[]>([]);
+  const [userFavorites, setUserFavorites] = useState<any[]>([]);
+  const [reviews, setReviews] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [isLogged, setIsLogged] = useState(false);
+
+  useEffect(() => {
+    const token = localStorage.getItem('authToken');
+    setIsLogged(!!token);
+    setLoading(true);
+
+    services.getPopularMovies(1)
+      .then((data) => {
+        setTrending((data?.results || data || []).slice(0, 12));
+      })
+      .catch(() => setTrending([]));
+
+    services.getPopularMovies(2)
+      .then((data) => {
+        setGlobalFavorites((data?.results || data || []).slice(0, 12));
+      })
+      .catch(() => setGlobalFavorites([]));
+
+    services.getAllReviews()
+      .then((data) => {
+        setReviews((data || []).slice(0, 12));
+      })
+      .catch(() => setReviews([]));
+
+    if (token) {
+      services.getUserFavorites()
+        .then((data) => {
+          setUserFavorites((data || []).slice(0, 12));
+        })
+        .catch(() => setUserFavorites([]))
+        .finally(() => setLoading(false));
+    } else {
+      setLoading(false);
+    }
+  }, []);
+
+  const trendingItems = trending.map((m: any) => ({
+    id: m.id,
+    poster: m.poster_path ? `https://image.tmdb.org/t/p/w300${m.poster_path}` : '',
+    title: m.title || m.name || 'Filme',
+  }));
+
+  const globalFavoriteItems = globalFavorites.map((m: any) => ({
+    id: m.id,
+    poster: m.poster_path ? `https://image.tmdb.org/t/p/w300${m.poster_path}` : '',
+    title: m.title || m.name || 'Filme',
+  }));
+
+  const userFavoriteItems = userFavorites.map((fav: any) => ({
+    id: fav.id,
+    poster: fav.poster_path ? `https://image.tmdb.org/t/p/w300${fav.poster_path}` : (fav.poster || ''),
+    title: fav.title,
+    isFavorite: true,
+  }));
+
+  const reviewItems = reviews.map((r: any) => ({
+    id: r.id,
+    poster: r.poster_path ? `https://image.tmdb.org/t/p/w300${r.poster_path}` : (r.posterUrl || ''),
+    title: r.title || r.movieTitle || 'Filme',
+    rating: r.rating,
+    text: r.comment || r.text,
+  }));
+
+  if (loading) return null;
+
   return (
     <section className="mb-[60px]">
-      <h2 className="text-white text-2xl md:text-3xl font-bold text-center mb-8">Os Favoritos</h2>
-      <div className="flex flex-row gap-8 justify-center">
-        {favorites.map((fav, idx) => (
-          <div key={idx} className="flex flex-col items-center">
-            <img src={fav.poster} alt={fav.title} className="w-[220px] h-[140px] object-cover rounded-lg shadow-lg mb-2" />
-            {/* <div className="text-white text-sm mt-2 text-center">{fav.title}</div> */}
-          </div>
-        ))}
+      <div className="mb-10">
+        <Carousel
+          items={trendingItems}
+          onSelect={() => {}}
+          title="Trending Movies"
+          type="favorites"
+        />
+        <Carousel
+          items={globalFavoriteItems}
+          onSelect={() => {}}
+          title="Favoritos de Todos os Tempos"
+          type="favorites"
+        />
       </div>
+      {isLogged && (
+        <>
+          <div className="mb-10">
+            <Carousel
+              items={reviewItems}
+              onSelect={() => {}}
+              title="Últimas Reviews"
+              type="reviews"
+            />
+          </div>
+          <div>
+            <Carousel
+              items={userFavoriteItems}
+              onSelect={() => {}}
+              title="Seus Favoritos"
+              type="favorites"
+            />
+          </div>
+        </>
+      )}
     </section>
   );
 };
