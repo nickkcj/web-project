@@ -13,21 +13,18 @@ const Home = () => {
         <h2 className="text-white text-[2rem] md:text-[2rem] font-bold text-center mb-8 mt-32">
           Todos os filmes que você já imaginou.
         </h2>
-        <div className="flex justify-center mb-4">
+        <div className="flex justify-center mb-">
           <img
             src={moviesPosters}
             alt="Movie Collage"
             className="w-[50%] rounded-lg shadow-lg"
           />
         </div>
-        <h2 className="text-white text-[2rem] md:text-[2rem] font-bold text-center mb-[120px] mt-0">
+        <h2 className="text-white text-[2rem] md:text-[2rem] font-bold text-center mb-[60px] mt-0">
           Em um lugar só.
         </h2>
       </div>
-      <div className="mb-[120px]">
-        <ReviewsSection />
-      </div>
-      <div className="mb-[120px]">
+      <div className="mb-[60px]">
         <FeaturedSection />
       </div>
     </main>

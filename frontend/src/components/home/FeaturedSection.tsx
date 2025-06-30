@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import services from '../../services';
 import { Carousel } from '../Carousel/Carousel';
+import { ReviewsSection } from './ReviewsSection';
 
 export const FeaturedSection: React.FC = () => {
   const [trending, setTrending] = useState<any[]>([]);
@@ -57,12 +58,14 @@ export const FeaturedSection: React.FC = () => {
     title: m.title || m.name || 'Filme',
   }));
 
-  const userFavoriteItems = userFavorites.map((fav: any) => ({
-    id: fav.id,
-    poster: fav.poster_path ? `https://image.tmdb.org/t/p/w300${fav.poster_path}` : (fav.poster || ''),
-    title: fav.title,
-    isFavorite: true,
-  }));
+  const userFavoriteItems = userFavorites
+    .filter((fav: any) => fav.movie)
+    .map((fav: any) => ({
+      id: fav.movie.id,
+      poster: fav.movie.poster_path ? `https://image.tmdb.org/t/p/w300${fav.movie.poster_path}` : '',
+      title: fav.movie.title,
+      isFavorite: true,
+    }));
 
   const reviewItems = reviews.map((r: any) => ({
     id: r.id,
@@ -76,29 +79,10 @@ export const FeaturedSection: React.FC = () => {
 
   return (
     <section className="mb-[60px]">
-      <div className="mb-10">
-        <Carousel
-          items={trendingItems}
-          onSelect={() => {}}
-          title="Trending Movies"
-          type="favorites"
-        />
-        <Carousel
-          items={globalFavoriteItems}
-          onSelect={() => {}}
-          title="Favoritos de Todos os Tempos"
-          type="favorites"
-        />
-      </div>
       {isLogged && (
         <>
-          <div className="mb-10">
-            <Carousel
-              items={reviewItems}
-              onSelect={() => {}}
-              title="Últimas Reviews"
-              type="reviews"
-            />
+          <div className="mb-[60px]">
+            <ReviewsSection />
           </div>
           <div>
             <Carousel
@@ -106,10 +90,27 @@ export const FeaturedSection: React.FC = () => {
               onSelect={() => {}}
               title="Seus Favoritos"
               type="favorites"
+              itemSize="small"
             />
           </div>
         </>
       )}
+      <div className="mb-10">
+        <Carousel
+          items={trendingItems}
+          onSelect={() => {}}
+          title="Trending Movies"
+          type="favorites"
+          itemSize="small"
+        />
+        <Carousel
+          items={globalFavoriteItems}
+          onSelect={() => {}}
+          title="Favoritos de Todos os Tempos"
+          type="favorites"
+          itemSize="small"
+        />
+      </div>
     </section>
   );
 };
