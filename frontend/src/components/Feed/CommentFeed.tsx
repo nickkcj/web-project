@@ -1,9 +1,11 @@
 import { FC, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import {useNavigate} from "react-router-dom";
 
 export interface Comment {
   id: number;
   user: string;
+  userId: string;
   text: string;
 }
 
@@ -20,6 +22,7 @@ interface CommentFeedProps {
 const CommentFeed: FC<CommentFeedProps> = ({ comments, previewCount = 2, currentUser }) => {
   const [expanded, setExpanded] = useState(false);
   const shown = expanded ? comments : comments.slice(0, previewCount);
+  const navigate = useNavigate();
 
   return (
     <div className="space-y-1 text-sm">
@@ -46,7 +49,7 @@ const CommentFeed: FC<CommentFeedProps> = ({ comments, previewCount = 2, current
             transition={{ duration: 0.15 }}
             className="text-slate-300"
           >
-            <span className="font-medium mr-2">{currentUser && (c.user === currentUser.name || c.user === 'you') ? 'you' : c.user}:</span>
+            <span className="font-medium mr-2 cursor-pointer group-hover:underline" onClick={() => navigate(`/user/${c.userId}`)}>{currentUser && (c.user === currentUser.name || c.user === 'you') ? 'you' : c.user}:</span>
             {c.text}
           </motion.p>
         ))}

@@ -12,6 +12,7 @@ export interface ReviewApiResponse {
     comments: {
         id: number;
         user: string;
+        userId: string;
         text: string;
     }[];
 }

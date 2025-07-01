@@ -84,6 +84,7 @@ const FeedItem: FC<FeedItemProps> = ({
         {
           id: newComment.id || Date.now(),
           user: (currentUser && newComment.user?.id === currentUser.id) ? 'you' : (newComment.user?.name || 'you'),
+          userId: newComment.userId,
           text: newComment.content || content,
         },
         ...prev,

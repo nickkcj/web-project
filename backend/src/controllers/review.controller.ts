@@ -52,6 +52,7 @@ export const getReviews = asyncHandler(
       comments: review.Comment.map((comment) => ({
         id: comment.id,
         user: comment.user?.name || 'Unknown',
+        userId: comment.user?.id || 'Unknown',
         text: comment.content,
         time: formatDistanceToNow(new Date(comment.createdAt), {
           addSuffix: true,
