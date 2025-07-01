@@ -18,7 +18,7 @@ O **AbsoluteCinema** é uma plataforma social focada no mundo do cinema, permiti
 
 - **Nicholas Jasper**
 - **Nicholas Derham**
-- **Nícolas Cunha**
+- **Nícolas Cunha** 24104279
 - **Felipe Vieira**
 - **Iris Souza**
 
