@@ -41,6 +41,7 @@ const Feed: FC = () => {
                 id={p.id}
                 poster={p.posterUrl}
                 user={p.user}
+                userId={p.userId}
                 rating={p.rating}
                 text={p.text}
                 time={p.time}

@@ -4,11 +4,13 @@ import { motion } from "framer-motion";
 import CommentFeed, { Comment } from "./CommentFeed";
 import AddCommentModal from "./AddCommentModal";
 import services from '../../services/index';
+import {useNavigate} from "react-router-dom";
 
 export interface FeedItemProps {
   id: number;
   poster: string;
   user: string;
+  userId: string;
   rating: number;
   text: string;
   time: string;
@@ -20,6 +22,7 @@ const FeedItem: FC<FeedItemProps> = ({
   id,
   poster,
   user,
+  userId,
   rating,
   text,
   time,
@@ -30,6 +33,8 @@ const FeedItem: FC<FeedItemProps> = ({
   const [comments, setComments] = useState<Comment[]>(initialComments);
   const [openModal, setOpenModal] = useState(false);
   const [likeLoading, setLikeLoading] = useState(false);
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     let mounted = true;
@@ -87,10 +92,21 @@ const FeedItem: FC<FeedItemProps> = ({
       transition={{ duration: 0.25 }}
       className="rounded-2xl bg-slate-900 p-6 shadow-lg space-y-4 text-left"
     >
-      {/* ── header ──────────────────────────────────────────────── */}
-      <div className="flex items-center gap-2 text-sm">
-        <span className="font-semibold">{displayUser}</span>
-        <span className="text-slate-500">· {time}</span>
+        {/* ── header ──────────────────────────────────────────────── */}
+        <div className="flex items-center gap-2 text-sm">
+            <div
+                className="flex items-center gap-2 cursor-pointer group"
+                onClick={() => navigate(`/user/${userId}`)}
+                title="Ver perfil">
+                <div
+                    className="w-6 h-6 bg-gray-600 rounded-full flex items-center justify-center text-white font-bold text-lg shrink-0">
+                    {user.charAt(0).toUpperCase()}
+                </div>
+                <span className="font-semibold text-white group-hover:underline">
+                    {displayUser}
+                </span>
+            </div>
+          <span className="text-slate-500">· {time}</span>
         <span className="ml-auto flex items-center gap-1 text-amber-300">
           <Star size={16} /> {rating}/5
         </span>

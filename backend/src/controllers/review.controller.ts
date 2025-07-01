@@ -42,6 +42,7 @@ export const getReviews = asyncHandler(
       posterUrl:
         'https://image.tmdb.org/t/p/w500' + review.movie?.poster_path || '',
       user: review.User?.name || 'Unknown',
+      userId: review.User?.id,
       rating: review.rating,
       text: review.comment,
       time: formatDistanceToNow(new Date(review.createdAt), {
