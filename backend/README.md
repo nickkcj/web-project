@@ -6,36 +6,38 @@ API desenvolvida com Node.js, Express e Prisma para fornecer suporte ao projeto 
 
 - Node.js (versão recomendada: 18.20.2)
 - npm (geralmente vem com Node.js)
-- Banco de dados configurado (PostgreSQL)
+- Banco de dados configurado (PostgreSQL/Supabase)
 
-## Configuração do Ambiente
+## ⚙️ Configuração do Ambiente
 
-1. **Configurações iniciais**:
-   
-   Tenha o respositório clonado e entre na pasta raiz do backend 
+1. **Clone o repositório e entre na pasta raiz do backend:**
+   ```bash
+   git clone <url-do-repo>
+   cd web-project/backend
+   ```
 
-2. **Configure a versão do Node.js**:
-
+2. **Configure a versão do Node.js:**
    ```bash
    echo "nodejs 18.20.2" > .tool-versions
    ```
 
-3. **Instale as dependências**:
-
+3. **Instale as dependências:**
    ```bash
    npm install
    ```
 
-4. **Configure as variáveis de ambiente**:
+4. **Configure as variáveis de ambiente:**
 
-    Crie um arquivo .env na raiz do projeto com base no .env.example e insira as chaves necessárias para executar o projeto:
-    (Consulte os desenvolvedores para obter as chaves necessárias)
+   Crie um arquivo `.env` na raiz do projeto com o seguinte conteúdo:
 
-   ```.env
-    DATABASE_URL="URL de conexão com o banco"
-    TMDB_API_KEY="Chave da biblioteca da TMDB"
-    PORT=3000 # opcional
+   ```env
+   DATABASE_URL= # URL de conexão com o banco (ex: postgresql://usuario:senha@host:5432/banco)
+   TMDB_API_KEY= # Chave da API do The Movie Database
+   JWT_SECRET= # Segredo para geração dos tokens JWT
+   PORT=5000 # Porta do servidor backend
    ```
+
+   > **Importante:** Nunca suba o arquivo `.env` para repositórios públicos.
 
 ## 🛠️ Comandos Úteis
 
@@ -54,20 +56,16 @@ API desenvolvida com Node.js, Express e Prisma para fornecer suporte ao projeto 
   npm start
   ```
 
-- **Prisma**:
+- **Prisma:**
   ```bash
   npx prisma generate  # Gera o cliente do Prisma
   npx prisma migrate dev  # Cria e aplica migrações
   npx prisma studio  # Abre interface visual do banco
   ```
 
-## 🌐 Documentação da API
-
-[WIP]
-
 ## 📊 Banco de Dados
 
-Este projeto utiliza Prisma ORM. Para configurar:
+Este projeto utiliza Prisma ORM e Supabase/Postgres. Para configurar:
 
 1. Atualize o schema em `prisma/schema.prisma`
 2. Execute as migrações:
@@ -75,10 +73,34 @@ Este projeto utiliza Prisma ORM. Para configurar:
    npx prisma migrate dev --name init
    ```
 
+## 📁 Estrutura de Pastas
+
+```
+src/
+  controllers/
+  dtos/
+  middleware/
+  routes/
+  services/
+  config/
+  scripts/
+prisma/
+  schema.prisma
+.env
+README.md
+```
+
+## 📝 Observações
+- O backend exige autenticação JWT para acessar rotas protegidas.
+- O projeto está preparado para integração com Google OAuth (opcional).
+- O backend pode ser facilmente hospedado em serviços como Render, Railway, Vercel, etc.
+- O front-end é responsivo e pode ser acessado em desktop e mobile.
+
 ## 🔗 Links Úteis
 
 - [Documentação do Node.js](https://nodejs.org/en/docs/)
 - [Documentação do Express](https://expressjs.com/)
 - [Documentação do Prisma](https://www.prisma.io/docs)
 - [The Movie Database API](https://developers.themoviedb.org/3)
+- [Supabase](https://supabase.com/docs)
 
