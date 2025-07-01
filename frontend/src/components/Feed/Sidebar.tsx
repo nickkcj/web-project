@@ -13,9 +13,26 @@ export const Sidebar: FC = () => {
     const [favorites, setFavorites] = useState<any[]>([]);
     const [selectedMovie, setSelectedMovie] = useState<any | null>(null);
     const [showModal, setShowModal] = useState(false);
-    const [unfavoriteLoading, setUnfavoriteLoading] = useState(false);
+    const [loadingFavorites, setLoadingFavorites] = useState(false);
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
+
+    const fetchFavorites = async () => {
+        try {
+            const favs = await services.getUserFavorites();
+            const mapped = Array.isArray(favs)
+                ? favs.map((fav) => ({
+                    id: fav.movie?.id || fav.id,
+                    title: fav.movie?.title || '',
+                    poster: fav.movie?.poster_path ? getImageUrl(fav.movie.poster_path) : '',
+                    movieId: fav.movie?.id || fav.movieId || fav.id,
+                }))
+                : [];
+            setFavorites(mapped);
+        } catch (error) {
+            setFavorites([]);
+        }
+    };
 
     useEffect(() => {
         const fetchTrending = async () => {
@@ -35,22 +52,6 @@ export const Sidebar: FC = () => {
     }, []);
 
     useEffect(() => {
-        const fetchFavorites = async () => {
-            try {
-                const favs = await services.getUserFavorites();
-                const mapped = Array.isArray(favs)
-                  ? favs.map((fav) => ({
-                      id: fav.movie?.id || fav.id,
-                      title: fav.movie?.title || '',
-                      poster: fav.movie?.poster_path ? getImageUrl(fav.movie.poster_path) : '',
-                      movieId: fav.movie?.id || fav.movieId || fav.id,
-                  }))
-                  : [];
-                setFavorites(mapped);
-            } catch (error) {
-                setFavorites([]);
-            }
-        };
         fetchFavorites();
     }, []);
 
@@ -81,17 +82,28 @@ export const Sidebar: FC = () => {
         navigate("/rate", { state: { movie: movieForModal } });
     };
 
-    const handleUnfavorite = async (movie: any) => {
-        if (unfavoriteLoading) return;
+    const handleFavorite = async (movie: any) => {
+        if (loadingFavorites) return;
         try {
-            setUnfavoriteLoading(true);
+            setLoadingFavorites(true);
+
+            await services.createMovieInDatabase({
+                id: movie.id,
+                title: movie.title,
+                poster_path: movie.poster.replace('https://image.tmdb.org/t/p/w342', ''),
+                backdrop_path: '',
+                overview: '',
+                release_date: movie.year + '-01-01',
+                popularity: 0,
+                original_language: 'en'
+            });
+
             await services.toggleFavorite(movie.id);
-            setFavorites((prev) => prev.filter((f) => f.movieId !== movie.id && f.id !== movie.id));
-            setShowModal(false);
         } catch (error) {
             console.error('Erro ao remover dos favoritos:', error);
         } finally {
-            setUnfavoriteLoading(false);
+            fetchFavorites();
+            setLoadingFavorites(false);
         }
     };
 
@@ -168,9 +180,11 @@ export const Sidebar: FC = () => {
                             onClick: () => handleRate(selectedMovie),
                         },
                         {
-                            label: unfavoriteLoading ? "Removendo..." : "Desfavoritar",
-                            onClick: () => handleUnfavorite(selectedMovie),
-                            disabled: unfavoriteLoading,
+                            label: favorites.some(fav => fav.movieId === selectedMovie.id)
+                                    ? "Desfavoritar"
+                                    : "Favoritar",
+                            onClick: () => handleFavorite(selectedMovie),
+                            disabled: loadingFavorites,
                         },
                     ]}
                     onClose={() => setShowModal(false)}
