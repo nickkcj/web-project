@@ -10,9 +10,9 @@ API desenvolvida com Node.js, Express e Prisma para fornecer suporte ao projeto 
 
 ## ⚙️ Configuração do Ambiente
 
-1. **Clone o repositório e entre na pasta raiz do backend:**
+1. **Clone o repositório:**
    ```bash
-   git clone <url-do-repo>
+   git clone https://github.com/nickkcj/web-project.git
    cd web-project/backend
    ```
 
