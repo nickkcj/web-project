@@ -7,7 +7,6 @@ O **AbsoluteCinema** é uma plataforma social focada no mundo do cinema, permiti
 ## 🚀 Funcionalidades Principais
 
 - **📅 Diário de Filmes** – Os usuários podem registrar os filmes que assistiram, adicionar datas e escrever resenhas.
-- **🔖 Listas Personalizadas** – Crie listas temáticas, como "Favoritos do Ano" ou "Melhores Filmes de Terror".
 - **⭐ Avaliação e Comentários** – Atribua notas de 0 a 5 estrelas e compartilhe opiniões.
 - **💬 Seguidores e Feed Social** – Conecte-se com amigos e veja suas atividades.
 - **👀 Exploração e Descoberta** – Receba recomendações personalizadas e descubra filmes por meio de listas criadas por outros usuários.
@@ -20,5 +19,5 @@ O **AbsoluteCinema** é uma plataforma social focada no mundo do cinema, permiti
 - **Nicholas Derham**
 - **Nícolas Cunha** 24104279
 - **Felipe Vieira**
-- **Iris Souza**
+- **Iris Souza** 24100903
 
