@@ -14,6 +14,7 @@ export interface Movie {
   year: string;
   poster: string;
   tag?: string;
+  overview?: string;
 }
 
 interface User {
@@ -136,6 +137,7 @@ const Discovery: FC = () => {
           title: m.title,
           year: m.release_date?.slice(0, 4) ?? "",
           poster: m.poster_path ? getImageUrl(m.poster_path) : "/placeholder.jpg",
+          overview: m.overview ?? "",
         }))
       );
     } catch (err: any) {
