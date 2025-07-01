@@ -6,12 +6,11 @@ O **AbsoluteCinema** é uma plataforma social focada no mundo do cinema, permiti
 
 ## 🚀 Funcionalidades Principais
 
-- **📅 Diário de Filmes** – Os usuários podem registrar os filmes que assistiram, adicionar datas e escrever resenhas.
+- **📅 Diário de Filmes** – Os usuários podem registrar os filmes que assistiram e escrever resenhas.
 - **⭐ Avaliação e Comentários** – Atribua notas de 0 a 5 estrelas e compartilhe opiniões.
 - **💬 Seguidores e Feed Social** – Conecte-se com amigos e veja suas atividades.
-- **👀 Exploração e Descoberta** – Receba recomendações personalizadas e descubra filmes por meio de listas criadas por outros usuários.
-- **👤 Perfil de Usuário** – Acompanhe estatísticas, filmes mais assistidos e preferências pessoais.
-- **🌟 Tags e Gêneros** – Filtre e organize os filmes por categorias, diretores, atores e outros critérios.
+- **👤 Perfil de Usuário** – Acompanhe estatísticas, como os seus filmes favoritos.
+- **🌟 Tags e Gêneros** – Filtre e organize os filmes por categorias.
 
 ## 👥 Integrantes do Grupo
 
