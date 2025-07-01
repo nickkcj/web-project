@@ -15,10 +15,10 @@ O **AbsoluteCinema** é uma plataforma social focada no mundo do cinema, permiti
 
 ## 👥 Integrantes do Grupo
 
-- **Nicholas Jasper**
+- **Nicholas Jasper** 24104773
 - **Nicholas Derham** 24102984
 - **Nícolas Cunha** 24104279
-- **Felipe Vieira**
+- **Felipe Vieira** 24100897
 - **Iris Souza** 24100903
 
 ## Website
