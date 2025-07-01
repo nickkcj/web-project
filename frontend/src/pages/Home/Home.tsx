@@ -13,7 +13,7 @@ const Home = () => {
         <h2 className="text-white text-[2rem] md:text-[2rem] font-bold text-center my-8">
           Todos os filmes que você já imaginou.
         </h2>
-        <div className="flex justify-center mb-">
+        <div className="flex justify-center my-1">
           <img
             src={moviesPosters}
             alt="Movie Collage"

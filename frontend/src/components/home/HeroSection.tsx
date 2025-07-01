@@ -7,7 +7,7 @@ export const HeroSection: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useSelector((state: any) => state.login);
   return (
-    <section className="flex flex-col md:flex-row items-center justify-between bg-transparent w-full">
+    <section className="flex flex-col md:flex-row items-center justify-between bg-transparent w-full mb-[1rem]">
       <div className="flex-1 md:pr-10 md:mb-0 flex flex-col items-start">
         <h1 className="text-white text-[2rem] md:text-[3rem] font-extrabold leading-[1.2] mb-[30px] text-left mt-[30px]">
           Seus gostos, suas notas, suas histórias.
