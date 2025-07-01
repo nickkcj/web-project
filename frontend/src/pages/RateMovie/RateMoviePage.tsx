@@ -179,8 +179,12 @@ const RateMoviePage: FC = () => {
               className="w-full h-40 bg-[#0F141B] rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none"
               placeholder="Escreva sua avaliação..."
               value={review}
-              onChange={(e) => setReview(e.target.value)}
+              onChange={(e) => setReview(e.target.value.slice(0, 1000))}
+              maxLength={1000}
             />
+            <div className="text-right text-xs text-slate-400 mt-1">
+              {review.length}/1000
+            </div>
           </div>
 
           <div className="flex justify-end gap-4">

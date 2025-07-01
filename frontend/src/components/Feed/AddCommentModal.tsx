@@ -5,10 +5,8 @@ import { Textarea } from "../ui/textarea";
 import { Button } from "../ui/button";
 
 interface AddCommentModalProps {
-  /** controls Dialog open state from parent */
   open: boolean;
   setOpen: (o: boolean) => void;
-  /** called with the new comment text */
   onSubmit: (text: string) => void;
 }
 
@@ -37,10 +35,14 @@ const AddCommentModal: FC<AddCommentModalProps> = ({
 
         <Textarea
           value={text}
-          onChange={(e) => setText(e.target.value)}
+          onChange={(e) => setText(e.target.value.slice(0, 1000))}
           placeholder="Write something nice…"
           className="h-32"
+          maxLength={1000}
         />
+        <div className="text-right text-xs text-slate-400 mt-1">
+          {text.length}/1000
+        </div>
 
         <DialogFooter>
           <Button variant="secondary" onClick={() => setOpen(false)}>
