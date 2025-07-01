@@ -34,19 +34,28 @@ const FeedItem: FC<FeedItemProps> = ({
   const [openModal, setOpenModal] = useState(false);
   const [likeLoading, setLikeLoading] = useState(false);
   const [likeCount, setLikeCount] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
 
   const navigate = useNavigate();
 
   useEffect(() => {
     let mounted = true;
-    if (currentUser) {
-      services.hasUserLikedReview(id).then(res => {
-        if (mounted) setLiked(!!res.hasLiked);
-      }).catch(() => {});
-    }
-    services.getLikeCount(id).then(res => {
-      if (mounted) setLikeCount(res.count ?? 0);
-    }).catch(() => {});
+    const load = async () => {
+      setIsLoading(true);
+      try {
+        if (currentUser) {
+          await services.hasUserLikedReview(id).then(res => {
+            if (mounted) setLiked(!!res.hasLiked);
+          }).catch(() => {});
+        }
+        await services.getLikeCount(id).then(res => {
+          if (mounted) setLikeCount(res.count ?? 0);
+        }).catch(() => {});
+      } finally {
+        if (mounted) setIsLoading(false);
+      }
+    };
+    load();
     return () => { mounted = false; };
   }, [id, currentUser]);
 
@@ -85,12 +94,10 @@ const FeedItem: FC<FeedItemProps> = ({
 
   const displayUser = currentUser && (currentUser.name === user) ? 'you' : user;
 
-  if (!poster || !user) {
+  if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-[180px]">
+      <div className="flex items-center justify-center min-h-[180px] animate-pulse">
         <div className="flex flex-col items-center gap-4">
-          <div className="w-10 h-10 border-4 border-blue-400 border-t-transparent rounded-full animate-spin" />
-          <span className="text-slate-300 text-base">Carregando review...</span>
         </div>
       </div>
     );
@@ -126,7 +133,7 @@ const FeedItem: FC<FeedItemProps> = ({
         <img
           src={poster}
           alt={`Poster for review by ${user}`}
-          className="hidden sm:block float-left w-24 h-36 mr-4 mb-2 rounded-md object-cover"
+          className="flex w-[5rem] float-left md:w-24 md:h-36 mr-4 mb-2 rounded-md object-cover"
         />
         <p className="text-slate-300 leading-relaxed whitespace-pre-wrap">
           {text}
