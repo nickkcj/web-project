@@ -21,5 +21,8 @@ O **AbsoluteCinema** é uma plataforma social focada no mundo do cinema, permiti
 - **Felipe Vieira** 24100897
 - **Iris Souza** 24100903
 
+## Repositório
+https://github.com/nickkcj/web-project.git
+
 ## Website
 https://web-project-six-ashen.vercel.app/
