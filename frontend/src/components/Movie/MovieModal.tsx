@@ -17,12 +17,20 @@ interface Action {
 }
 
 interface Props {
-  movie: Movie;
+  movie?: Movie;
   onClose: () => void;
   actions?: Action[];
+  loading?: boolean;
+  loadingText?: string;
 }
 
-export const MovieModal: React.FC<Props> = ({ movie, onClose, actions }) => {
+export const MovieModal: React.FC<Props> = ({ 
+  movie, 
+  onClose, 
+  actions, 
+  loading = false,
+  loadingText = "Carregando detalhes..."
+}) => {
   useEffect(() => {
     const handleEsc = (e: KeyboardEvent) => e.key === "Escape" && onClose();
     window.addEventListener("keydown", handleEsc);
@@ -36,58 +44,65 @@ export const MovieModal: React.FC<Props> = ({ movie, onClose, actions }) => {
       aria-modal="true"
       onClick={onClose}
     >
-      <div
-        className="relative bg-[#1E252C] text-white rounded-2xl shadow-2xl w-[90%] max-w-3xl flex flex-col md:flex-row overflow-hidden animate-fade-in"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <img
-          src={movie.poster}
-          alt={movie.title}
-          className="h-64 md:h-auto md:w-1/3 object-cover"
-        />
-
-        <div className="p-6 flex-1 flex flex-col gap-4">
-          <h3 className="text-2xl font-bold">
-            {movie.title}{" "}
-            <span className="text-slate-400 font-medium">({movie.year})</span>
-          </h3>
-          <p className="text-gray-400 text-sm mb-4">{movie.overview}</p>
-          {movie.tag && (
-            <span className="inline-block self-start bg-slate-700 text-xs px-2 py-0.5 rounded">
-              {movie.tag}
-            </span>
-          )}
-
-          <div className="flex-1" />
-
-          {actions?.length ? (
-            <div className="mt-4 flex justify-end gap-3">
-              {actions.map((a, i) => (
-                <button
-                  key={i}
-                  onClick={a.onClick}
-                  disabled={a.disabled}
-                  className={`px-3 py-1 text-sm rounded-lg transition ${
-                    a.disabled
-                      ? 'bg-slate-800 text-gray-500 cursor-not-allowed'
-                      : 'bg-slate-700 hover:bg-slate-600'
-                  }`}
-                >
-                  {a.label}
-                </button>
-              ))}
-            </div>
-          ) : null}
+      {loading ? (
+        <div className="flex flex-col items-center gap-4 bg-[#1E252C] p-8 rounded-2xl shadow-2xl">
+          <div className="w-12 h-12 border-4 border-blue-400 border-t-transparent rounded-full animate-spin" />
+          <span className="text-slate-300 text-lg">{loadingText}</span>
         </div>
-
-        <button
-          onClick={onClose}
-          aria-label="Close"
-          className="absolute top-2 right-3 text-3xl leading-none text-gray-400 hover:text-white"
+      ) : movie ? (
+        <div
+          className="relative bg-[#1E252C] text-white rounded-2xl shadow-2xl w-[90%] max-w-3xl flex flex-col md:flex-row overflow-hidden animate-fade-in"
+          onClick={(e) => e.stopPropagation()}
         >
-          &times;
-        </button>
-      </div>
+          <img
+            src={movie.poster}
+            alt={movie.title}
+            className="h-64 md:h-auto md:w-1/3 object-cover"
+          />
+
+          <div className="p-6 flex-1 flex flex-col gap-4">
+            <h3 className="text-2xl font-bold">
+              {movie.title}{" "}
+              <span className="text-slate-400 font-medium">({movie.year})</span>
+            </h3>
+            <p className="text-gray-400 text-sm mb-4">{movie.overview}</p>
+            {movie.tag && (
+              <span className="inline-block self-start bg-slate-700 text-xs px-2 py-0.5 rounded">
+                {movie.tag}
+              </span>
+            )}
+
+            <div className="flex-1" />
+
+            {actions?.length ? (
+              <div className="mt-4 flex justify-end gap-3">
+                {actions.map((a, i) => (
+                  <button
+                    key={i}
+                    onClick={a.onClick}
+                    disabled={a.disabled}
+                    className={`px-3 py-1 text-sm rounded-lg transition ${
+                      a.disabled
+                        ? 'bg-slate-800 text-gray-500 cursor-not-allowed'
+                        : 'bg-slate-700 hover:bg-slate-600'
+                    }`}
+                  >
+                    {a.label}
+                  </button>
+                ))}
+              </div>
+            ) : null}
+          </div>
+
+          <button
+            onClick={onClose}
+            aria-label="Close"
+            className="absolute top-2 right-3 text-3xl leading-none text-gray-400 hover:text-white"
+          >
+            &times;
+          </button>
+        </div>
+      ) : null}
     </div>,
     document.body
   );

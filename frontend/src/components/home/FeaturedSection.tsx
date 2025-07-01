@@ -1,38 +1,30 @@
 import React, { useEffect, useState } from 'react';
 import services from '../../services';
 import { Carousel } from '../Carousel/Carousel';
-import { ReviewsSection } from './ReviewsSection';
+import { MovieModal } from '../Movie/MovieModal';
+import { useSelector } from 'react-redux';
 
 export const FeaturedSection: React.FC = () => {
   const [trending, setTrending] = useState<any[]>([]);
-  const [globalFavorites, setGlobalFavorites] = useState<any[]>([]);
   const [userFavorites, setUserFavorites] = useState<any[]>([]);
-  const [reviews, setReviews] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [isLogged, setIsLogged] = useState(false);
+  const { user } = useSelector((state: any) => state.login);
+  const [selectedMovie, setSelectedMovie] = useState<any | null>(null);
+  const [movieDetails, setMovieDetails] = useState<any | null>(null);
+  const [modalLoading, setModalLoading] = useState(false);
+  const [isFavorite, setIsFavorite] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem('authToken');
     setIsLogged(!!token);
     setLoading(true);
 
-    services.getPopularMovies(1)
+    services.getPopularMovies()
       .then((data) => {
         setTrending((data?.results || data || []).slice(0, 12));
       })
       .catch(() => setTrending([]));
-
-    services.getPopularMovies(2)
-      .then((data) => {
-        setGlobalFavorites((data?.results || data || []).slice(0, 12));
-      })
-      .catch(() => setGlobalFavorites([]));
-
-    services.getAllReviews()
-      .then((data) => {
-        setReviews((data || []).slice(0, 12));
-      })
-      .catch(() => setReviews([]));
 
     if (token) {
       services.getUserFavorites()
@@ -51,13 +43,7 @@ export const FeaturedSection: React.FC = () => {
     poster: m.poster_path ? `https://image.tmdb.org/t/p/w300${m.poster_path}` : '',
     title: m.title || m.name || 'Filme',
   }));
-
-  const globalFavoriteItems = globalFavorites.map((m: any) => ({
-    id: m.id,
-    poster: m.poster_path ? `https://image.tmdb.org/t/p/w300${m.poster_path}` : '',
-    title: m.title || m.name || 'Filme',
-  }));
-
+  
   const userFavoriteItems = userFavorites
     .filter((fav: any) => fav.movie)
     .map((fav: any) => ({
@@ -67,27 +53,57 @@ export const FeaturedSection: React.FC = () => {
       isFavorite: true,
     }));
 
-  const reviewItems = reviews.map((r: any) => ({
-    id: r.id,
-    poster: r.poster_path ? `https://image.tmdb.org/t/p/w300${r.poster_path}` : (r.posterUrl || ''),
-    title: r.title || r.movieTitle || 'Filme',
-    rating: r.rating,
-    text: r.comment || r.text,
-  }));
+  const handleSelectMovie = async (item: any) => {
+    setModalLoading(true);
+    setSelectedMovie(item);
+    try {
+      const details = await services.getMovieDetails(item.id);
+      setMovieDetails(details);
+      if (user) {
+        const favs = await services.getUserFavorites();
+        setIsFavorite(favs.some((f: any) => f.movieId === item.id || f.movie?.id === item.id));
+      } else {
+        setIsFavorite(false);
+      }
+    } catch {
+      setMovieDetails(null);
+    } finally {
+      setModalLoading(false);
+    }
+  };
 
-  if (loading) return null;
+  const handleToggleFavorite = async () => {
+    if (!user || !movieDetails) return;
+    setModalLoading(true);
+    try {
+      const result = await services.toggleFavorite(movieDetails.id);
+      setIsFavorite(result.favorited ?? !isFavorite);
+    } catch {}
+    setModalLoading(false);
+  };
+
+  const handleReview = () => {
+    if (!user || !movieDetails) return;
+    window.location.href = `/movie/${movieDetails.id}/review`;
+  };
+
+  if (loading) return (
+    <section className="mb-[60px] flex flex-col items-center justify-center min-h-[200px]">
+      <div className="flex flex-col items-center gap-4">
+        <div className="w-12 h-12 border-4 border-blue-400 border-t-transparent rounded-full animate-spin" />
+        <span className="text-slate-300 text-lg">Carregando filmes em destaque...</span>
+      </div>
+    </section>
+  );
 
   return (
     <section className="mb-[60px]">
       {isLogged && (
         <>
-          <div className="mb-[60px]">
-            <ReviewsSection />
-          </div>
           <div>
             <Carousel
               items={userFavoriteItems}
-              onSelect={() => {}}
+              onSelect={handleSelectMovie}
               title="Seus Favoritos"
               type="favorites"
               itemSize="small"
@@ -98,19 +114,40 @@ export const FeaturedSection: React.FC = () => {
       <div className="mb-10">
         <Carousel
           items={trendingItems}
-          onSelect={() => {}}
+          onSelect={handleSelectMovie}
           title="Trending Movies"
           type="favorites"
           itemSize="small"
         />
-        <Carousel
-          items={globalFavoriteItems}
-          onSelect={() => {}}
-          title="Favoritos de Todos os Tempos"
-          type="favorites"
-          itemSize="small"
-        />
       </div>
+      {selectedMovie && (
+        <MovieModal
+          movie={movieDetails ? {
+            id: movieDetails.id,
+            title: movieDetails.title,
+            year: movieDetails.release_date?.slice(0, 4) ?? '',
+            poster: movieDetails.poster_path ? `https://image.tmdb.org/t/p/w500${movieDetails.poster_path}` : '',
+            overview: movieDetails.overview,
+          } : undefined}
+          loading={!movieDetails}
+          onClose={() => {
+            setSelectedMovie(null);
+            setMovieDetails(null);
+          }}
+          actions={user && movieDetails ? [
+            {
+              label: isFavorite ? 'Unfavorite' : 'Favorite',
+              onClick: handleToggleFavorite,
+              disabled: false,
+            },
+            {
+              label: 'Write Review',
+              onClick: handleReview,
+              disabled: false,
+            },
+          ] : []}
+        />
+      )}
     </section>
   );
 };

@@ -599,6 +599,7 @@ export const ProfilePage: React.FC = () => {
             ];
             return actions;
           })()}
+          loading={!selectedMovie}
           onClose={handleCloseMovieModal}
         />
       )}
