@@ -33,33 +33,45 @@ const FeedItem: FC<FeedItemProps> = ({
   const [comments, setComments] = useState<Comment[]>(initialComments);
   const [openModal, setOpenModal] = useState(false);
   const [likeLoading, setLikeLoading] = useState(false);
+  const [likeCount, setLikeCount] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
 
   const navigate = useNavigate();
 
   useEffect(() => {
     let mounted = true;
-    if (currentUser) {
-      services.hasUserLikedReview(id).then(res => {
-        if (mounted) setLiked(!!res.hasLiked);
-      }).catch(() => {});
-    }
+    const load = async () => {
+      setIsLoading(true);
+      try {
+        if (currentUser) {
+          await services.hasUserLikedReview(id).then(res => {
+            if (mounted) setLiked(!!res.hasLiked);
+          }).catch(() => {});
+        }
+        await services.getLikeCount(id).then(res => {
+          if (mounted) setLikeCount(res.count ?? 0);
+        }).catch(() => {});
+      } finally {
+        if (mounted) setIsLoading(false);
+      }
+    };
+    load();
     return () => { mounted = false; };
   }, [id, currentUser]);
 
-  /* ---- actions -------------------------------------------------- */
   const toggleLike = async () => {
     if (likeLoading) return;
     setLikeLoading(true);
-    // Optimistic update
     setLiked((l) => !l);
+    setLikeCount((c) => liked ? c - 1 : c + 1);
     try {
       const res = await services.toggleLike(id);
       setLiked(res.liked);
+      const likeRes = await services.getLikeCount(id);
+      setLikeCount(likeRes.count ?? 0);
     } catch (err) {
-      // revert optimistic update on error
       setLiked((l) => !l);
-      // Optionally show error
-      // alert('Failed to like/unlike.');
+      setLikeCount((c) => liked ? c + 1 : c - 1);
     } finally {
       setLikeLoading(false);
     }
@@ -78,13 +90,19 @@ const FeedItem: FC<FeedItemProps> = ({
         ...prev,
       ]);
     } catch (err) {
-      // Optionally show error
-      // alert('Failed to add comment.');
     }
   };
 
-  // Mostra 'you' se for o autor da review
   const displayUser = currentUser && (currentUser.name === user) ? 'you' : user;
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[180px] animate-pulse">
+        <div className="flex flex-col items-center gap-4">
+        </div>
+      </div>
+    );
+  }
 
   return (
     <motion.article
@@ -93,7 +111,6 @@ const FeedItem: FC<FeedItemProps> = ({
       transition={{ duration: 0.25 }}
       className="rounded-2xl bg-slate-900 p-6 shadow-lg space-y-4 text-left"
     >
-        {/* ── header ──────────────────────────────────────────────── */}
         <div className="flex items-center gap-2 text-sm">
             <div
                 className="flex items-center gap-2 cursor-pointer group"
@@ -113,12 +130,11 @@ const FeedItem: FC<FeedItemProps> = ({
         </span>
       </div>
 
-      {/* ── body ───────────────────────────────────────────────── */}
       <section>
         <img
           src={poster}
           alt={`Poster for review by ${user}`}
-          className="hidden sm:block float-left w-24 h-36 mr-4 mb-2 rounded-md object-cover"
+          className="flex w-[5rem] float-left md:w-24 md:h-36 mr-4 mb-2 rounded-md object-cover"
         />
         <p className="text-slate-300 leading-relaxed whitespace-pre-wrap">
           {text}
@@ -126,12 +142,9 @@ const FeedItem: FC<FeedItemProps> = ({
         <div className="clear-both" />
       </section>
 
-      {/* ── comments ───────────────────────────────────────────── */}
       <CommentFeed comments={comments} currentUser={currentUser} />
 
-      {/* ── actions ────────────────────────────────────────────── */}
       <div className="flex gap-6 pt-2 border-t border-slate-800 text-slate-400">
-        {/* LIKE -------------------------------------------------- */}
         <button
           onClick={toggleLike}
           className={`flex items-center gap-1 ${
@@ -140,7 +153,6 @@ const FeedItem: FC<FeedItemProps> = ({
         >
           <motion.span
             animate={{ scale: liked ? [1, 1.35, 1] : 1 }}
-            // tween by default
             transition={{ duration: 0.35 }}
           >
             <Heart
@@ -150,18 +162,18 @@ const FeedItem: FC<FeedItemProps> = ({
             />
           </motion.span>
           Like
+          <span className="ml-2 text-xs text-slate-400 font-semibold">{likeCount}</span>
         </button>
 
-        {/* COMMENT --------------------------------------------- */}
         <button
           onClick={() => setOpenModal(true)}
           className="flex items-center gap-1 hover:text-amber-400"
         >
           <MessageCircle size={18} /> Comment
+          <span className="mr-2 text-xs text-slate-400 font-semibold">{comments.length}</span>
         </button>
       </div>
 
-      {/* modal for new comment */}
       <AddCommentModal
         open={openModal}
         setOpen={setOpenModal}

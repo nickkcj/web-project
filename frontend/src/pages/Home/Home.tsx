@@ -10,24 +10,24 @@ const Home = () => {
     <main className="max-w-[1100px] mx-auto px-4 py-8">
       <HeroSection />
       <div className="mb-0">
-        <h2 className="text-white text-2xl md:text-3xl font-bold text-center mb-8 mt-32">
+        <h2 className="text-white text-[2rem] md:text-[2rem] font-bold text-center my-8">
           Todos os filmes que você já imaginou.
         </h2>
-        <div className="flex justify-center mb-4">
+        <div className="flex justify-center my-1">
           <img
             src={moviesPosters}
             alt="Movie Collage"
-            className="max-w-full rounded-lg shadow-lg"
+            className="w-[50%] rounded-lg"
           />
         </div>
-        <h2 className="text-white text-2xl md:text-3xl font-bold text-center mb-[120px] mt-0">
+        <h2 className="text-white text-[2rem] md:text-[2rem] font-bold text-center mb-[60px] mt-0">
           Em um lugar só.
         </h2>
       </div>
-      <div className="mb-[120px]">
+      <div className="mb-[60px]">
         <ReviewsSection />
       </div>
-      <div className="mb-[120px]">
+      <div className="mb-[60px]">
         <FeaturedSection />
       </div>
     </main>
