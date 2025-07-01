@@ -136,12 +136,12 @@ export const FeaturedSection: React.FC = () => {
           }}
           actions={user && movieDetails ? [
             {
-              label: isFavorite ? 'Unfavorite' : 'Favorite',
+              label: isFavorite ? "Desfavoritar" : "Favoritar",
               onClick: handleToggleFavorite,
               disabled: false,
             },
             {
-              label: 'Write Review',
+              label: "Avaliar",
               onClick: handleReview,
               disabled: false,
             },
