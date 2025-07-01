@@ -281,7 +281,7 @@ const Discovery: FC = () => {
   };
 
   return (
-    <div className="px-5 pb-16 max-w-5xl mx-auto">
+    <div className="px-5 pb-16 max-w-5xl mx-auto mt-4">
       <div className="flex justify-center mb-6">
         <div className="flex bg-slate-800 rounded-lg p-1">
           <button
