@@ -1,9 +1,11 @@
 import React from 'react';
 import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
 import Clapperboard from '../../Assets/Icons/clapperboard.jpg';
 
 export const HeroSection: React.FC = () => {
   const navigate = useNavigate();
+  const { user } = useSelector((state: any) => state.login);
   return (
     <section className="flex flex-col md:flex-row items-center justify-between bg-transparent w-full">
       <div className="flex-1 md:pr-10 md:mb-0 flex flex-col items-start">
@@ -17,7 +19,7 @@ export const HeroSection: React.FC = () => {
         </p>
         <button 
           className="text-[#14181C] text-[1rem] md:text-[1.5rem] bg-white px-[30px] py-[15px] rounded-[10px] hover:bg-gray-200 transition-colors self-start"
-          onClick={() => navigate("/register")}
+          onClick={() => navigate(user ? "/discovery" : "/register")}
         >
           Comece agora 🎬
         </button>
