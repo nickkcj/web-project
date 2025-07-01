@@ -5,6 +5,7 @@ export interface ReviewApiResponse {
     id: number;
     posterUrl: string;
     user: string;
+    userId: string;
     rating: number;
     text: string;
     time: string;
